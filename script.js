@@ -130,6 +130,32 @@ function defenseReduction(def){
 }
 function requiredExp(level){ return Math.round(100 * Math.pow(level, 1.45)); }
 
+// ---------------------------------------------------------------------
+// Storage — prefers the Claude artifact storage API (works when previewed
+// inside the chat); falls back to localStorage automatically when the
+// file is downloaded and opened directly in a normal browser (e.g. on a
+// phone), which is the common case for testing this prototype.
+// Each class gets its own save slot (save_Mage, save_Archer, ...).
+// ---------------------------------------------------------------------
+async function storageSet(key, value){
+  try{
+    if(window.storage && typeof window.storage.set==='function'){
+      await window.storage.set(key, value, false);
+      return;
+    }
+  }catch(e){ /* fall through to localStorage */ }
+  try{ localStorage.setItem(key, value); }catch(e){ console.error('Save failed', e); }
+}
+async function storageGet(key){
+  try{
+    if(window.storage && typeof window.storage.get==='function'){
+      const res = await window.storage.get(key, false);
+      if(res && res.value!==undefined) return res.value;
+    }
+  }catch(e){ /* fall through to localStorage */ }
+  try{ return localStorage.getItem(key); }catch(e){ return null; }
+}
+
 // =======================================================================
 // CLASS SELECT SCREEN
 // =======================================================================
@@ -137,6 +163,7 @@ const cardsWrap = document.getElementById('class-cards');
 Object.values(CharacterData).forEach(c=>{
   const div = document.createElement('div');
   div.className='class-card';
+  div.dataset.class = c.key;
   div.innerHTML = `
     <div class="class-icon" style="background:#${c.color.toString(16).padStart(6,'0')}; color:#${c.color.toString(16).padStart(6,'0')}">${c.icon}</div>
     <h3>${c.key}</h3>
@@ -156,34 +183,37 @@ Object.values(CharacterData).forEach(c=>{
   cardsWrap.appendChild(div);
 });
 
+// mark cards that already have a save so the player can see progress exists
+(async ()=>{
+  for(const c of Object.values(CharacterData)){
+    try{
+      const raw = await storageGet('save_'+c.key);
+      if(raw){
+        const card = document.querySelector(`.class-card[data-class="${c.key}"]`);
+        if(card && !card.querySelector('.save-badge')){
+          const badge = document.createElement('div');
+          badge.className='save-badge';
+          badge.textContent='💾 Ada Progress';
+          card.appendChild(badge);
+        }
+      }
+    }catch(e){ /* ignore */ }
+  }
+})();
+
 let Game = null;
-function startGame(classKey){
+async function startGame(classKey){
   document.getElementById('class-select').style.display='none';
   Game = new GameApp(classKey);
+  try{
+    const raw = await storageGet('save_'+classKey);
+    if(raw){ Game.applySaveData(JSON.parse(raw)); }
+  }catch(e){ console.error('load failed', e); }
   Game.enterLobby();
 }
 document.getElementById('restart-btn').addEventListener('click', ()=> window.location.reload());
 document.getElementById('station-panel-close').addEventListener('click', ()=> { if(Game) Game.closeStationPanel(); });
 document.getElementById('save-btn').addEventListener('click', ()=> { if(Game){ Game.saveGame(); Game.toast('Game disimpan!'); } });
-
-(async ()=>{
-  try{
-    const res = await window.storage.get('save', false);
-    if(res && res.value){ document.getElementById('continue-btn').style.display='inline-block'; }
-  }catch(e){ /* no save yet */ }
-})();
-document.getElementById('continue-btn').addEventListener('click', async ()=>{
-  try{
-    const res = await window.storage.get('save', false);
-    const data = JSON.parse(res.value);
-    document.getElementById('class-select').style.display='none';
-    Game = new GameApp(data.classKey);
-    Game.applySaveData(data);
-    Game.enterLobby();
-  }catch(e){
-    console.error('load failed', e);
-  }
-});
 
 // =======================================================================
 // GAME APP
@@ -476,8 +506,7 @@ class GameApp{
       baseHpMax:p.baseHpMax, baseManaMax:p.baseManaMax, basePatk:p.basePatk, baseMagic:p.baseMagic, basePdef:p.basePdef, baseMdef:p.baseMdef,
       dungeonProgress:this.dungeonProgress, domainProgress:this.domainProgress, quests:this.quests
     };
-    try{ window.storage.set('save', JSON.stringify(data), false); }
-    catch(e){ console.error('Save failed', e); }
+    storageSet('save_'+this.classKey, JSON.stringify(data));
   }
   applySaveData(data){
     const p = this.player;
@@ -935,23 +964,25 @@ class GameApp{
     canvas.addEventListener('touchstart', e=>{
       for(const t of e.changedTouches){
         if(t.clientX > window.innerWidth*0.42 && this.cameraTouchId===null){
+          e.preventDefault();
           this.cameraTouchId = t.identifier;
           this.mouse.down = true;
           this.mouse.lastX = t.clientX; this.mouse.lastY = t.clientY;
           break;
         }
       }
-    });
+    }, {passive:false});
     canvas.addEventListener('touchmove', e=>{
       if(this.cameraTouchId===null) return;
       let touch=null;
       for(const t of e.changedTouches){ if(t.identifier===this.cameraTouchId){ touch=t; break; } }
       if(!touch) return;
+      e.preventDefault();
       const dx=touch.clientX-this.mouse.lastX, dy=touch.clientY-this.mouse.lastY;
       this.mouse.lastX=touch.clientX; this.mouse.lastY=touch.clientY;
       this.camYaw -= dx*0.006;
       this.camPitch = Math.max(0.08, Math.min(1.15, this.camPitch + dy*0.005));
-    });
+    }, {passive:false});
     const endCamTouch = e=>{
       for(const t of e.changedTouches){
         if(t.identifier===this.cameraTouchId){ this.cameraTouchId=null; this.mouse.down=false; break; }
@@ -989,22 +1020,24 @@ class GameApp{
     let jTouchId = null, jCenter={x:0,y:0};
     zone.addEventListener('touchstart', e=>{
       if(jTouchId!==null) return;
+      e.preventDefault();
       const t = e.changedTouches[0];
       jTouchId = t.identifier;
       const r = zone.getBoundingClientRect();
       jCenter = {x:r.left+r.width/2, y:r.top+r.height/2};
-    });
+    }, {passive:false});
     zone.addEventListener('touchmove', e=>{
       if(jTouchId===null) return;
       let touch=null;
       for(const t of e.changedTouches){ if(t.identifier===jTouchId){ touch=t; break; } }
       if(!touch) return;
+      e.preventDefault();
       let dx=touch.clientX-jCenter.x, dy=touch.clientY-jCenter.y;
       const max=40; const len=Math.hypot(dx,dy);
       if(len>max){ dx=dx/len*max; dy=dy/len*max; }
       knob.style.left = (35+dx)+'px'; knob.style.top=(35+dy)+'px';
       this.joystickVec = {x:dx/max, y:dy/max};
-    });
+    }, {passive:false});
     const endJoyTouch = e=>{
       for(const t of e.changedTouches){
         if(t.identifier===jTouchId){

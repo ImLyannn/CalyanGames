@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Project Eclipse — Prototype</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div id="class-select" class="fs-screen">
+  <h1>Project Eclipse</h1>
+  <div class="sub">Pilih Kelas Petualangmu</div>
+  <div id="continue-btn" class="gold-btn">▶ Lanjutkan Petualangan</div>
+  <div id="class-cards"></div>
+  <div id="start-hint">Prototype build — Green Forest, Region 1</div>
+</div>
+
+<canvas id="game-canvas"></canvas>
+<div id="station-labels"></div>
+
+<div id="hud">
+  <div id="crosshair"></div>
+
+  <div id="player-frame" class="hud-panel">
+    <div class="row1">
+      <div id="player-portrait"></div>
+      <div id="player-name-lvl">
+        <div id="player-name"></div>
+        <div id="player-level"></div>
+      </div>
+    </div>
+    <div class="bar-track"><div id="hp-fill" class="bar-fill" style="width:100%"></div><div id="shield-fill" style="width:0%"></div><div class="bar-label" id="hp-label"></div></div>
+    <div class="bar-track" style="margin-top:5px;"><div id="mana-fill" class="bar-fill" style="width:100%"></div><div class="bar-label" id="mana-label"></div></div>
+    <div class="bar-track" id="exp-track"><div id="exp-fill" class="bar-fill" style="width:0%"></div></div>
+  </div>
+  <div id="buff-row"></div>
+
+  <div id="currency" class="hud-panel">
+    <div>🪙 <span id="gold-amt">0</span></div>
+    <div>💎 <span id="gems-amt">0</span></div>
+  </div>
+
+  <div id="stage-banner" class="hud-panel">
+    <div class="st1" id="stage-banner-title"></div>
+    <div class="st2" id="stage-banner-sub"></div>
+  </div>
+
+  <div id="enemy-frame" class="hud-panel">
+    <div id="enemy-name">Goblin</div>
+    <div class="bar-track" id="enemy-hp-track"><div id="enemy-hp-fill" class="bar-fill" style="width:100%"></div></div>
+    <div class="bar-track" id="enemy-poise-track"><div id="enemy-poise-fill" class="bar-fill" style="width:100%"></div></div>
+    <div id="enemy-status-row"></div>
+  </div>
+  <div id="break-banner">BREAK!</div>
+
+  <div id="combo-counter"><div class="n" id="combo-n">0</div><div class="l">COMBO</div></div>
+
+  <div id="skill-tooltip"><b id="tt-name"></b><span id="tt-desc"></span></div>
+  <div id="skill-bar">
+    <div class="skill-slot attack" id="slot-attack"><div class="key">Klik</div><div class="icon">⚔️</div><div class="cd-overlay" style="height:0%"></div><div class="cd-text"></div></div>
+    <div class="skill-slot" id="slot-skill1"><div class="key">1</div><div class="icon">🌀</div><div class="cost"></div><div class="cd-overlay" style="height:0%"></div><div class="cd-text"></div></div>
+    <div class="skill-slot" id="slot-skill2"><div class="key">2</div><div class="icon">🔥</div><div class="cost"></div><div class="cd-overlay" style="height:0%"></div><div class="cd-text"></div></div>
+    <div class="skill-slot" id="slot-skill3"><div class="key">3</div><div class="icon">🛡️</div><div class="cost"></div><div class="cd-overlay" style="height:0%"></div><div class="cd-text"></div></div>
+    <div class="skill-slot ultimate" id="slot-ultimate"><div class="key">F</div><div class="icon">💥</div><div class="cost"></div><div class="cd-overlay" style="height:0%"></div><div class="cd-text"></div></div>
+    <div class="skill-slot dodge" id="slot-dodge"><div class="key">Space</div><div class="icon">💨</div><div class="cd-overlay" style="height:0%"></div><div class="cd-text"></div></div>
+  </div>
+
+  <div id="joystick-zone"><div id="joystick-base"></div><div id="joystick-knob"></div></div>
+  <div id="mobile-buttons">
+    <div class="mbtn" id="mbtn-skill1">1</div>
+    <div class="mbtn" id="mbtn-skill2">2</div>
+    <div class="mbtn" id="mbtn-skill3">3</div>
+    <div class="mbtn" id="mbtn-dodge">Dodge</div>
+    <div class="mbtn" id="mbtn-ultimate">ULT</div>
+    <div class="mbtn" id="mbtn-attack">⚔️</div>
+  </div>
+
+  <div id="toast-wrap"></div>
+  <div id="controls-hint">WASD gerak · Drag mouse putar kamera · Klik = Basic Attack · 1/2/3 = Skill · F = Ultimate · Space = Dodge</div>
+  <div id="lobby-hint">WASD gerak · Drag mouse putar kamera · Dekati NPC/station lalu tekan E / klik buat interaksi</div>
+  <div id="interact-prompt"></div>
+  <div id="topbar-btns">
+    <div id="save-btn">💾 Simpan</div>
+    <div id="hub-btn">🏠 Lobby</div>
+    <div id="restart-btn">↺ Ganti Karakter</div>
+  </div>
+</div>
+
+<div id="stage-overlay">
+  <div class="panel">
+    <div class="rating" id="ov-rating">S</div>
+    <div class="stitle" id="ov-title">Stage Selesai</div>
+    <div class="ssub" id="ov-sub"></div>
+    <div class="btnrow" id="ov-buttons"></div>
+  </div>
+</div>
+
+<div id="station-panel">
+  <div class="panel">
+    <div class="phead">
+      <div class="ptitle" id="station-panel-title"></div>
+      <div class="pclose" id="station-panel-close">Tutup ✕</div>
+    </div>
+    <div id="station-panel-body"></div>
+  </div>
+</div>
+
+<div id="dmg-layer"></div>
+<div id="level-up-fx">LEVEL UP!</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="script.js"></script>
+</body>
+</html>

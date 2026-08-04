@@ -16,6 +16,7 @@
     --accent-purple:#8a5cff;
     --elite-purple:#b98aff;
     --border-glow:0 0 0 1px rgba(232,182,76,0.25), 0 0 18px rgba(138,92,255,0.15);
+    --r-common:#b9a8d9; --r-uncommon:#7fe08a; --r-rare:#4fb8e0; --r-epic:#b98aff; --r-legendary:#e8b64c;
   }
   *{box-sizing:border-box; margin:0; padding:0;}
   html,body{width:100%; height:100%; overflow:hidden; background:var(--bg-deep); font-family:'Inter',sans-serif; color:var(--text-light); -webkit-user-select:none; user-select:none;}
@@ -100,6 +101,8 @@
   #currency{position:absolute; top:16px; right:16px; padding:8px 16px; display:flex; gap:16px; font-size:12px;}
   #currency div{display:flex; align-items:center; gap:6px; color:var(--gold-soft); font-weight:600;}
 
+  #inventory-btn{position:absolute; top:66px; right:16px; padding:8px 14px; font-size:16px; text-align:center; display:none; pointer-events:all; cursor:pointer;}
+
   #stage-banner{position:absolute; top:16px; left:50%; transform:translateX(-50%); padding:7px 18px; text-align:center; display:none;}
   #stage-banner .st1{font-family:'Cinzel',serif; font-size:13px; color:var(--gold-soft); letter-spacing:0.03em;}
   #stage-banner .st2{font-size:10.5px; color:var(--text-dim); margin-top:1px;}
@@ -162,6 +165,7 @@
   body.lobby-mode #mobile-buttons, body.lobby-mode #controls-hint, body.lobby-mode #stage-banner,
   body.lobby-mode #skill-tooltip { display:none !important; }
   body.lobby-mode #lobby-hint{ display:block; }
+  body.lobby-mode #inventory-btn{ display:block; }
 
   #mobile-buttons{position:absolute; bottom:20px; right:16px; display:none; grid-template-columns:repeat(3,50px); grid-template-rows:repeat(2,50px); gap:8px;}
   .mbtn{border-radius:50%; background:var(--bg-panel); box-shadow:var(--border-glow); display:flex; align-items:center; justify-content:center; font-size:10px; color:var(--gold-soft); pointer-events:all; text-align:center; line-height:1.1;}
@@ -198,7 +202,7 @@
   .panel-h{margin:14px 0 8px; font-family:'Cinzel',serif; font-size:13px; color:var(--gold-soft);}
   .artifact-slots{display:grid; grid-template-columns:repeat(5,1fr); gap:8px; margin-bottom:16px;}
   .art-slot{aspect-ratio:1; border-radius:10px; background:rgba(0,0,0,0.28); box-shadow:var(--border-glow); display:flex; flex-direction:column; align-items:center; justify-content:center; font-size:9px; color:var(--text-dim); text-align:center; padding:4px; cursor:pointer; line-height:1.3;}
-  .art-slot.filled{color:var(--gold-soft); border:1px solid rgba(232,182,76,0.4);}
+  .art-slot.filled{border:1px solid rgba(232,182,76,0.4);}
   .art-pool-item{display:flex; justify-content:space-between; align-items:center; padding:8px 10px; border-radius:8px; background:rgba(0,0,0,0.22); margin-bottom:6px; font-size:11.5px; cursor:pointer;}
   .art-pool-item:hover{background:rgba(232,182,76,0.14);}
   .mini-btn{padding:6px 12px; border-radius:7px; background:var(--gold); color:#2a1c05; font-size:10.5px; font-weight:700; cursor:pointer; display:inline-block;}

@@ -1,15 +1,8 @@
 
 /* =====================================================================
    PROJECT ECLIPSE — PROTOTYPE
-   Data-driven layout mirrors the GDD's Unity naming convention
-   (PlayerController / PlayerStat / PlayerCombat / EnemyAI / DungeonManager
-   / ArtifactSystem / SkillUpgradeSystem / QuestManager / SaveSystem) so it
-   can be ported into MonoBehaviours + ScriptableObjects later.
    ===================================================================== */
 
-// ---------------------------------------------------------------------
-// CharacterData  (GDD Ch.4 — base stats, growth, full skill kits + FX)
-// ---------------------------------------------------------------------
 const CharacterData = {
   Mage: {
     key:'Mage', icon:'🧙', role:'Burst / Crowd Control', color:0x8a5cff,
@@ -75,14 +68,42 @@ const DungeonData = {
     ]
   }
 };
+
+// Farming domains now have 3 difficulty tiers: harder mobs + bigger loot multiplier per tier.
 const DomainData = {
-  artifactDomain:{ name:'Artifact Domain', desc:'Peluang tinggi drop Artifact untuk di-equip di Artifact Master.', mobs:[{type:'Goblin', count:3}] },
-  materialDomain:{ name:'Material Domain', desc:'Drop Skill Book & Essence untuk upgrade Skill di Skill Upgrade Station.', mobs:[{type:'Goblin', count:4}] },
-  rewardDomain:{ name:'Domain Ganjaran', desc:'Fokus farming Gold, EXP, dan Gems.', mobs:[{type:'Goblin', count:3},{type:'GoblinElite', count:1}] }
+  artifactDomain:{ name:'Artifact Domain', desc:'Drop Artifact. Makin tinggi level, makin besar peluang rarity tinggi.',
+    tiers:[
+      {level:1, mobs:[{type:'Goblin', count:3}], artifactChance:0.5},
+      {level:2, mobs:[{type:'Goblin', count:3},{type:'GoblinElite', count:1}], artifactChance:0.62},
+      {level:3, mobs:[{type:'Goblin', count:2},{type:'GoblinElite', count:2}], artifactChance:0.78}
+    ]
+  },
+  materialDomain:{ name:'Material Domain', desc:'Drop Skill Book & Essence. Makin tinggi level, makin banyak dropnya.',
+    tiers:[
+      {level:1, mobs:[{type:'Goblin', count:4}], lootMult:1},
+      {level:2, mobs:[{type:'Goblin', count:3},{type:'GoblinElite', count:1}], lootMult:1.6},
+      {level:3, mobs:[{type:'Goblin', count:2},{type:'GoblinElite', count:2}], lootMult:2.3}
+    ]
+  },
+  rewardDomain:{ name:'Domain Ganjaran', desc:'Fokus Gold/EXP/Gems. Makin tinggi level, makin besar rewardnya.',
+    tiers:[
+      {level:1, mobs:[{type:'Goblin', count:3},{type:'GoblinElite', count:1}], lootMult:1},
+      {level:2, mobs:[{type:'Goblin', count:2},{type:'GoblinElite', count:2}], lootMult:1.7},
+      {level:3, mobs:[{type:'GoblinElite', count:3}], lootMult:2.4}
+    ]
+  }
 };
+
 const ARTIFACT_SLOTS = ['Crown','Bracelet','Ring','Necklace','Core'];
 const ARTIFACT_STATS = [{type:'hp',label:'HP'},{type:'patk',label:'Attack'},{type:'magic',label:'Magic Power'},{type:'defense',label:'Defense'}];
-const RARITY_TABLE = [{name:'Rare',weight:65,pct:0.05},{name:'Epic',weight:22,pct:0.08},{name:'Legendary',weight:9,pct:0.12},{name:'Mythic',weight:3,pct:0.16}];
+// 5-tier rarity, odds shift toward Legendary as the domain's difficulty level rises.
+const RARITY_TABLE_BY_TIER = {
+  1:[{name:'Common',weight:40,pct:0.03},{name:'Uncommon',weight:30,pct:0.05},{name:'Rare',weight:20,pct:0.08},{name:'Epic',weight:8,pct:0.12},{name:'Legendary',weight:2,pct:0.18}],
+  2:[{name:'Common',weight:20,pct:0.03},{name:'Uncommon',weight:25,pct:0.05},{name:'Rare',weight:30,pct:0.08},{name:'Epic',weight:18,pct:0.12},{name:'Legendary',weight:7,pct:0.18}],
+  3:[{name:'Common',weight:5,pct:0.03},{name:'Uncommon',weight:15,pct:0.05},{name:'Rare',weight:30,pct:0.08},{name:'Epic',weight:30,pct:0.12},{name:'Legendary',weight:20,pct:0.18}]
+};
+const RARITY_COLOR = {Common:'var(--r-common)', Uncommon:'var(--r-uncommon)', Rare:'var(--r-rare)', Epic:'var(--r-epic)', Legendary:'var(--r-legendary)'};
+
 const SKILL_UPGRADE_COST = {
   2:{gold:500, book:1, ess:2}, 3:{gold:900, book:2, ess:4}, 4:{gold:1500, book:3, ess:6},
   5:{gold:2500, book:4, ess:8}, 6:{gold:4000, book:5, ess:10}, 7:{gold:6500, book:6, ess:12},
@@ -96,8 +117,9 @@ function pickWeighted(table){
   for(const t of table){ if(r<t.weight) return t; r-=t.weight; }
   return table[0];
 }
-function generateArtifact(){
-  const rarity = pickWeighted(RARITY_TABLE);
+function generateArtifact(tier){
+  const table = RARITY_TABLE_BY_TIER[tier] || RARITY_TABLE_BY_TIER[1];
+  const rarity = pickWeighted(table);
   const slot = ARTIFACT_SLOTS[Math.floor(Math.random()*ARTIFACT_SLOTS.length)];
   const stat = ARTIFACT_STATS[Math.floor(Math.random()*ARTIFACT_STATS.length)];
   return { id:'art_'+Date.now()+'_'+Math.floor(Math.random()*9999), name:`${rarity.name} ${slot}`, rarity:rarity.name, slot, statType:stat.type, statLabel:stat.label, pct:rarity.pct };
@@ -144,7 +166,6 @@ document.getElementById('restart-btn').addEventListener('click', ()=> window.loc
 document.getElementById('station-panel-close').addEventListener('click', ()=> { if(Game) Game.closeStationPanel(); });
 document.getElementById('save-btn').addEventListener('click', ()=> { if(Game){ Game.saveGame(); Game.toast('Game disimpan!'); } });
 
-// check for existing save to offer "Continue"
 (async ()=>{
   try{
     const res = await window.storage.get('save', false);
@@ -161,7 +182,6 @@ document.getElementById('continue-btn').addEventListener('click', async ()=>{
     Game.enterLobby();
   }catch(e){
     console.error('load failed', e);
-    if(Game) Game.toast('Gagal memuat save.');
   }
 });
 
@@ -175,6 +195,7 @@ class GameApp{
     this.clock = new THREE.Clock();
     this.keys = {};
     this.mouse = {down:false, lastX:0, lastY:0};
+    this.cameraTouchId = null;
     this.camYaw = 0; this.camPitch = 0.35; this.camDist = 6.5;
     this.joystickVec = {x:0,y:0};
     this.toastWrap = document.getElementById('toast-wrap');
@@ -186,6 +207,7 @@ class GameApp{
     this.panelOpen = false;
     this.currentRun = null;
     this.dungeonProgress = { greenForest:{ unlockedStage:1, cleared:false } };
+    this.domainProgress = { artifactDomain:{unlockedTier:1}, materialDomain:{unlockedTier:1}, rewardDomain:{unlockedTier:1} };
     this.quests = [
       {id:'q1', desc:'Kalahkan 5 Goblin', type:'killGoblin', target:5, progress:0, reward:{gold:200,exp:100}, claimed:false},
       {id:'q2', desc:'Bersihkan Stage 3 Green Forest', type:'clearStage3', target:1, progress:0, reward:{gems:20}, claimed:false},
@@ -202,6 +224,7 @@ class GameApp{
     document.getElementById('hub-btn').style.display='block';
     document.getElementById('restart-btn').style.display='block';
     document.getElementById('save-btn').style.display='block';
+    document.getElementById('inventory-btn').addEventListener('click', ()=>{ if(this.inLobby && !this.panelOpen) this.openStationPanel('inventory'); });
   }
 
   // ---------------- SCENE / WORLD ----------------
@@ -226,7 +249,6 @@ class GameApp{
     this.fillLight.position.set(-6,4,-4);
     this.scene.add(this.fillLight);
 
-    // two separate environment groups so Lobby and Dungeon feel like different places
     this.lobbyGroup = new THREE.Group();
     this.dungeonGroup = new THREE.Group();
     this.scene.add(this.lobbyGroup, this.dungeonGroup);
@@ -247,7 +269,7 @@ class GameApp{
   setEnvironmentMode(mode){
     if(mode==='lobby'){
       this.scene.background = new THREE.Color(0x8fd6f7);
-      this.scene.fog = new THREE.FogExp2(0xa9e2f9, 0.016);
+      this.scene.fog = new THREE.FogExp2(0xa9e2f9, 0.012);
       this.hemiLight.color.set(0xdff3ff); this.hemiLight.groundColor.set(0x3a6b3a); this.hemiLight.intensity=1.0;
       this.sunLight.color.set(0xfff0c8); this.sunLight.intensity=1.25;
       this.fillLight.color.set(0x8a5cff); this.fillLight.intensity=0.45;
@@ -262,38 +284,56 @@ class GameApp{
     }
   }
 
-  // ----- Lobby: colorful settlement -----
+  // ----- Lobby: bigger, more colorful settlement -----
   buildLobbyEnvironment(){
-    const ground = new THREE.Mesh(new THREE.CircleGeometry(60,48), new THREE.MeshStandardMaterial({color:0x4a9152, roughness:0.92}));
+    const ground = new THREE.Mesh(new THREE.CircleGeometry(85,48), new THREE.MeshStandardMaterial({color:0x4a9152, roughness:0.92}));
     ground.rotation.x=-Math.PI/2;
     this.lobbyGroup.add(ground);
 
-    // stone town-square plaza under the stations
-    const plaza = new THREE.Mesh(new THREE.CircleGeometry(11,40), new THREE.MeshStandardMaterial({color:0xc9b89a, roughness:0.85}));
-    plaza.rotation.x=-Math.PI/2; plaza.position.y=0.015; plaza.position.z=-2;
+    const plaza = new THREE.Mesh(new THREE.CircleGeometry(9,40), new THREE.MeshStandardMaterial({color:0xc9b89a, roughness:0.85}));
+    plaza.rotation.x=-Math.PI/2; plaza.position.y=0.015; plaza.position.z=6;
     this.lobbyGroup.add(plaza);
 
-    const ringGeo = new THREE.RingGeometry(9.6,10,48);
-    const ring = new THREE.Mesh(ringGeo, new THREE.MeshBasicMaterial({color:0x9fdc72, side:THREE.DoubleSide, transparent:true, opacity:0.35}));
-    ring.rotation.x=-Math.PI/2; ring.position.y=0.02;
+    const ring = new THREE.Mesh(new THREE.RingGeometry(9.6,10,48), new THREE.MeshBasicMaterial({color:0x9fdc72, side:THREE.DoubleSide, transparent:true, opacity:0.3}));
+    ring.rotation.x=-Math.PI/2; ring.position.y=0.02; ring.position.z=6;
     this.lobbyGroup.add(ring);
 
-    for(let i=0;i<22;i++){
+    for(let i=0;i<32;i++){
       const angle = Math.random()*Math.PI*2;
-      const rad = 18 + Math.random()*30;
+      const rad = 26 + Math.random()*42;
       const x = Math.cos(angle)*rad, z = Math.sin(angle)*rad;
       this.lobbyGroup.add(Math.random()<0.75 ? this.makeTree(x,z) : this.makeRock(x,z));
     }
 
-    // houses — variety of roof colors for a lived-in settlement vibe
     const houseSpots = [
-      {x:-10,z:9,roof:0xd35454}, {x:10,z:9,roof:0x5a8fd0}, {x:-12,z:-4,roof:0x5ab06a},
-      {x:12,z:-4,roof:0x9a6fd0}, {x:0,z:13,roof:0xe0a545}, {x:-7,z:-11,roof:0xd88ac0}
+      {x:-15,z:14,roof:0xd35454}, {x:15,z:14,roof:0x5a8fd0}, {x:-20,z:-6,roof:0x5ab06a},
+      {x:20,z:-6,roof:0x9a6fd0}, {x:-6,z:20,roof:0xe0a545}, {x:8,z:22,roof:0xd88ac0},
+      {x:-22,z:20,roof:0x5ab06a}, {x:22,z:22,roof:0xd35454}, {x:-24,z:2,roof:0xe0a545},
+      {x:24,z:-18,roof:0x5a8fd0}
     ];
     houseSpots.forEach(h=> this.lobbyGroup.add(this.makeHouse(h.x,h.z,h.roof)));
 
+    // idle villagers — just decoration, add life to the village without being interactable
+    const villagerSpots = [[-10,10],[9,9],[-14,-2],[13,-3],[0,16],[-3,-8],[6,-10]];
+    const villagerColors = [0x8a6a4a,0x5a7a9a,0x9a5a6a,0x6a9a6a,0x8a5a9a];
+    villagerSpots.forEach(([x,z],i)=>{
+      this.lobbyGroup.add(this.makeIdleVillager(x,z,villagerColors[i%villagerColors.length]));
+    });
+
     this.stationGroup = new THREE.Group();
     this.lobbyGroup.add(this.stationGroup);
+  }
+
+  makeIdleVillager(x,z,color){
+    const g = new THREE.Group();
+    const body = new THREE.Mesh(new THREE.CylinderGeometry(0.28,0.35,1.0,8), new THREE.MeshStandardMaterial({color, roughness:0.75}));
+    body.position.y=0.68;
+    const head = new THREE.Mesh(new THREE.SphereGeometry(0.24,12,12), new THREE.MeshStandardMaterial({color:0xf0d5b0, roughness:0.75}));
+    head.position.y=1.35;
+    g.add(body, head);
+    g.position.set(x,0,z);
+    g.rotation.y = Math.random()*Math.PI*2;
+    return g;
   }
 
   makeHouse(x,z,roofColor){
@@ -312,14 +352,12 @@ class GameApp{
     return g;
   }
 
-  // ----- Dungeon: dark, moody, distinct from the lobby -----
   buildDungeonEnvironment(){
     const ground = new THREE.Mesh(new THREE.CircleGeometry(60,48), new THREE.MeshStandardMaterial({color:0x2b2436, roughness:0.95}));
     ground.rotation.x=-Math.PI/2;
     this.dungeonGroup.add(ground);
 
-    const ringGeo = new THREE.RingGeometry(9.6,10,48);
-    const ring = new THREE.Mesh(ringGeo, new THREE.MeshBasicMaterial({color:0x6a4fae, side:THREE.DoubleSide, transparent:true, opacity:0.25}));
+    const ring = new THREE.Mesh(new THREE.RingGeometry(9.6,10,48), new THREE.MeshBasicMaterial({color:0x6a4fae, side:THREE.DoubleSide, transparent:true, opacity:0.25}));
     ring.rotation.x=-Math.PI/2; ring.position.y=0.02;
     this.dungeonGroup.add(ring);
 
@@ -329,8 +367,6 @@ class GameApp{
       const x = Math.cos(angle)*rad, z = Math.sin(angle)*rad;
       this.dungeonGroup.add(Math.random()<0.6 ? this.makeDeadTree(x,z) : this.makeRock(x,z,true));
     }
-
-    // eerie glowing accents scattered around the arena
     for(let i=0;i<10;i++){
       const angle = Math.random()*Math.PI*2;
       const rad = 5 + Math.random()*16;
@@ -387,7 +423,7 @@ class GameApp{
     const weapon = new THREE.Mesh(new THREE.BoxGeometry(0.1,0.9,0.1), new THREE.MeshStandardMaterial({color:0xe8b64c, metalness:0.6, roughness:0.3}));
     weapon.position.set(0.45,1.0,0);
     g.add(body, head, weapon);
-    g.position.set(0,0,6);
+    g.position.set(0,0,10);
     this.scene.add(g);
 
     this.player = {
@@ -438,7 +474,7 @@ class GameApp{
       classKey:this.classKey, level:p.level, exp:p.exp, gold:p.gold, gems:p.gems,
       materials:p.materials, artifacts:p.artifacts, equippedArtifacts:p.equippedArtifacts, skillLevels:p.skillLevels,
       baseHpMax:p.baseHpMax, baseManaMax:p.baseManaMax, basePatk:p.basePatk, baseMagic:p.baseMagic, basePdef:p.basePdef, baseMdef:p.baseMdef,
-      dungeonProgress:this.dungeonProgress, quests:this.quests
+      dungeonProgress:this.dungeonProgress, domainProgress:this.domainProgress, quests:this.quests
     };
     try{ window.storage.set('save', JSON.stringify(data), false); }
     catch(e){ console.error('Save failed', e); }
@@ -454,6 +490,7 @@ class GameApp{
     p.basePatk = data.basePatk||p.basePatk; p.baseMagic = data.baseMagic||p.baseMagic;
     p.basePdef = data.basePdef||p.basePdef; p.baseMdef = data.baseMdef||p.baseMdef;
     this.dungeonProgress = data.dungeonProgress||this.dungeonProgress;
+    this.domainProgress = data.domainProgress||this.domainProgress;
     this.quests = data.quests||this.quests;
     this.recalcStats();
     p.hp = p.hpMax; p.mana = p.manaMax;
@@ -461,14 +498,13 @@ class GameApp{
     this.toast('Save dimuat!');
   }
 
-  // ---------------- LOBBY STATIONS (NPC-styled) ----------------
+  // ---------------- LOBBY STATIONS (NPC-styled, spread across the village) ----------------
   initStations(){
     this.stations = [
-      {key:'inventory', name:'Inventory', icon:'🎒', pos:new THREE.Vector3(-4,0,4), color:0x8a5cff},
-      {key:'artifact', name:'Artifact Master', icon:'💎', pos:new THREE.Vector3(4,0,4), color:0xb98aff},
-      {key:'skill', name:'Skill Upgrade', icon:'📖', pos:new THREE.Vector3(-4,0,-2), color:0x4fb8e0},
-      {key:'quest', name:'Quest NPC', icon:'📜', pos:new THREE.Vector3(4,0,-2), color:0xe8b64c},
-      {key:'domain', name:'Domain Portal', icon:'🌀', pos:new THREE.Vector3(0,0,-8), color:0xff8686}
+      {key:'artifact', name:'Artifact Master', icon:'💎', pos:new THREE.Vector3(-14,0,6), color:0xb98aff},
+      {key:'skill', name:'Skill Upgrade', icon:'📖', pos:new THREE.Vector3(14,0,2), color:0x4fb8e0},
+      {key:'quest', name:'Quest NPC', icon:'📜', pos:new THREE.Vector3(-10,0,-14), color:0xe8b64c},
+      {key:'domain', name:'Domain Portal', icon:'🌀', pos:new THREE.Vector3(12,0,-16), color:0xff8686}
     ];
     this.stationLabelEls = [];
     const labelContainer = document.getElementById('station-labels');
@@ -485,7 +521,7 @@ class GameApp{
       glow.position.set(0,1.6,0);
       npc.add(glow);
       npc.position.copy(s.pos);
-      npc.lookAt(0,0,0);
+      npc.lookAt(0,0,6);
       this.stationGroup.add(npc);
 
       const label = document.createElement('div');
@@ -501,14 +537,14 @@ class GameApp{
   nearestStationKey(){
     let best=null, bd=Infinity;
     this.stations.forEach(s=>{ const d=this.player.mesh.position.distanceTo(s.pos); if(d<bd){bd=d; best=s;} });
-    return (best && bd<=2.6) ? best.key : null;
+    return (best && bd<=2.8) ? best.key : null;
   }
 
   tryInteractStation(key){
     const station = this.stations.find(s=>s.key===key);
     if(!station) return;
     const dist = this.player.mesh.position.distanceTo(station.pos);
-    if(dist>2.6){ this.toast('Terlalu jauh, dekati dulu'); return; }
+    if(dist>2.8){ this.toast('Terlalu jauh, dekati dulu'); return; }
     this.openStationPanel(key);
   }
 
@@ -550,7 +586,7 @@ class GameApp{
     document.getElementById('station-panel').style.display='none';
     document.getElementById('hud').style.display='block';
     document.body.classList.add('lobby-mode');
-    this.player.mesh.position.set(0,0,6);
+    this.player.mesh.position.set(0,0,10);
     this.camYaw = 0; this.camPitch=0.32; this.camDist=8;
     this.saveGame();
     if(!this.looping) this.start();
@@ -579,7 +615,7 @@ class GameApp{
       ? Object.entries(p.materials).map(([n,q])=>`<div class="panel-row"><span class="prl">${n}</span><span class="prr">${q}</span></div>`).join('')
       : `<div class="panel-row"><span class="prl">Belum ada material. Coba Material Domain!</span></div>`;
     const artRows = p.artifacts.length
-      ? p.artifacts.map(a=>`<div class="panel-row"><span class="prl">${a.name}</span><span class="prr">+${Math.round(a.pct*100)}% ${a.statLabel}</span></div>`).join('')
+      ? p.artifacts.map(a=>`<div class="panel-row"><span class="prl" style="color:${RARITY_COLOR[a.rarity]}">${a.name}</span><span class="prr">+${Math.round(a.pct*100)}% ${a.statLabel}</span></div>`).join('')
       : `<div class="panel-row"><span class="prl">Belum ada artifact belum di-equip. Coba Artifact Domain!</span></div>`;
     return `
       <div class="panel-row"><span class="prl">🪙 Gold</span><span class="prr">${p.gold}</span></div>
@@ -593,10 +629,11 @@ class GameApp{
     const p = this.player;
     const slotsHtml = ARTIFACT_SLOTS.map(slot=>{
       const a = p.equippedArtifacts[slot];
-      return `<div class="art-slot ${a?'filled':''}" data-slot="${slot}">${a? a.rarity+'<br>'+slot : slot}</div>`;
+      const style = a ? `style="color:${RARITY_COLOR[a.rarity]}"` : '';
+      return `<div class="art-slot ${a?'filled':''}" ${style} data-slot="${slot}">${a? a.rarity+'<br>'+slot : slot}</div>`;
     }).join('');
     const poolHtml = p.artifacts.length ? p.artifacts.map(a=>`
-      <div class="art-pool-item" data-id="${a.id}"><span>${a.name} — +${Math.round(a.pct*100)}% ${a.statLabel}</span><span class="mini-btn">Equip</span></div>
+      <div class="art-pool-item" data-id="${a.id}"><span style="color:${RARITY_COLOR[a.rarity]}">${a.name}</span><span class="mini-btn">Equip</span></div>
     `).join('') : `<div class="panel-row"><span class="prl">Belum ada artifact. Coba Artifact Domain!</span></div>`;
     return `<div class="artifact-slots">${slotsHtml}</div><div class="panel-h">Koleksi Artifact (klik utk equip, klik slot terisi utk lepas)</div>${poolHtml}`;
   }
@@ -722,23 +759,34 @@ class GameApp{
         <div class="stage-status">${status}</div>
       </div>`;
     });
-    const farmCards = Object.entries(DomainData).map(([key,dd])=>`
-      <div class="domain-card">
-        <div class="dn">${dd.name}</div>
-        <div class="dd">${dd.desc}</div>
-        <div class="mini-btn" data-farm="${key}">Mulai</div>
-      </div>`).join('');
+
+    const farmCards = Object.entries(DomainData).map(([key,dd])=>{
+      const prog2 = this.domainProgress[key];
+      let tierRows = '';
+      dd.tiers.forEach(t=>{
+        const locked = t.level>prog2.unlockedTier;
+        const mobsLabel = t.mobs.map(m=>`${m.count}x ${EnemyData[m.type].name}`).join(' · ');
+        const status = locked ? '🔒' : (t.level<prog2.unlockedTier ? '✅' : '▶️');
+        tierRows += `<div class="stage-row ${locked?'locked':''}" data-farm="${key}" data-tier="${t.level}">
+          <div class="stage-num">${t.level}</div>
+          <div class="stage-info"><div class="stage-title">Level ${t.level}</div><div class="stage-mobs">${mobsLabel}</div></div>
+          <div class="stage-status">${status}</div>
+        </div>`;
+      });
+      return `<div class="domain-card"><div class="dn">${dd.name}</div><div class="dd">${dd.desc}</div>${tierRows}</div>`;
+    }).join('');
+
     return `
       <div class="domain-card"><div class="dn">${d.name} (${d.region})</div><div class="dd">Rekomendasi ${d.levelRange}</div>${stageRows}</div>
       ${farmCards}
     `;
   }
   wireDomainPanel(){
-    document.querySelectorAll('#station-panel-body .stage-row:not(.locked)').forEach(el=>{
+    document.querySelectorAll('#station-panel-body .stage-row:not(.locked)[data-story]').forEach(el=>{
       el.addEventListener('click', ()=> this.enterStage(parseInt(el.dataset.story)));
     });
-    document.querySelectorAll('#station-panel-body [data-farm]').forEach(el=>{
-      el.addEventListener('click', ()=> this.runFarmDomain(el.dataset.farm));
+    document.querySelectorAll('#station-panel-body .stage-row:not(.locked)[data-farm]').forEach(el=>{
+      el.addEventListener('click', ()=> this.runFarmDomain(el.dataset.farm, parseInt(el.dataset.tier)));
     });
   }
 
@@ -748,7 +796,8 @@ class GameApp{
     this.enemies = [];
   }
 
-  spawnEnemy(typeKey, pos){
+  spawnEnemy(typeKey, pos, statMult){
+    statMult = statMult||1;
     const d = EnemyData[typeKey];
     const g = new THREE.Group();
     const bodyColor = d.isElite ? 0x6b4fae : d.color;
@@ -766,9 +815,10 @@ class GameApp{
     g.position.copy(pos);
     this.scene.add(g);
 
+    const hp = Math.round(d.hp*statMult), patk = Math.round(d.patk*statMult), pdef = Math.round(d.pdef*statMult);
     const inst = {
       mesh:g, data:d, typeKey,
-      hp:d.hp, hpMax:d.hp, patk:d.patk, pdef:d.pdef, moveSpeed:d.moveSpeed,
+      hp, hpMax:hp, patk, pdef, moveSpeed:d.moveSpeed,
       poise:d.poiseMax, poiseMax:d.poiseMax,
       state:'idle', attackTimer:0, breakTimer:0,
       hitCooldown:0, stunTimer:0, slowTimer:0, slowValue:0,
@@ -796,14 +846,14 @@ class GameApp{
     this.stageDamageTaken = 0;
   }
 
-  spawnWave(mobsDef, center){
+  spawnWave(mobsDef, center, statMult){
     let idx=0;
     const total = mobsDef.reduce((a,m)=>a+m.count,0);
     mobsDef.forEach(m=>{
       for(let i=0;i<m.count;i++){
         const ang = (idx/total)*Math.PI*2;
         const pos = new THREE.Vector3(center.x+Math.cos(ang)*4.5, 0, center.z+Math.sin(ang)*4.5);
-        this.spawnEnemy(m.type, pos);
+        this.spawnEnemy(m.type, pos, statMult);
         idx++;
       }
     });
@@ -838,14 +888,17 @@ class GameApp{
     document.getElementById('stage-banner-sub').textContent = isBoss ? 'Kalahkan Goblin King!' : `Musuh tersisa: ${this.enemies.length}`;
   }
 
-  runFarmDomain(key){
+  runFarmDomain(key, tier){
+    tier = tier||1;
     this.beginRunCommon();
-    this.currentRun = {kind:'farm', dungeonKey:key};
-    const d = DomainData[key];
+    this.currentRun = {kind:'farm', dungeonKey:key, tier};
+    const dd = DomainData[key];
+    const tdef = dd.tiers.find(t=>t.level===tier) || dd.tiers[0];
+    const statMult = 1 + (tier-1)*0.3;
     const center = new THREE.Vector3(0,0,-6);
-    this.spawnWave(d.mobs, center);
+    this.spawnWave(tdef.mobs, center, statMult);
     document.getElementById('stage-banner').style.display='block';
-    document.getElementById('stage-banner-title').textContent = d.name;
+    document.getElementById('stage-banner-title').textContent = `${dd.name} — Level ${tier}`;
     document.getElementById('stage-banner-sub').textContent = `Musuh tersisa: ${this.enemies.length}`;
   }
 
@@ -877,19 +930,35 @@ class GameApp{
       this.camDist = Math.max(3.5, Math.min(11, this.camDist + e.deltaY*0.003));
     });
 
+    // Touch camera-drag tracked by its own touch identifier so it never
+    // conflicts with the joystick's touch (fixes "can't move + look at once").
     canvas.addEventListener('touchstart', e=>{
-      const t = e.touches[0];
-      if(t.clientX > window.innerWidth*0.42){ this.mouse.down=true; this.mouse.lastX=t.clientX; this.mouse.lastY=t.clientY; }
+      for(const t of e.changedTouches){
+        if(t.clientX > window.innerWidth*0.42 && this.cameraTouchId===null){
+          this.cameraTouchId = t.identifier;
+          this.mouse.down = true;
+          this.mouse.lastX = t.clientX; this.mouse.lastY = t.clientY;
+          break;
+        }
+      }
     });
     canvas.addEventListener('touchmove', e=>{
-      if(!this.mouse.down) return;
-      const t = e.touches[0];
-      const dx=t.clientX-this.mouse.lastX, dy=t.clientY-this.mouse.lastY;
-      this.mouse.lastX=t.clientX; this.mouse.lastY=t.clientY;
+      if(this.cameraTouchId===null) return;
+      let touch=null;
+      for(const t of e.changedTouches){ if(t.identifier===this.cameraTouchId){ touch=t; break; } }
+      if(!touch) return;
+      const dx=touch.clientX-this.mouse.lastX, dy=touch.clientY-this.mouse.lastY;
+      this.mouse.lastX=touch.clientX; this.mouse.lastY=touch.clientY;
       this.camYaw -= dx*0.006;
       this.camPitch = Math.max(0.08, Math.min(1.15, this.camPitch + dy*0.005));
     });
-    canvas.addEventListener('touchend', ()=> this.mouse.down=false);
+    const endCamTouch = e=>{
+      for(const t of e.changedTouches){
+        if(t.identifier===this.cameraTouchId){ this.cameraTouchId=null; this.mouse.down=false; break; }
+      }
+    };
+    canvas.addEventListener('touchend', endCamTouch);
+    canvas.addEventListener('touchcancel', endCamTouch);
 
     document.getElementById('slot-attack').addEventListener('click', ()=> { if(this.stageActive) this.tryAttack(); });
     document.getElementById('slot-skill1').addEventListener('click', ()=> { if(this.stageActive) this.trySkill('skill1'); });
@@ -914,27 +983,39 @@ class GameApp{
       if(this.inLobby && !this.panelOpen && this._nearStationKey) this.openStationPanel(this._nearStationKey);
     });
 
+    // Joystick tracked by its own dedicated touch identifier too.
     const zone = document.getElementById('joystick-zone');
     const knob = document.getElementById('joystick-knob');
-    let jActive=false, jCenter={x:0,y:0};
+    let jTouchId = null, jCenter={x:0,y:0};
     zone.addEventListener('touchstart', e=>{
-      jActive=true;
+      if(jTouchId!==null) return;
+      const t = e.changedTouches[0];
+      jTouchId = t.identifier;
       const r = zone.getBoundingClientRect();
       jCenter = {x:r.left+r.width/2, y:r.top+r.height/2};
     });
     zone.addEventListener('touchmove', e=>{
-      if(!jActive) return;
-      const t = e.touches[0];
-      let dx=t.clientX-jCenter.x, dy=t.clientY-jCenter.y;
+      if(jTouchId===null) return;
+      let touch=null;
+      for(const t of e.changedTouches){ if(t.identifier===jTouchId){ touch=t; break; } }
+      if(!touch) return;
+      let dx=touch.clientX-jCenter.x, dy=touch.clientY-jCenter.y;
       const max=40; const len=Math.hypot(dx,dy);
       if(len>max){ dx=dx/len*max; dy=dy/len*max; }
       knob.style.left = (35+dx)+'px'; knob.style.top=(35+dy)+'px';
       this.joystickVec = {x:dx/max, y:dy/max};
     });
-    zone.addEventListener('touchend', ()=>{
-      jActive=false; knob.style.left='35px'; knob.style.top='35px';
-      this.joystickVec={x:0,y:0};
-    });
+    const endJoyTouch = e=>{
+      for(const t of e.changedTouches){
+        if(t.identifier===jTouchId){
+          jTouchId=null; knob.style.left='35px'; knob.style.top='35px';
+          this.joystickVec={x:0,y:0};
+          break;
+        }
+      }
+    };
+    zone.addEventListener('touchend', endJoyTouch);
+    zone.addEventListener('touchcancel', endJoyTouch);
   }
 
   wireTooltip(slotId, skillKey){
@@ -1041,8 +1122,12 @@ class GameApp{
   // ---------------- COMBAT HELPERS ----------------
   spawnDamageNumber(worldPos, text, cls){
     const v = worldPos.clone().project(this.camera);
-    const x = (v.x*0.5+0.5)*window.innerWidth;
-    const y = (1-(v.y*0.5+0.5))*window.innerHeight;
+    let x = (v.x*0.5+0.5)*window.innerWidth;
+    let y = (1-(v.y*0.5+0.5))*window.innerHeight;
+    // clamp so numbers never end up hidden above the visible viewport
+    // (e.g. under a mobile browser's address bar) or below the HUD
+    x = Math.max(20, Math.min(window.innerWidth-20, x));
+    y = Math.max(70, Math.min(window.innerHeight-120, y));
     const el = document.createElement('div');
     el.className = 'dmg-num'+(cls?(' '+cls):'');
     el.textContent = text;
@@ -1196,27 +1281,31 @@ class GameApp{
 
     const domainKey = this.currentRun ? this.currentRun.dungeonKey : null;
     const kind = this.currentRun ? this.currentRun.kind : 'story';
+    const tier = this.currentRun ? (this.currentRun.tier||1) : 1;
 
     p.gold += target.data.goldReward;
     this.gainExp(target.data.expReward);
     let extraMsg = '';
 
     if(kind==='farm' && domainKey==='materialDomain'){
+      const lootMult = DomainData.materialDomain.tiers.find(t=>t.level===tier).lootMult;
       const essence = CLASS_ESSENCE[this.classKey];
-      p.materials['Skill Book'] = (p.materials['Skill Book']||0)+1;
-      if(Math.random()<0.6) p.materials[essence] = (p.materials[essence]||0)+2;
-      if(Math.random()<0.5) p.materials['Iron Ore'] = (p.materials['Iron Ore']||0)+3;
+      p.materials['Skill Book'] = (p.materials['Skill Book']||0)+Math.max(1,Math.round(1*lootMult));
+      if(Math.random()<0.6) p.materials[essence] = (p.materials[essence]||0)+Math.max(1,Math.round(2*lootMult));
+      if(Math.random()<0.5) p.materials['Iron Ore'] = (p.materials['Iron Ore']||0)+Math.max(1,Math.round(3*lootMult));
       extraMsg = ' +Material';
     } else if(kind==='farm' && domainKey==='artifactDomain'){
-      if(Math.random()<0.5){
-        const art = generateArtifact();
+      const chance = DomainData.artifactDomain.tiers.find(t=>t.level===tier).artifactChance;
+      if(Math.random()<chance){
+        const art = generateArtifact(tier);
         p.artifacts.push(art);
         this.toast(`Artifact didapat: ${art.name}!`);
         this.questProgress('getArtifact',1);
       }
     } else if(kind==='farm' && domainKey==='rewardDomain'){
-      p.gold += Math.round(target.data.goldReward*0.5);
-      if(Math.random()<0.4){ p.gems += 1; this.toast('+1 Gems'); }
+      const lootMult = DomainData.rewardDomain.tiers.find(t=>t.level===tier).lootMult;
+      p.gold += Math.round(target.data.goldReward*0.5*lootMult);
+      if(Math.random()<0.4){ p.gems += Math.max(1,Math.round(1*lootMult)); this.toast('+'+Math.max(1,Math.round(1*lootMult))+' Gems'); }
     } else {
       if(!target.isBoss && Math.random()<0.4) p.materials['Goblin Tooth'] = (p.materials['Goblin Tooth']||0)+1;
     }
@@ -1243,6 +1332,7 @@ class GameApp{
     else if(timeTaken<110) rating='C';
 
     const kind = this.currentRun.kind;
+    let farmTitle='';
     if(kind==='story'){
       const prog = this.dungeonProgress[this.currentRun.dungeonKey];
       if(wasBoss){ prog.cleared = true; }
@@ -1250,13 +1340,17 @@ class GameApp{
         prog.unlockedStage = Math.max(prog.unlockedStage, this.currentStageId+1);
         if(this.currentStageId===3) this.questProgress('clearStage3',1);
       }
+    } else if(kind==='farm'){
+      const prog = this.domainProgress[this.currentRun.dungeonKey];
+      prog.unlockedTier = Math.max(prog.unlockedTier, this.currentRun.tier+1>3?3:this.currentRun.tier+1);
+      farmTitle = DomainData[this.currentRun.dungeonKey].name+' Lv.'+this.currentRun.tier+' Selesai!';
     }
     this.saveGame();
 
     const ov = document.getElementById('stage-overlay');
     ov.classList.remove('defeat');
     document.getElementById('ov-rating').textContent = rating;
-    document.getElementById('ov-title').textContent = wasBoss ? 'Dungeon Selesai!' : (kind==='farm' ? DomainData[this.currentRun.dungeonKey].name+' Selesai!' : 'Stage Selesai');
+    document.getElementById('ov-title').textContent = wasBoss ? 'Dungeon Selesai!' : (kind==='farm' ? farmTitle : 'Stage Selesai');
     document.getElementById('ov-sub').textContent = wasBoss
       ? 'Green Forest berhasil ditaklukkan. Region berikutnya menyusul di update selanjutnya.'
       : `Waktu: ${timeTaken.toFixed(1)}s`;
@@ -1271,9 +1365,16 @@ class GameApp{
     }
     if(kind==='farm'){
       const againBtn = document.createElement('div');
-      againBtn.className='gold-btn'; againBtn.textContent='Ulangi';
-      againBtn.addEventListener('click', ()=>{ ov.style.display='none'; this.runFarmDomain(this.currentRun.dungeonKey); this.stageActive=true; });
+      againBtn.className='gold-btn'; againBtn.textContent='Ulangi Level '+this.currentRun.tier;
+      againBtn.addEventListener('click', ()=>{ ov.style.display='none'; this.runFarmDomain(this.currentRun.dungeonKey, this.currentRun.tier); this.stageActive=true; });
       btns.appendChild(againBtn);
+      const nextTierProg = this.domainProgress[this.currentRun.dungeonKey];
+      if(this.currentRun.tier<3 && nextTierProg.unlockedTier>this.currentRun.tier){
+        const nextTierBtn = document.createElement('div');
+        nextTierBtn.className='gold-btn'; nextTierBtn.textContent='Lanjut ke Level '+(this.currentRun.tier+1);
+        nextTierBtn.addEventListener('click', ()=>{ ov.style.display='none'; this.runFarmDomain(this.currentRun.dungeonKey, this.currentRun.tier+1); this.stageActive=true; });
+        btns.appendChild(nextTierBtn);
+      }
     }
     const lobbyBtn = document.createElement('div');
     lobbyBtn.className='ghost-btn'; lobbyBtn.textContent='Kembali ke Lobby';
@@ -1297,7 +1398,7 @@ class GameApp{
     retryBtn.addEventListener('click', ()=>{
       ov.style.display='none';
       if(this.currentRun.kind==='story') this.loadStage(this.currentStageId);
-      else this.runFarmDomain(this.currentRun.dungeonKey);
+      else this.runFarmDomain(this.currentRun.dungeonKey, this.currentRun.tier);
       this.stageActive=true;
     });
     btns.appendChild(retryBtn);
@@ -1476,8 +1577,9 @@ class GameApp{
       p.facing = targetFacing;
       p.mesh.rotation.y = targetFacing;
     }
-    p.mesh.position.x = Math.max(-28, Math.min(28, p.mesh.position.x));
-    p.mesh.position.z = Math.max(-28, Math.min(28, p.mesh.position.z));
+    const bound = this.inLobby ? 40 : 28;
+    p.mesh.position.x = Math.max(-bound, Math.min(bound, p.mesh.position.x));
+    p.mesh.position.z = Math.max(-bound, Math.min(bound, p.mesh.position.z));
   }
 
   updateCamera(){

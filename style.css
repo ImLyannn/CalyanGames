@@ -51,7 +51,7 @@
     background:var(--bg-panel); color:var(--text-dim); font-weight:600; font-size:13px;
     box-shadow:var(--border-glow); text-align:center;
   }
-  #continue-btn{display:none; margin-bottom:20px;}
+  .save-badge{margin-top:10px; font-size:9.5px; color:var(--gold-soft); background:rgba(232,182,76,0.12); padding:3px 8px; border-radius:6px; display:inline-block;}
 
   #class-cards{display:flex; gap:18px; flex-wrap:wrap; justify-content:center; max-width:980px; padding:0 16px;}
   .class-card{
@@ -101,7 +101,10 @@
   #currency{position:absolute; top:16px; right:16px; padding:8px 16px; display:flex; gap:16px; font-size:12px;}
   #currency div{display:flex; align-items:center; gap:6px; color:var(--gold-soft); font-weight:600;}
 
-  #inventory-btn{position:absolute; top:66px; right:16px; padding:8px 14px; font-size:16px; text-align:center; display:none; pointer-events:all; cursor:pointer;}
+  #quick-actions{position:absolute; top:66px; right:16px; display:flex; gap:6px; pointer-events:all;}
+  .qa-btn{width:36px; height:36px; border-radius:9px; background:var(--bg-panel); box-shadow:var(--border-glow); display:none; align-items:center; justify-content:center; font-size:15px; color:var(--gold-soft); cursor:pointer;}
+  #inventory-btn{display:none;}
+  body.lobby-mode #inventory-btn{ display:flex !important; }
 
   #stage-banner{position:absolute; top:16px; left:50%; transform:translateX(-50%); padding:7px 18px; text-align:center; display:none;}
   #stage-banner .st1{font-family:'Cinzel',serif; font-size:13px; color:var(--gold-soft); letter-spacing:0.03em;}
@@ -139,7 +142,7 @@
   #skill-tooltip{position:absolute; bottom:84px; right:24px; width:200px; background:var(--bg-panel); box-shadow:var(--border-glow); border-radius:8px; padding:8px 10px; font-size:11px; color:var(--text-dim); display:none; pointer-events:none;}
   #skill-tooltip b{color:var(--gold-soft); display:block; margin-bottom:3px; font-size:12px;}
 
-  #joystick-zone{position:absolute; bottom:26px; left:26px; width:120px; height:120px; pointer-events:all; display:none;}
+  #joystick-zone{position:absolute; bottom:26px; left:26px; width:120px; height:120px; pointer-events:all; display:none; touch-action:none;}
   #joystick-base{position:absolute; inset:0; border-radius:50%; background:rgba(18,14,32,0.5); box-shadow:var(--border-glow);}
   #joystick-knob{position:absolute; width:50px; height:50px; border-radius:50%; background:rgba(232,182,76,0.55); top:35px; left:35px; box-shadow:0 0 14px rgba(232,182,76,0.6);}
 
@@ -159,23 +162,38 @@
 
   #controls-hint{position:absolute; bottom:22px; left:50%; transform:translateX(-50%); font-size:10.5px; color:var(--text-dim); background:rgba(18,14,32,0.55); padding:6px 14px; border-radius:8px; letter-spacing:0.02em; text-align:center; max-width:520px;}
   #lobby-hint{display:none; position:absolute; bottom:22px; left:50%; transform:translateX(-50%); font-size:10.5px; color:var(--text-dim); background:rgba(18,14,32,0.55); padding:6px 14px; border-radius:8px; text-align:center;}
-  @media (max-width:900px){ #controls-hint{display:none;} #joystick-zone{display:block;} #mobile-buttons{display:grid !important;} #skill-bar{display:none;} }
+  @media (max-width:900px){
+    #controls-hint{display:none;} #joystick-zone{display:block;} #mobile-buttons{display:grid !important;} #skill-bar{display:none;}
+    /* narrow phones: shrink + reflow the top HUD so the enemy panel never overlaps the player card */
+    #player-frame{width:170px; padding:8px 10px 9px;}
+    #player-name{font-size:12px;}
+    #player-level{font-size:9.5px;}
+    #player-frame .bar-track{height:10px;}
+    #buff-row{top:96px;}
+    #currency{padding:6px 10px; font-size:10.5px; gap:10px;}
+    #quick-actions{top:56px;}
+    .qa-btn{width:32px; height:32px; font-size:13px;}
+    #stage-banner{top:120px; padding:5px 12px;}
+    #stage-banner .st1{font-size:11px;}
+    #stage-banner .st2{font-size:9px;}
+    #enemy-frame{top:160px; width:220px; padding:6px 12px 8px;}
+    #enemy-name{font-size:11px;}
+    #enemy-hp-track{height:9px;}
+    #break-banner{top:225px; font-size:16px;}
+    #combo-counter{top:160px;}
+  }
 
   body.lobby-mode #skill-bar, body.lobby-mode #enemy-frame, body.lobby-mode #combo-counter,
   body.lobby-mode #mobile-buttons, body.lobby-mode #controls-hint, body.lobby-mode #stage-banner,
   body.lobby-mode #skill-tooltip { display:none !important; }
   body.lobby-mode #lobby-hint{ display:block; }
-  body.lobby-mode #inventory-btn{ display:block; }
 
-  #mobile-buttons{position:absolute; bottom:20px; right:16px; display:none; grid-template-columns:repeat(3,50px); grid-template-rows:repeat(2,50px); gap:8px;}
-  .mbtn{border-radius:50%; background:var(--bg-panel); box-shadow:var(--border-glow); display:flex; align-items:center; justify-content:center; font-size:10px; color:var(--gold-soft); pointer-events:all; text-align:center; line-height:1.1;}
+  #mobile-buttons{position:absolute; bottom:20px; right:16px; display:none; grid-template-columns:repeat(3,50px); grid-template-rows:repeat(2,50px); gap:8px; touch-action:none;}
+  .mbtn{border-radius:50%; background:var(--bg-panel); box-shadow:var(--border-glow); display:flex; align-items:center; justify-content:center; font-size:10px; color:var(--gold-soft); pointer-events:all; text-align:center; line-height:1.1; touch-action:none;}
 
   #level-up-fx{position:fixed; top:38%; left:50%; transform:translate(-50%,-50%); font-family:'Cinzel',serif; font-size:38px; color:var(--gold-soft); text-shadow:0 0 30px rgba(232,182,76,0.8); opacity:0; z-index:30; pointer-events:none; letter-spacing:0.1em;}
   @keyframes levelPop{0%{opacity:0; transform:translate(-50%,-50%) scale(0.6);} 20%{opacity:1; transform:translate(-50%,-50%) scale(1.08);} 75%{opacity:1;} 100%{opacity:0; transform:translate(-50%,-50%) scale(1);}}
 
-  #topbar-btns{position:absolute; top:16px; right:200px; display:flex; gap:8px; pointer-events:all;}
-  #topbar-btns div{cursor:pointer; padding:8px 14px; font-size:11px; color:var(--text-dim); background:var(--bg-panel); border-radius:8px; box-shadow:var(--border-glow); display:none;}
-  @media (max-width:900px){ #topbar-btns{display:none !important;} }
 
   #stage-overlay{position:fixed; inset:0; z-index:60; display:none; align-items:center; justify-content:center; background:rgba(8,6,14,0.72); pointer-events:all;}
   #stage-overlay .panel{width:min(400px,90vw); background:var(--bg-panel-light); border-radius:16px; box-shadow:var(--border-glow); padding:28px 26px; text-align:center;}

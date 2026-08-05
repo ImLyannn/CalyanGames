@@ -51,9 +51,9 @@ const CharacterData = {
 };
 
 const EnemyData = {
-  Goblin:{ name:'Goblin', hp:150, patk:15, pdef:5, poiseMax:50, detectionRadius:9, attackRange:1.7, moveSpeed:3.3, expReward:35, goldReward:12, scale:1.0, color:0x4a7c3f },
-  GoblinElite:{ name:'Goblin Elite', hp:320, patk:22, pdef:9, poiseMax:85, detectionRadius:10, attackRange:1.8, moveSpeed:3.6, expReward:95, goldReward:32, scale:1.25, color:0x4a7c3f, isElite:true },
-  GoblinKing:{ name:'Goblin King', hp:950, patk:26, pdef:16, poiseMax:260, detectionRadius:40, attackRange:2.3, moveSpeed:2.9, expReward:800, goldReward:250, scale:1.9, color:0x2f5c2f, isBoss:true }
+  Goblin:{ name:'Goblin', hp:210, patk:17, pdef:6, poiseMax:55, detectionRadius:9, attackRange:1.7, moveSpeed:3.3, expReward:40, goldReward:14, scale:1.0, color:0x4a7c3f },
+  GoblinElite:{ name:'Goblin Elite', hp:460, patk:26, pdef:11, poiseMax:95, detectionRadius:10, attackRange:1.8, moveSpeed:3.6, expReward:110, goldReward:36, scale:1.25, color:0x4a7c3f, isElite:true },
+  GoblinKing:{ name:'Goblin King', hp:1400, patk:30, pdef:19, poiseMax:320, detectionRadius:40, attackRange:2.3, moveSpeed:2.9, expReward:900, goldReward:280, scale:1.9, color:0x2f5c2f, isBoss:true }
 };
 
 const DungeonData = {
@@ -187,7 +187,7 @@ Object.values(CharacterData).forEach(c=>{
 (async ()=>{
   for(const c of Object.values(CharacterData)){
     try{
-      const raw = await storageGet('save_'+c.key);
+      const raw = await storageGet('save_class_'+c.key);
       if(raw){
         const card = document.querySelector(`.class-card[data-class="${c.key}"]`);
         if(card && !card.querySelector('.save-badge')){
@@ -206,8 +206,11 @@ async function startGame(classKey){
   document.getElementById('class-select').style.display='none';
   Game = new GameApp(classKey);
   try{
-    const raw = await storageGet('save_'+classKey);
-    if(raw){ Game.applySaveData(JSON.parse(raw)); }
+    const sharedRaw = await storageGet('save_shared');
+    const classRaw = await storageGet('save_class_'+classKey);
+    if(sharedRaw || classRaw){
+      Game.applySaveData(sharedRaw?JSON.parse(sharedRaw):null, classRaw?JSON.parse(classRaw):null);
+    }
   }catch(e){ console.error('load failed', e); }
   Game.enterLobby();
 }
@@ -251,9 +254,9 @@ class GameApp{
     this.updateHUDStatic();
 
     document.getElementById('hub-btn').addEventListener('click', ()=> this.enterLobby());
-    document.getElementById('hub-btn').style.display='block';
-    document.getElementById('restart-btn').style.display='block';
-    document.getElementById('save-btn').style.display='block';
+    document.getElementById('hub-btn').style.display='flex';
+    document.getElementById('restart-btn').style.display='flex';
+    document.getElementById('save-btn').style.display='flex';
     document.getElementById('inventory-btn').addEventListener('click', ()=>{ if(this.inLobby && !this.panelOpen) this.openStationPanel('inventory'); });
   }
 
@@ -500,27 +503,37 @@ class GameApp{
   // ---------------- SAVE / LOAD ----------------
   saveGame(){
     const p = this.player;
-    const data = {
-      classKey:this.classKey, level:p.level, exp:p.exp, gold:p.gold, gems:p.gems,
-      materials:p.materials, artifacts:p.artifacts, equippedArtifacts:p.equippedArtifacts, skillLevels:p.skillLevels,
-      baseHpMax:p.baseHpMax, baseManaMax:p.baseManaMax, basePatk:p.basePatk, baseMagic:p.baseMagic, basePdef:p.basePdef, baseMdef:p.baseMdef,
+    // shared wallet — carries over no matter which class you play
+    const shared = {
+      gold:p.gold, gems:p.gems, materials:p.materials, artifacts:p.artifacts, equippedArtifacts:p.equippedArtifacts,
       dungeonProgress:this.dungeonProgress, domainProgress:this.domainProgress, quests:this.quests
     };
-    storageSet('save_'+this.classKey, JSON.stringify(data));
+    // per-class save — only level, exp, and skill levels reset when you switch class
+    const classData = {
+      level:p.level, exp:p.exp, skillLevels:p.skillLevels,
+      baseHpMax:p.baseHpMax, baseManaMax:p.baseManaMax, basePatk:p.basePatk, baseMagic:p.baseMagic, basePdef:p.basePdef, baseMdef:p.baseMdef
+    };
+    storageSet('save_shared', JSON.stringify(shared));
+    storageSet('save_class_'+this.classKey, JSON.stringify(classData));
   }
-  applySaveData(data){
+  applySaveData(shared, classData){
     const p = this.player;
-    p.level = data.level||1; p.exp = data.exp||0; p.gold = data.gold||0; p.gems = data.gems||0;
-    p.materials = data.materials||{};
-    p.artifacts = data.artifacts||[];
-    p.equippedArtifacts = data.equippedArtifacts||{Crown:null,Bracelet:null,Ring:null,Necklace:null,Core:null};
-    p.skillLevels = data.skillLevels||{skill1:1,skill2:1,skill3:1,ultimate:1};
-    p.baseHpMax = data.baseHpMax||p.baseHpMax; p.baseManaMax = data.baseManaMax||p.baseManaMax;
-    p.basePatk = data.basePatk||p.basePatk; p.baseMagic = data.baseMagic||p.baseMagic;
-    p.basePdef = data.basePdef||p.basePdef; p.baseMdef = data.baseMdef||p.baseMdef;
-    this.dungeonProgress = data.dungeonProgress||this.dungeonProgress;
-    this.domainProgress = data.domainProgress||this.domainProgress;
-    this.quests = data.quests||this.quests;
+    if(shared){
+      p.gold = shared.gold||0; p.gems = shared.gems||0;
+      p.materials = shared.materials||{};
+      p.artifacts = shared.artifacts||[];
+      p.equippedArtifacts = shared.equippedArtifacts||{Crown:null,Bracelet:null,Ring:null,Necklace:null,Core:null};
+      this.dungeonProgress = shared.dungeonProgress||this.dungeonProgress;
+      this.domainProgress = shared.domainProgress||this.domainProgress;
+      this.quests = shared.quests||this.quests;
+    }
+    if(classData){
+      p.level = classData.level||1; p.exp = classData.exp||0;
+      p.skillLevels = classData.skillLevels||{skill1:1,skill2:1,skill3:1,ultimate:1};
+      p.baseHpMax = classData.baseHpMax||p.baseHpMax; p.baseManaMax = classData.baseManaMax||p.baseManaMax;
+      p.basePatk = classData.basePatk||p.basePatk; p.baseMagic = classData.baseMagic||p.baseMagic;
+      p.basePdef = classData.basePdef||p.basePdef; p.baseMdef = classData.baseMdef||p.baseMdef;
+    }
     this.recalcStats();
     p.hp = p.hpMax; p.mana = p.manaMax;
     this.updateHUDStatic();
@@ -533,7 +546,10 @@ class GameApp{
       {key:'artifact', name:'Artifact Master', icon:'💎', pos:new THREE.Vector3(-14,0,6), color:0xb98aff},
       {key:'skill', name:'Skill Upgrade', icon:'📖', pos:new THREE.Vector3(14,0,2), color:0x4fb8e0},
       {key:'quest', name:'Quest NPC', icon:'📜', pos:new THREE.Vector3(-10,0,-14), color:0xe8b64c},
-      {key:'domain', name:'Domain Portal', icon:'🌀', pos:new THREE.Vector3(12,0,-16), color:0xff8686}
+      {key:'mainStage', name:'Main Quest', icon:'🗺️', pos:new THREE.Vector3(12,0,-16), color:0xff8686},
+      {key:'artifactDomain', name:'Artifact Hunter', icon:'🔮', pos:new THREE.Vector3(-24,0,-14), color:0xd68ab9},
+      {key:'materialDomain', name:'Material Trader', icon:'⚒️', pos:new THREE.Vector3(22,0,18), color:0x8ab98a},
+      {key:'rewardDomain', name:'Treasure Keeper', icon:'💰', pos:new THREE.Vector3(-20,0,18), color:0xf2c14e}
     ];
     this.stationLabelEls = [];
     const labelContainer = document.getElementById('station-labels');
@@ -630,7 +646,13 @@ class GameApp{
     else if(key==='artifact'){ title.textContent='💎 Artifact Master'; body.innerHTML=this.renderArtifactHTML(); this.wireArtifactPanel(); }
     else if(key==='skill'){ title.textContent='📖 Skill Upgrade'; body.innerHTML=this.renderSkillUpgradeHTML(); this.wireSkillPanel(); }
     else if(key==='quest'){ title.textContent='📜 Quest'; body.innerHTML=this.renderQuestHTML(); this.wireQuestPanel(); }
-    else if(key==='domain'){ title.textContent='🌀 Domain Portal'; body.innerHTML=this.renderDomainHTML(); this.wireDomainPanel(); }
+    else if(key==='mainStage'){ title.textContent='🗺️ Main Quest'; body.innerHTML=this.renderMainStageHTML(); this.wireMainStagePanel(); }
+    else if(key==='artifactDomain' || key==='materialDomain' || key==='rewardDomain'){
+      const st = this.stations.find(s=>s.key===key);
+      title.textContent = `${st.icon} ${st.name}`;
+      body.innerHTML = this.renderFarmDomainHTML(key);
+      this.wireFarmDomainPanel(key);
+    }
     document.getElementById('station-panel').style.display='flex';
   }
   closeStationPanel(){
@@ -773,7 +795,7 @@ class GameApp{
     q.progress = Math.min(q.target, q.progress+amount);
   }
 
-  renderDomainHTML(){
+  renderMainStageHTML(){
     const d = DungeonData.greenForest;
     const prog = this.dungeonProgress.greenForest;
     let stageRows='';
@@ -788,32 +810,31 @@ class GameApp{
         <div class="stage-status">${status}</div>
       </div>`;
     });
-
-    const farmCards = Object.entries(DomainData).map(([key,dd])=>{
-      const prog2 = this.domainProgress[key];
-      let tierRows = '';
-      dd.tiers.forEach(t=>{
-        const locked = t.level>prog2.unlockedTier;
-        const mobsLabel = t.mobs.map(m=>`${m.count}x ${EnemyData[m.type].name}`).join(' · ');
-        const status = locked ? '🔒' : (t.level<prog2.unlockedTier ? '✅' : '▶️');
-        tierRows += `<div class="stage-row ${locked?'locked':''}" data-farm="${key}" data-tier="${t.level}">
-          <div class="stage-num">${t.level}</div>
-          <div class="stage-info"><div class="stage-title">Level ${t.level}</div><div class="stage-mobs">${mobsLabel}</div></div>
-          <div class="stage-status">${status}</div>
-        </div>`;
-      });
-      return `<div class="domain-card"><div class="dn">${dd.name}</div><div class="dd">${dd.desc}</div>${tierRows}</div>`;
-    }).join('');
-
-    return `
-      <div class="domain-card"><div class="dn">${d.name} (${d.region})</div><div class="dd">Rekomendasi ${d.levelRange}</div>${stageRows}</div>
-      ${farmCards}
-    `;
+    return `<div class="domain-card"><div class="dn">${d.name} (${d.region})</div><div class="dd">Rekomendasi ${d.levelRange}</div>${stageRows}</div>`;
   }
-  wireDomainPanel(){
+  wireMainStagePanel(){
     document.querySelectorAll('#station-panel-body .stage-row:not(.locked)[data-story]').forEach(el=>{
       el.addEventListener('click', ()=> this.enterStage(parseInt(el.dataset.story)));
     });
+  }
+
+  renderFarmDomainHTML(key){
+    const dd = DomainData[key];
+    const prog2 = this.domainProgress[key];
+    let tierRows = '';
+    dd.tiers.forEach(t=>{
+      const locked = t.level>prog2.unlockedTier;
+      const mobsLabel = t.mobs.map(m=>`${m.count}x ${EnemyData[m.type].name}`).join(' · ');
+      const status = locked ? '🔒' : (t.level<prog2.unlockedTier ? '✅' : '▶️');
+      tierRows += `<div class="stage-row ${locked?'locked':''}" data-farm="${key}" data-tier="${t.level}">
+        <div class="stage-num">${t.level}</div>
+        <div class="stage-info"><div class="stage-title">Level ${t.level}</div><div class="stage-mobs">${mobsLabel}</div></div>
+        <div class="stage-status">${status}</div>
+      </div>`;
+    });
+    return `<div class="domain-card"><div class="dn">${dd.name}</div><div class="dd">${dd.desc}</div>${tierRows}</div>`;
+  }
+  wireFarmDomainPanel(key){
     document.querySelectorAll('#station-panel-body .stage-row:not(.locked)[data-farm]').forEach(el=>{
       el.addEventListener('click', ()=> this.runFarmDomain(el.dataset.farm, parseInt(el.dataset.tier)));
     });

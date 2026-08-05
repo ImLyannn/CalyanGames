@@ -27,17 +27,20 @@
     --r-common:#b9a8d9; --r-uncommon:#7fe08a; --r-rare:#4fb8e0; --r-epic:#b98aff; --r-legendary:#e8b64c;
   }
   *{box-sizing:border-box; margin:0; padding:0;}
-  html,body{width:100%; height:100%; overflow:hidden; background:var(--bg-deep); font-family:'Inter',sans-serif; color:var(--text-light); -webkit-user-select:none; user-select:none;}
+  html,body{width:100%; height:100%; height:100dvh; overflow:hidden; background:var(--bg-deep); font-family:'Inter',sans-serif; color:var(--text-light); -webkit-user-select:none; user-select:none;}
   #game-canvas{position:fixed; inset:0; display:block; touch-action:none;}
 
   .fs-screen{
-    position:fixed; inset:0; z-index:50;
+    position:fixed; inset:0; z-index:50; min-height:100dvh;
     display:flex; flex-direction:column; align-items:center; justify-content:center;
     background:
       radial-gradient(ellipse at 50% 20%, rgba(138,92,255,0.18), transparent 60%),
       radial-gradient(ellipse at 50% 100%, rgba(232,182,76,0.08), transparent 55%),
       var(--bg-deep);
     overflow-y:auto; padding:24px 0;
+  }
+  @media (max-width:900px){
+    .fs-screen{ justify-content:flex-start; padding-top:56px; }
   }
   .fs-screen h1{
     font-family:'Cinzel',serif; font-weight:700; letter-spacing:0.08em;
@@ -172,23 +175,24 @@
   #lobby-hint{display:none; position:absolute; bottom:22px; left:50%; transform:translateX(-50%); font-size:10.5px; color:var(--text-dim); background:rgba(18,14,32,0.55); padding:6px 14px; border-radius:8px; text-align:center;}
   @media (max-width:900px){
     #controls-hint{display:none;} #joystick-zone{display:block;} #mobile-buttons{display:grid !important;} #skill-bar{display:none;}
-    /* narrow phones: shrink + reflow the top HUD so the enemy panel never overlaps the player card */
-    #player-frame{width:170px; padding:8px 10px 9px;}
+    /* narrow phones / in-app browsers with a persistent top bar: push the whole
+       HUD down and shrink it so nothing sits under that bar or overlaps */
+    #player-frame{top:56px; width:170px; padding:8px 10px 9px;}
     #player-name{font-size:12px;}
     #player-level{font-size:9.5px;}
     #player-frame .bar-track{height:10px;}
-    #buff-row{top:96px;}
-    #currency{padding:6px 10px; font-size:10.5px; gap:10px;}
-    #quick-actions{top:56px;}
+    #buff-row{top:150px;}
+    #currency{top:56px; padding:6px 10px; font-size:10.5px; gap:10px;}
+    #quick-actions{top:104px;}
     .qa-btn{width:32px; height:32px; font-size:13px;}
-    #stage-banner{top:120px; padding:5px 12px;}
+    #stage-banner{top:164px; padding:5px 12px;}
     #stage-banner .st1{font-size:11px;}
     #stage-banner .st2{font-size:9px;}
-    #enemy-frame{top:160px; width:220px; padding:6px 12px 8px;}
+    #enemy-frame{top:200px; width:210px; padding:6px 12px 8px;}
     #enemy-name{font-size:11px;}
     #enemy-hp-track{height:9px;}
-    #break-banner{top:225px; font-size:16px;}
-    #combo-counter{top:160px;}
+    #break-banner{top:265px; font-size:16px;}
+    #combo-counter{top:200px;}
   }
 
   body.lobby-mode #skill-bar, body.lobby-mode #enemy-frame, body.lobby-mode #combo-counter,
@@ -365,23 +369,23 @@ const CharacterData = {
     key:'Mage', icon:'🧙', role:'Burst / Crowd Control', color:0x8a5cff,
     hp:500, mana:350, patk:20, magic:45, pdef:20, mdef:30, aspd:1.0, critRate:0.0, critDmg:1.5, moveSpeed:5.0,
     growth:{hp:30, mana:25, patk:2, magic:7, pdef:2, mdef:3},
-    basic:{name:'Arcane Bolt', icon:'✨', mult:0.9, isMagic:true, fx:{type:'bolt', color:0xb98aff}},
+    basic:{name:'Arcane Bolt', icon:'✨', mult:0.9, isMagic:true, range:6.5, fx:{type:'bolt', color:0xb98aff}},
     passive:{name:'Mana Flow', icon:'🔷', desc:'Setiap 4 Basic Attack, kembalikan 8 Mana.'},
-    skill1:{name:'Frozen Spike', icon:'❄️', mult:1.6, isMagic:true, manaCost:25, cooldown:4, effect:{type:'stun', duration:1.0}, fx:{type:'ice', color:0xbfe8ff}, desc:'Damage + root musuh 1 detik.'},
-    skill2:{name:'Fire Blast', icon:'🔥', mult:1.5, isMagic:true, manaCost:35, cooldown:6, aoe:true, effect:{type:'dot', dps:9, duration:3}, fx:{type:'fire', color:0xff7a3f}, desc:'Ledakan area + Burn 3 detik.'},
+    skill1:{name:'Frozen Spike', icon:'❄️', mult:1.6, isMagic:true, manaCost:25, cooldown:4, range:6.5, effect:{type:'stun', duration:1.0}, fx:{type:'ice', color:0xbfe8ff}, desc:'Damage + root musuh 1 detik.'},
+    skill2:{name:'Fire Blast', icon:'🔥', mult:1.5, isMagic:true, manaCost:35, cooldown:6, aoe:true, aoeRadius:5.2, effect:{type:'dot', dps:9, duration:3}, fx:{type:'fire', color:0xff7a3f}, desc:'Ledakan area + Burn 3 detik.'},
     skill3:{name:'Arcane Barrier', icon:'🛡️', mult:0, isMagic:true, manaCost:20, cooldown:10, selfBuff:{type:'shield', pct:0.20, duration:4}, fx:{type:'shield', color:0x7fe0d0}, desc:'Shield 20% Max HP selama 4 detik.'},
-    ultimate:{name:'Meteor Tornado', icon:'🌪️', mult:3.2, isMagic:true, manaCost:90, cooldown:25, aoe:true, effect:{type:'stun', duration:1.5}, fx:{type:'tornado', color:0x8a5cff}, desc:'Damage besar area + Stun 1.5 detik.'}
+    ultimate:{name:'Meteor Tornado', icon:'🌪️', mult:3.2, isMagic:true, manaCost:90, cooldown:25, aoe:true, aoeRadius:5.8, effect:{type:'stun', duration:1.5}, fx:{type:'tornado', color:0x8a5cff}, desc:'Damage besar area + Stun 1.5 detik.'}
   },
   Archer: {
     key:'Archer', icon:'🏹', role:'Sustained DPS / Critical', color:0x4fd68c,
     hp:580, mana:180, patk:45, magic:0, pdef:20, mdef:20, aspd:1.4, critRate:0.15, critDmg:1.5, moveSpeed:5.4,
     growth:{hp:35, mana:10, patk:6, pdef:2, mdef:2},
-    basic:{name:'Quick Shot', icon:'🏹', mult:1.0, isMagic:false, fx:{type:'arrow', color:0x4fd68c}},
+    basic:{name:'Quick Shot', icon:'🏹', mult:1.0, isMagic:false, range:7.5, fx:{type:'arrow', color:0x4fd68c}},
     passive:{name:'Hawk Eye', icon:'🦅', desc:'+8% Crit Rate selama 3 detik setelah pakai skill.'},
-    skill1:{name:'Multi Shot', icon:'🎯', mult:1.35, isMagic:false, manaCost:18, cooldown:3, fx:{type:'arrow', color:0x8fe8b0}, desc:'Beberapa anak panah sekaligus.'},
-    skill2:{name:'Piercing Arrow', icon:'🏹', mult:1.9, isMagic:false, manaCost:28, cooldown:5, defShred:0.3, fx:{type:'arrow', color:0xfff07a}, desc:'Damage tinggi, abaikan 30% Defense.'},
-    skill3:{name:'Explosive Trap', icon:'💣', mult:1.4, isMagic:false, manaCost:24, cooldown:7, aoe:true, effect:{type:'slow', value:0.4, duration:2}, fx:{type:'shockwave', color:0xffb84f}, desc:'AoE + Slow 40% selama 2 detik.'},
-    ultimate:{name:'Rain of Arrows', icon:'🌧️', mult:3.4, isMagic:false, manaCost:85, cooldown:24, aoe:true, fx:{type:'shockwave', color:0x4fd68c}, desc:'Hujan panah damage besar ke area.'}
+    skill1:{name:'Multi Shot', icon:'🎯', mult:1.35, isMagic:false, manaCost:18, cooldown:3, range:7, fx:{type:'arrow', color:0x8fe8b0}, desc:'Beberapa anak panah sekaligus.'},
+    skill2:{name:'Piercing Arrow', icon:'🏹', mult:1.9, isMagic:false, manaCost:28, cooldown:5, range:7.5, defShred:0.3, fx:{type:'arrow', color:0xfff07a}, desc:'Damage tinggi, abaikan 30% Defense.'},
+    skill3:{name:'Explosive Trap', icon:'💣', mult:1.4, isMagic:false, manaCost:24, cooldown:7, aoe:true, aoeRadius:5, effect:{type:'slow', value:0.4, duration:2}, fx:{type:'shockwave', color:0xffb84f}, desc:'AoE + Slow 40% selama 2 detik.'},
+    ultimate:{name:'Rain of Arrows', icon:'🌧️', mult:3.4, isMagic:false, manaCost:85, cooldown:24, aoe:true, aoeRadius:5.8, fx:{type:'shockwave', color:0x4fd68c}, desc:'Hujan panah damage besar ke area.'}
   },
   Assassin: {
     key:'Assassin', icon:'⚔️', role:'Burst Physical / Mobility', color:0xe0475a,
@@ -460,6 +464,10 @@ const RARITY_TABLE_BY_TIER = {
   3:[{name:'Common',weight:5,pct:0.03},{name:'Uncommon',weight:15,pct:0.05},{name:'Rare',weight:30,pct:0.08},{name:'Epic',weight:30,pct:0.12},{name:'Legendary',weight:20,pct:0.18}]
 };
 const RARITY_COLOR = {Common:'var(--r-common)', Uncommon:'var(--r-uncommon)', Rare:'var(--r-rare)', Epic:'var(--r-epic)', Legendary:'var(--r-legendary)'};
+// Full-set bonus: all 5 artifact slots filled with the same rarity grants a flat
+// bonus applied across HP/Attack/Magic/Defense on top of each artifact's own stat.
+const SET_BONUS_BY_RARITY = {Common:0.03, Uncommon:0.05, Rare:0.08, Epic:0.12, Legendary:0.20};
+const RARITY_PCT = {Common:0.03, Uncommon:0.05, Rare:0.08, Epic:0.12, Legendary:0.18};
 
 const SKILL_UPGRADE_COST = {
   2:{gold:500, book:1, ess:2}, 3:{gold:900, book:2, ess:4}, 4:{gold:1500, book:3, ess:6},
@@ -480,6 +488,12 @@ function generateArtifact(tier){
   const slot = ARTIFACT_SLOTS[Math.floor(Math.random()*ARTIFACT_SLOTS.length)];
   const stat = ARTIFACT_STATS[Math.floor(Math.random()*ARTIFACT_STATS.length)];
   return { id:'art_'+Date.now()+'_'+Math.floor(Math.random()*9999), name:`${rarity.name} ${slot}`, rarity:rarity.name, slot, statType:stat.type, statLabel:stat.label, pct:rarity.pct };
+}
+function generateArtifactOfRarity(rarityName){
+  const slot = ARTIFACT_SLOTS[Math.floor(Math.random()*ARTIFACT_SLOTS.length)];
+  const stat = ARTIFACT_STATS[Math.floor(Math.random()*ARTIFACT_STATS.length)];
+  const pct = RARITY_PCT[rarityName];
+  return { id:'art_'+Date.now()+'_'+Math.floor(Math.random()*9999), name:`${rarityName} ${slot}`, rarity:rarityName, slot, statType:stat.type, statLabel:stat.label, pct };
 }
 function defenseReduction(def){
   const K = 566.7;
@@ -699,12 +713,14 @@ class GameApp{
       {x:-15,z:14,roof:0xd35454}, {x:15,z:14,roof:0x5a8fd0}, {x:-20,z:-6,roof:0x5ab06a},
       {x:20,z:-6,roof:0x9a6fd0}, {x:-6,z:20,roof:0xe0a545}, {x:8,z:22,roof:0xd88ac0},
       {x:-22,z:20,roof:0x5ab06a}, {x:22,z:22,roof:0xd35454}, {x:-24,z:2,roof:0xe0a545},
-      {x:24,z:-18,roof:0x5a8fd0}
+      {x:24,z:-18,roof:0x5a8fd0}, {x:-4,z:30,roof:0x9a6fd0}, {x:4,z:32,roof:0xd35454},
+      {x:-30,z:8,roof:0xd88ac0}, {x:30,z:6,roof:0x5ab06a}, {x:-16,z:-20,roof:0x5a8fd0},
+      {x:18,z:-24,roof:0xe0a545}, {x:-30,z:-16,roof:0x9a6fd0}, {x:30,z:24,roof:0xd35454}
     ];
     houseSpots.forEach(h=> this.lobbyGroup.add(this.makeHouse(h.x,h.z,h.roof)));
 
     // idle villagers — just decoration, add life to the village without being interactable
-    const villagerSpots = [[-10,10],[9,9],[-14,-2],[13,-3],[0,16],[-3,-8],[6,-10]];
+    const villagerSpots = [[-10,10],[9,9],[-14,-2],[13,-3],[0,16],[-3,-8],[6,-10],[-18,10],[17,10],[0,26],[-8,-18],[15,20]];
     const villagerColors = [0x8a6a4a,0x5a7a9a,0x9a5a6a,0x6a9a6a,0x8a5a9a];
     villagerSpots.forEach(([x,z],i)=>{
       this.lobbyGroup.add(this.makeIdleVillager(x,z,villagerColors[i%villagerColors.length]));
@@ -840,13 +856,23 @@ class GameApp{
   recalcStats(){
     const p = this.player;
     let hpPct=0, atkPct=0, magicPct=0, defPct=0;
-    Object.values(p.equippedArtifacts).forEach(a=>{
+    const equipped = Object.values(p.equippedArtifacts);
+    equipped.forEach(a=>{
       if(!a) return;
       if(a.statType==='hp') hpPct+=a.pct;
       else if(a.statType==='patk') atkPct+=a.pct;
       else if(a.statType==='magic') magicPct+=a.pct;
       else if(a.statType==='defense') defPct+=a.pct;
     });
+    p.setBonusRarity = null;
+    if(equipped.every(a=>a)){
+      const rarities = new Set(equipped.map(a=>a.rarity));
+      if(rarities.size===1){
+        p.setBonusRarity = equipped[0].rarity;
+        const bonus = SET_BONUS_BY_RARITY[p.setBonusRarity]||0;
+        hpPct+=bonus; atkPct+=bonus; magicPct+=bonus; defPct+=bonus;
+      }
+    }
     p.hpMax = Math.round(p.baseHpMax*(1+hpPct));
     p.manaMax = p.baseManaMax;
     p.patk = Math.round(p.basePatk*(1+atkPct));
@@ -906,7 +932,8 @@ class GameApp{
       {key:'mainStage', name:'Main Quest', icon:'🗺️', pos:new THREE.Vector3(12,0,-16), color:0xff8686},
       {key:'artifactDomain', name:'Artifact Hunter', icon:'🔮', pos:new THREE.Vector3(-24,0,-14), color:0xd68ab9},
       {key:'materialDomain', name:'Material Trader', icon:'⚒️', pos:new THREE.Vector3(22,0,18), color:0x8ab98a},
-      {key:'rewardDomain', name:'Treasure Keeper', icon:'💰', pos:new THREE.Vector3(-20,0,18), color:0xf2c14e}
+      {key:'rewardDomain', name:'Treasure Keeper', icon:'💰', pos:new THREE.Vector3(-20,0,18), color:0xf2c14e},
+      {key:'shop', name:'Merchant', icon:'🛒', pos:new THREE.Vector3(6,0,-2), color:0x7fc9e0}
     ];
     this.stationLabelEls = [];
     const labelContainer = document.getElementById('station-labels');
@@ -1010,6 +1037,7 @@ class GameApp{
       body.innerHTML = this.renderFarmDomainHTML(key);
       this.wireFarmDomainPanel(key);
     }
+    else if(key==='shop'){ title.textContent='🛒 Merchant'; body.innerHTML=this.renderShopHTML(); this.wireShopPanel(); }
     document.getElementById('station-panel').style.display='flex';
   }
   closeStationPanel(){
@@ -1043,7 +1071,16 @@ class GameApp{
     const poolHtml = p.artifacts.length ? p.artifacts.map(a=>`
       <div class="art-pool-item" data-id="${a.id}"><span style="color:${RARITY_COLOR[a.rarity]}">${a.name}</span><span class="mini-btn">Equip</span></div>
     `).join('') : `<div class="panel-row"><span class="prl">Belum ada artifact. Coba Artifact Domain!</span></div>`;
-    return `<div class="artifact-slots">${slotsHtml}</div><div class="panel-h">Koleksi Artifact (klik utk equip, klik slot terisi utk lepas)</div>${poolHtml}`;
+    const setRows = Object.entries(SET_BONUS_BY_RARITY).map(([r,pct])=>
+      `<div class="panel-row"><span class="prl" style="color:${RARITY_COLOR[r]}">Full Set ${r}</span><span class="prr">+${Math.round(pct*100)}% All Stats</span></div>`
+    ).join('');
+    const setStatus = p.setBonusRarity
+      ? `<div class="panel-row"><span class="prl">🎁 Set Bonus Aktif</span><span class="prr" style="color:${RARITY_COLOR[p.setBonusRarity]}">${p.setBonusRarity} +${Math.round(SET_BONUS_BY_RARITY[p.setBonusRarity]*100)}%</span></div>`
+      : `<div class="panel-row"><span class="prl">🎁 Set Bonus</span><span class="prr">Belum aktif</span></div>`;
+    return `<div class="artifact-slots">${slotsHtml}</div>
+      ${setStatus}
+      <div class="panel-h">Tabel Full Set Bonus (isi 5 slot rarity sama)</div>${setRows}
+      <div class="panel-h">Koleksi Artifact (klik utk equip, klik slot terisi utk lepas)</div>${poolHtml}`;
   }
   wireArtifactPanel(){
     document.querySelectorAll('#station-panel-body .art-slot.filled').forEach(el=>{
@@ -1197,6 +1234,57 @@ class GameApp{
     });
   }
 
+  renderShopHTML(){
+    const p = this.player;
+    const essence = CLASS_ESSENCE[this.classKey];
+    const goldItems = [
+      {id:'buy_book', name:'📘 Skill Book x3', cost:300},
+      {id:'buy_essence', name:`🔷 ${essence} x2`, cost:400},
+      {id:'buy_iron', name:'⛏️ Iron Ore x5', cost:100}
+    ];
+    const gemItems = [
+      {id:'buy_art_common', name:'Artifact Common', cost:1, rarity:'Common'},
+      {id:'buy_art_uncommon', name:'Artifact Uncommon', cost:2, rarity:'Uncommon'},
+      {id:'buy_art_rare', name:'Artifact Rare', cost:4, rarity:'Rare'},
+      {id:'buy_art_epic', name:'Artifact Epic', cost:6, rarity:'Epic'},
+      {id:'buy_art_legendary', name:'Artifact Legendary', cost:10, rarity:'Legendary'}
+    ];
+    const goldRows = goldItems.map(it=>`<div class="panel-row"><span class="prl">${it.name}</span><span class="mini-btn ${p.gold>=it.cost?'':'disabled'}" data-buy="${it.id}">${it.cost} 🪙</span></div>`).join('');
+    const gemRows = gemItems.map(it=>`<div class="panel-row"><span class="prl" style="color:${RARITY_COLOR[it.rarity]}">${it.name}</span><span class="mini-btn ${p.gems>=it.cost?'':'disabled'}" data-buy="${it.id}">${it.cost} 💎</span></div>`).join('');
+    return `<div class="panel-h">Beli dengan Gold</div>${goldRows}<div class="panel-h">Tukar Gems — Artifact Langsung</div>${gemRows}`;
+  }
+  wireShopPanel(){
+    document.querySelectorAll('#station-panel-body .mini-btn:not(.disabled)[data-buy]').forEach(el=>{
+      el.addEventListener('click', ()=> this.buyShopItem(el.dataset.buy));
+    });
+  }
+  buyShopItem(id){
+    const p = this.player;
+    const essence = CLASS_ESSENCE[this.classKey];
+    const table = {
+      buy_book:{cost:300, currency:'gold', fn:()=>{ p.materials['Skill Book']=(p.materials['Skill Book']||0)+3; this.toast('+3 Skill Book'); }},
+      buy_essence:{cost:400, currency:'gold', fn:()=>{ p.materials[essence]=(p.materials[essence]||0)+2; this.toast('+2 '+essence); }},
+      buy_iron:{cost:100, currency:'gold', fn:()=>{ p.materials['Iron Ore']=(p.materials['Iron Ore']||0)+5; this.toast('+5 Iron Ore'); }},
+      buy_art_common:{cost:1, currency:'gems', fn:()=> this.buyArtifact('Common')},
+      buy_art_uncommon:{cost:2, currency:'gems', fn:()=> this.buyArtifact('Uncommon')},
+      buy_art_rare:{cost:4, currency:'gems', fn:()=> this.buyArtifact('Rare')},
+      buy_art_epic:{cost:6, currency:'gems', fn:()=> this.buyArtifact('Epic')},
+      buy_art_legendary:{cost:10, currency:'gems', fn:()=> this.buyArtifact('Legendary')}
+    };
+    const entry = table[id];
+    if(!entry) return;
+    if(entry.currency==='gold'){ if(p.gold<entry.cost){ this.toast('Gold tidak cukup'); return; } p.gold-=entry.cost; }
+    else { if(p.gems<entry.cost){ this.toast('Gems tidak cukup'); return; } p.gems-=entry.cost; }
+    entry.fn();
+    this.openStationPanel('shop');
+    this.saveGame();
+  }
+  buyArtifact(rarity){
+    const art = generateArtifactOfRarity(rarity);
+    this.player.artifacts.push(art);
+    this.toast(`Membeli ${art.name}!`);
+  }
+
   // ---------------- COMBAT RUN MANAGEMENT ----------------
   clearEnemies(){
     this.enemies.forEach(e=> this.scene.remove(e.mesh));
@@ -1324,12 +1412,27 @@ class GameApp{
     window.addEventListener('keyup', e=>{ this.keys[e.code]=false; });
 
     const canvas = document.getElementById('game-canvas');
-    canvas.addEventListener('mousedown', e=>{ this.mouse.down=true; this.mouse.lastX=e.clientX; this.mouse.lastY=e.clientY; if(this.stageActive) this.tryAttack(); });
-    window.addEventListener('mouseup', ()=> this.mouse.down=false);
+    canvas.addEventListener('mousedown', e=>{
+      this.mouse.down=true; this.mouse.lastX=e.clientX; this.mouse.lastY=e.clientY;
+      if(this.stageActive) this.tryAttack();
+      // Pointer Lock lets the drag keep rotating the camera even if the cursor
+      // would otherwise hit the edge of the browser window (fixes camera
+      // "getting stuck" when dragged far on desktop).
+      if(canvas.requestPointerLock){ canvas.requestPointerLock().catch(()=>{}); }
+    });
+    window.addEventListener('mouseup', ()=>{
+      this.mouse.down=false;
+      if(document.exitPointerLock && document.pointerLockElement===canvas) document.exitPointerLock();
+    });
     window.addEventListener('mousemove', e=>{
       if(!this.mouse.down) return;
-      const dx=e.clientX-this.mouse.lastX, dy=e.clientY-this.mouse.lastY;
-      this.mouse.lastX=e.clientX; this.mouse.lastY=e.clientY;
+      let dx, dy;
+      if(document.pointerLockElement===canvas){
+        dx = e.movementX||0; dy = e.movementY||0;
+      } else {
+        dx = e.clientX-this.mouse.lastX; dy = e.clientY-this.mouse.lastY;
+        this.mouse.lastX=e.clientX; this.mouse.lastY=e.clientY;
+      }
       this.camYaw -= dx*0.0055;
       this.camPitch = Math.max(0.08, Math.min(1.15, this.camPitch + dy*0.0045));
     });
@@ -1483,10 +1586,23 @@ class GameApp{
         life=0.35; kind='burst'; scaleFrom=0.3; scaleTo=1.1; baseOpacity=0.55;
         break;
       case 'shockwave':
-        mesh = new THREE.Mesh(new THREE.RingGeometry(0.3,0.5,24), new THREE.MeshBasicMaterial({color, transparent:true, opacity:0.85, side:THREE.DoubleSide}));
+        mesh = new THREE.Mesh(new THREE.RingGeometry(0.22,0.68,28), new THREE.MeshBasicMaterial({color, transparent:true, opacity:0.95, side:THREE.DoubleSide}));
         mesh.rotation.x=-Math.PI/2; mesh.position.copy(toP); mesh.position.y=0.06;
-        life=0.35; kind='burst'; scaleFrom=1; scaleTo=3; baseOpacity=0.85;
+        life=0.38; kind='burst'; scaleFrom=1; scaleTo=3.6; baseOpacity=0.95;
         break;
+      case 'slash': {
+        const grp = new THREE.Group();
+        for(let i=0;i<2;i++){
+          const streak = new THREE.Mesh(new THREE.BoxGeometry(1.0,0.1,0.03), new THREE.MeshBasicMaterial({color, transparent:true, opacity:0.95}));
+          streak.rotation.z = (i===0? 0.5 : -0.35) + (Math.random()-0.5)*0.3;
+          grp.add(streak);
+        }
+        grp.position.copy(toP); grp.position.y = 1.1;
+        grp.rotation.y = Math.random()*Math.PI*2;
+        mesh = grp;
+        life=0.22; kind='burst'; scaleFrom=0.35; scaleTo=1.3; baseOpacity=0.95;
+        break;
+      }
       case 'tornado': {
         const grp = new THREE.Group();
         for(let i=0;i<3;i++){
@@ -1640,10 +1756,10 @@ class GameApp{
 
     let targets = [];
     if(effSkill.aoe){
-      const radius = 4.2;
+      const radius = effSkill.aoeRadius || 4.2;
       targets = this.enemies.filter(e=> e.state!=='dead' && p.mesh.position.distanceTo(e.mesh.position) <= radius);
     } else {
-      const range = effSkill.dash ? 6.5 : 2.3;
+      const range = effSkill.range || (effSkill.dash ? 6.5 : 2.3);
       const t = this.getNearestEnemy(range);
       if(t){
         if(effSkill.dash){
@@ -1861,11 +1977,30 @@ class GameApp{
 
   tryDodge(){
     const p = this.player;
-    if(p.dodgeCd>0) return;
+    if(p.dodgeCd>0 || (p.dodgeAnim && p.dodgeAnim.active)) return;
     p.dodgeCd = 2.5; p.iFrame = 0.35;
     this.spawnFX({type:'smoke', color:0xcccccc}, p.mesh.position.clone(), p.mesh.position.clone());
     const dir = new THREE.Vector3(Math.sin(this.player.facing),0,Math.cos(this.player.facing));
-    this.player.mesh.position.addScaledVector(dir, -2.0);
+    const from = p.mesh.position.clone();
+    const to = from.clone().addScaledVector(dir, -2.4);
+    const bound = this.inLobby ? 40 : 28;
+    to.x = Math.max(-bound, Math.min(bound, to.x));
+    to.z = Math.max(-bound, Math.min(bound, to.z));
+    // jump-dash: arcs up and back down like a lowercase "n" while dashing, instead
+    // of an instant teleport — this is what movement is locked to for its duration
+    p.dodgeAnim = { active:true, t:0, duration:0.35, from, to };
+  }
+
+  updateDodgeAnim(dt){
+    const p = this.player;
+    const d = p.dodgeAnim;
+    if(!d || !d.active) return;
+    d.t += dt;
+    const frac = Math.min(1, d.t/d.duration);
+    p.mesh.position.x = d.from.x + (d.to.x-d.from.x)*frac;
+    p.mesh.position.z = d.from.z + (d.to.z-d.from.z)*frac;
+    p.mesh.position.y = Math.sin(Math.PI*frac) * 0.9;
+    if(frac>=1){ d.active=false; p.mesh.position.y=0; }
   }
 
   // ---------------- ENEMY AI (GDD 9.5 state machine) ----------------
@@ -2087,7 +2222,9 @@ class GameApp{
     if(b.lifestealTimer>0){ b.lifestealTimer -= dt; }
     if(b.critBonusTimer>0){ b.critBonusTimer -= dt; }
 
-    const canMove = (this.stageActive || this.inLobby) && !this.panelOpen;
+    this.updateDodgeAnim(dt);
+    const dodging = p.dodgeAnim && p.dodgeAnim.active;
+    const canMove = (this.stageActive || this.inLobby) && !this.panelOpen && !dodging;
     if(canMove) this.updatePlayerMovement(dt);
 
     this.enemies.forEach(e=> this.updateEnemyAI(dt, e));

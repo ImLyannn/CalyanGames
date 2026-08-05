@@ -109,13 +109,15 @@
   #buff-row{position:absolute; top:126px; left:16px; display:flex; gap:6px;}
   .buff-icon{width:26px; height:26px; border-radius:6px; background:var(--bg-panel); box-shadow:var(--border-glow); display:flex; align-items:center; justify-content:center; font-size:13px;}
 
-  #currency{position:absolute; top:16px; right:16px; padding:8px 16px; display:flex; gap:16px; font-size:12px;}
+  #top-right-cluster{position:absolute; top:16px; right:16px; display:flex; align-items:center; gap:8px; pointer-events:all;}
+  #currency{padding:8px 16px; display:flex; gap:16px; font-size:12px;}
   #currency div{display:flex; align-items:center; gap:6px; color:var(--gold-soft); font-weight:600;}
 
-  #quick-actions{position:absolute; top:66px; right:16px; display:flex; gap:6px; pointer-events:all;}
+  #quick-actions{display:flex; gap:6px; pointer-events:all;}
   .qa-btn{width:36px; height:36px; border-radius:9px; background:var(--bg-panel); box-shadow:var(--border-glow); display:none; align-items:center; justify-content:center; font-size:15px; color:var(--gold-soft); cursor:pointer;}
   #inventory-btn{display:none;}
   body.lobby-mode #inventory-btn{ display:flex !important; }
+  body:not(.lobby-mode) #restart-btn{ display:none !important; }
 
   #stage-banner{position:absolute; top:16px; left:50%; transform:translateX(-50%); padding:7px 18px; text-align:center; display:none;}
   #stage-banner .st1{font-family:'Cinzel',serif; font-size:13px; color:var(--gold-soft); letter-spacing:0.03em;}
@@ -175,24 +177,25 @@
   #lobby-hint{display:none; position:absolute; bottom:22px; left:50%; transform:translateX(-50%); font-size:10.5px; color:var(--text-dim); background:rgba(18,14,32,0.55); padding:6px 14px; border-radius:8px; text-align:center;}
   @media (max-width:900px){
     #controls-hint{display:none;} #joystick-zone{display:block;} #mobile-buttons{display:grid !important;} #skill-bar{display:none;}
-    /* narrow phones / in-app browsers with a persistent top bar: push the whole
-       HUD down and shrink it so nothing sits under that bar or overlaps */
-    #player-frame{top:56px; width:170px; padding:8px 10px 9px;}
-    #player-name{font-size:12px;}
-    #player-level{font-size:9.5px;}
-    #player-frame .bar-track{height:10px;}
-    #buff-row{top:150px;}
-    #currency{top:56px; padding:6px 10px; font-size:10.5px; gap:10px;}
-    #quick-actions{top:104px;}
-    .qa-btn{width:32px; height:32px; font-size:13px;}
-    #stage-banner{top:164px; padding:5px 12px;}
-    #stage-banner .st1{font-size:11px;}
-    #stage-banner .st2{font-size:9px;}
-    #enemy-frame{top:200px; width:210px; padding:6px 12px 8px;}
-    #enemy-name{font-size:11px;}
-    #enemy-hp-track{height:9px;}
-    #break-banner{top:265px; font-size:16px;}
-    #combo-counter{top:200px;}
+    /* per player feedback: keep everything compact and near the top on phones,
+       with the enemy panel right under the player card instead of mid-screen */
+    #player-frame{top:12px; width:150px; padding:6px 8px 7px;}
+    #player-name{font-size:11.5px;}
+    #player-level{font-size:9px;}
+    #player-frame .bar-track{height:9px;}
+    #buff-row{top:98px; left:12px;}
+    #top-right-cluster{top:12px; right:12px;}
+    #currency{padding:5px 8px; font-size:10px; gap:8px;}
+    .qa-btn{width:28px; height:28px; font-size:12px;}
+    #stage-banner{top:98px; padding:4px 10px;}
+    #stage-banner .st1{font-size:10px;}
+    #stage-banner .st2{font-size:8.5px;}
+    #enemy-frame{top:130px; width:190px; padding:5px 10px 6px;}
+    #enemy-name{font-size:10px;}
+    #enemy-hp-track{height:8px;}
+    #enemy-poise-track{height:5px;}
+    #break-banner{top:190px; font-size:15px;}
+    #combo-counter{top:130px;}
   }
 
   body.lobby-mode #skill-bar, body.lobby-mode #enemy-frame, body.lobby-mode #combo-counter,
@@ -284,15 +287,17 @@
   </div>
   <div id="buff-row"></div>
 
-  <div id="currency" class="hud-panel">
-    <div>🪙 <span id="gold-amt">0</span></div>
-    <div>💎 <span id="gems-amt">0</span></div>
-  </div>
-  <div id="quick-actions">
-    <div class="qa-btn" id="inventory-btn">🎒</div>
-    <div class="qa-btn" id="save-btn">💾</div>
-    <div class="qa-btn" id="hub-btn">🏠</div>
-    <div class="qa-btn" id="restart-btn">↺</div>
+  <div id="top-right-cluster">
+    <div id="currency" class="hud-panel">
+      <div>🪙 <span id="gold-amt">0</span></div>
+      <div>💎 <span id="gems-amt">0</span></div>
+    </div>
+    <div id="quick-actions">
+      <div class="qa-btn" id="inventory-btn">🎒</div>
+      <div class="qa-btn" id="save-btn">💾</div>
+      <div class="qa-btn" id="hub-btn">🏠</div>
+      <div class="qa-btn" id="restart-btn">↺</div>
+    </div>
   </div>
 
   <div id="stage-banner" class="hud-panel">
@@ -585,7 +590,7 @@ async function startGame(classKey){
   }catch(e){ console.error('load failed', e); }
   Game.enterLobby();
 }
-document.getElementById('restart-btn').addEventListener('click', ()=> window.location.reload());
+document.getElementById('restart-btn').addEventListener('click', ()=> { if(Game && Game.stageActive) return; window.location.reload(); });
 document.getElementById('station-panel-close').addEventListener('click', ()=> { if(Game) Game.closeStationPanel(); });
 document.getElementById('save-btn').addEventListener('click', ()=> { if(Game){ Game.saveGame(); Game.toast('Game disimpan!'); } });
 

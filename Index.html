@@ -4,6 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Project Eclipse — Prototype</title>
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#100c1c">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -117,6 +121,8 @@
   .qa-btn{width:36px; height:36px; border-radius:9px; background:var(--bg-panel); box-shadow:var(--border-glow); display:none; align-items:center; justify-content:center; font-size:15px; color:var(--gold-soft); cursor:pointer;}
   #inventory-btn{display:none;}
   body.lobby-mode #inventory-btn{ display:flex !important; }
+  #stats-btn{display:none;}
+  body.lobby-mode #stats-btn{ display:flex !important; }
   body:not(.lobby-mode) #restart-btn{ display:none !important; }
 
   #stage-banner{position:absolute; top:16px; left:50%; transform:translateX(-50%); padding:7px 18px; text-align:center; display:none;}
@@ -177,8 +183,9 @@
   #lobby-hint{display:none; position:absolute; bottom:22px; left:50%; transform:translateX(-50%); font-size:10.5px; color:var(--text-dim); background:rgba(18,14,32,0.55); padding:6px 14px; border-radius:8px; text-align:center;}
   @media (max-width:900px){
     #controls-hint{display:none;} #joystick-zone{display:block;} #mobile-buttons{display:grid !important;} #skill-bar{display:none;}
-    /* per player feedback: keep everything compact and near the top on phones,
-       with the enemy panel right under the player card instead of mid-screen */
+    /* per player feedback: keep top row compact, and push the enemy panel down
+       into the open space between the joystick and skill buttons instead of
+       crowding the top of the screen */
     #player-frame{top:12px; width:150px; padding:6px 8px 7px;}
     #player-name{font-size:11.5px;}
     #player-level{font-size:9px;}
@@ -187,21 +194,27 @@
     #top-right-cluster{top:12px; right:12px;}
     #currency{padding:5px 8px; font-size:10px; gap:8px;}
     .qa-btn{width:28px; height:28px; font-size:12px;}
-    #stage-banner{top:12px; padding:5px 12px;}
-    #stage-banner .st1{font-size:10px;}
-    #stage-banner .st2{font-size:8.5px;}
-    #enemy-frame{bottom: 20px; top: auto ; width:210px; padding:5px 10px 6px;}
-    #enemy-name{font-size:10px;}
-    #enemy-hp-track{height:8px;}
-    #enemy-poise-track{height:5px;}
-    #break-banner{bottom: 85px; top: auto; font-size:15px;}
-    #combo-counter{top:130px;}
+    #combo-counter{top:70px;}
+    #stage-banner{top:auto; bottom:212px; padding:3px 10px;}
+    #stage-banner .st1{font-size:9.5px;}
+    #stage-banner .st2{font-size:8px;}
+    #enemy-frame{top:auto; bottom:158px; width:180px; padding:4px 10px 5px;}
+    #enemy-name{font-size:9.5px; margin-bottom:2px;}
+    #enemy-hp-track{height:7px;}
+    #enemy-poise-track{height:4px; margin-top:2px;}
+    #enemy-status-row{min-height:0; margin-top:2px;}
+    #break-banner{top:auto; bottom:230px; font-size:14px;}
   }
 
-  body.lobby-mode #skill-bar, body.lobby-mode #enemy-frame, body.lobby-mode #combo-counter,
-  body.lobby-mode #mobile-buttons, body.lobby-mode #controls-hint, body.lobby-mode #stage-banner,
+  body.lobby-mode #enemy-frame, body.lobby-mode #combo-counter,
+  body.lobby-mode #controls-hint, body.lobby-mode #stage-banner,
   body.lobby-mode #skill-tooltip { display:none !important; }
   body.lobby-mode #lobby-hint{ display:block; }
+  /* dodge/dash still works in the Lobby, so only hide the combat-only slots */
+  body.lobby-mode #slot-attack, body.lobby-mode #slot-skill1, body.lobby-mode #slot-skill2,
+  body.lobby-mode #slot-skill3, body.lobby-mode #slot-ultimate { display:none !important; }
+  body.lobby-mode #mbtn-attack, body.lobby-mode #mbtn-skill1, body.lobby-mode #mbtn-skill2,
+  body.lobby-mode #mbtn-skill3, body.lobby-mode #mbtn-ultimate { display:none !important; }
 
   #mobile-buttons{position:absolute; bottom:20px; right:16px; display:none; grid-template-columns:repeat(3,50px); grid-template-rows:repeat(2,50px); gap:8px; touch-action:none;}
   .mbtn{border-radius:50%; background:var(--bg-panel); box-shadow:var(--border-glow); display:flex; align-items:center; justify-content:center; font-size:10px; color:var(--gold-soft); pointer-events:all; text-align:center; line-height:1.1; touch-action:none;}
@@ -294,6 +307,7 @@
     </div>
     <div id="quick-actions">
       <div class="qa-btn" id="inventory-btn">🎒</div>
+      <div class="qa-btn" id="stats-btn">📊</div>
       <div class="qa-btn" id="save-btn">💾</div>
       <div class="qa-btn" id="hub-btn">🏠</div>
       <div class="qa-btn" id="restart-btn">↺</div>
@@ -330,14 +344,14 @@
     <div class="mbtn" id="mbtn-skill1">1</div>
     <div class="mbtn" id="mbtn-skill2">2</div>
     <div class="mbtn" id="mbtn-skill3">3</div>
-    <div class="mbtn" id="mbtn-dodge">Dodge</div>
+    <div class="mbtn" id="mbtn-dodge">Dash</div>
     <div class="mbtn" id="mbtn-ultimate">ULT</div>
     <div class="mbtn" id="mbtn-attack">⚔️</div>
   </div>
 
   <div id="toast-wrap"></div>
-  <div id="controls-hint">WASD gerak · Drag mouse putar kamera · Klik = Basic Attack · 1/2/3 = Skill · F = Ultimate · Space = Dodge</div>
-  <div id="lobby-hint">WASD gerak · Drag mouse putar kamera · Cari NPC di desa lalu tekan E / klik buat interaksi</div>
+  <div id="controls-hint">WASD gerak · Drag mouse putar kamera · Klik = Basic Attack · 1/2/3 = Skill · F = Ultimate · Space = Dash</div>
+  <div id="lobby-hint">WASD gerak · Drag mouse putar kamera · Space = Dash · Cari NPC di desa lalu tekan E / klik buat interaksi</div>
   <div id="interact-prompt"></div>
 </div>
 
@@ -634,6 +648,7 @@ class GameApp{
     document.getElementById('restart-btn').style.display='flex';
     document.getElementById('save-btn').style.display='flex';
     document.getElementById('inventory-btn').addEventListener('click', ()=>{ if(this.inLobby && !this.panelOpen) this.openStationPanel('inventory'); });
+    document.getElementById('stats-btn').addEventListener('click', ()=>{ if(this.inLobby && !this.panelOpen) this.openStationPanel('stats'); });
   }
 
   // ---------------- SCENE / WORLD ----------------
@@ -1032,6 +1047,7 @@ class GameApp{
     const title = document.getElementById('station-panel-title');
     const body = document.getElementById('station-panel-body');
     if(key==='inventory'){ title.textContent='🎒 Inventory'; body.innerHTML=this.renderInventoryHTML(); }
+    else if(key==='stats'){ title.textContent='📊 Character Stats'; body.innerHTML=this.renderStatsHTML(); }
     else if(key==='artifact'){ title.textContent='💎 Artifact Master'; body.innerHTML=this.renderArtifactHTML(); this.wireArtifactPanel(); }
     else if(key==='skill'){ title.textContent='📖 Skill Upgrade'; body.innerHTML=this.renderSkillUpgradeHTML(); this.wireSkillPanel(); }
     else if(key==='quest'){ title.textContent='📜 Quest'; body.innerHTML=this.renderQuestHTML(); this.wireQuestPanel(); }
@@ -1064,6 +1080,40 @@ class GameApp{
       <div class="panel-h">Material</div>${matRows}
       <div class="panel-h">Artifact (belum dipakai)</div>${artRows}
     `;
+  }
+
+  renderStatsHTML(){
+    const p = this.player, c = this.cdata;
+    const statRows = `
+      <div class="panel-row"><span class="prl">HP</span><span class="prr">${Math.round(p.hp)} / ${p.hpMax}</span></div>
+      <div class="panel-row"><span class="prl">Mana</span><span class="prr">${Math.round(p.mana)} / ${p.manaMax}</span></div>
+      <div class="panel-row"><span class="prl">Physical Attack</span><span class="prr">${p.patk}</span></div>
+      <div class="panel-row"><span class="prl">Magic Power</span><span class="prr">${p.magic}</span></div>
+      <div class="panel-row"><span class="prl">Physical Defense</span><span class="prr">${p.pdef}</span></div>
+      <div class="panel-row"><span class="prl">Magic Defense</span><span class="prr">${p.mdef}</span></div>
+      <div class="panel-row"><span class="prl">Attack Speed</span><span class="prr">${p.aspd.toFixed(2)}/s</span></div>
+      <div class="panel-row"><span class="prl">Critical Rate</span><span class="prr">${Math.round(p.critRate*100)}%</span></div>
+      <div class="panel-row"><span class="prl">Critical Damage</span><span class="prr">${Math.round(p.critDmg*100)}%</span></div>
+      <div class="panel-row"><span class="prl">Move Speed</span><span class="prr">${p.moveSpeed.toFixed(2)}</span></div>
+    `;
+    const slots = [
+      {def:c.basic, level:1, isBasic:true, cooldown:(1/p.aspd)},
+      {def:c.skill1, level:p.skillLevels.skill1, cooldown:c.skill1.cooldown},
+      {def:c.skill2, level:p.skillLevels.skill2, cooldown:c.skill2.cooldown},
+      {def:c.skill3, level:p.skillLevels.skill3, cooldown:c.skill3.cooldown},
+      {def:c.ultimate, level:p.skillLevels.ultimate, cooldown:c.ultimate.cooldown}
+    ];
+    const skillRows = slots.map(s=>{
+      const effMult = s.def.mult>0 ? s.def.mult*(1+(s.level-1)*0.08) : 0;
+      const atk = s.def.isMagic ? p.magic : p.patk;
+      const dmgText = effMult>0 ? Math.round(atk*effMult)+' dmg (dasar)' : 'Buff / Utility';
+      const lvlText = s.isBasic ? '' : ` (Lv.${s.level})`;
+      return `<div class="panel-row" style="flex-direction:column; align-items:stretch;">
+        <div style="display:flex; justify-content:space-between;"><span class="prl">${s.def.icon} ${s.def.name}${lvlText}</span><span class="prr">${dmgText}</span></div>
+        <div style="font-size:9.5px; color:var(--text-dim); margin-top:2px;">Mana: ${s.def.manaCost||0} · Cooldown: ${s.cooldown.toFixed(2)}s</div>
+      </div>`;
+    }).join('');
+    return `<div class="panel-h">Atribut</div>${statRows}<div class="panel-h">Skill (damage dasar, sebelum Defense musuh)</div>${skillRows}`;
   }
 
   renderArtifactHTML(){
@@ -1407,8 +1457,8 @@ class GameApp{
     window.addEventListener('keydown', e=>{
       this.keys[e.code]=true;
       if(e.code==='KeyE' && this.inLobby && !this.panelOpen && this._nearStationKey) this.openStationPanel(this._nearStationKey);
+      if(e.code==='Space' && (this.stageActive||this.inLobby) && !this.panelOpen) this.tryDodge();
       if(!this.stageActive) return;
-      if(e.code==='Space') this.tryDodge();
       if(e.code==='Digit1') this.trySkill('skill1');
       if(e.code==='Digit2') this.trySkill('skill2');
       if(e.code==='Digit3') this.trySkill('skill3');
@@ -1482,7 +1532,7 @@ class GameApp{
     document.getElementById('slot-skill2').addEventListener('click', ()=> { if(this.stageActive) this.trySkill('skill2'); });
     document.getElementById('slot-skill3').addEventListener('click', ()=> { if(this.stageActive) this.trySkill('skill3'); });
     document.getElementById('slot-ultimate').addEventListener('click', ()=> { if(this.stageActive) this.trySkill('ultimate'); });
-    document.getElementById('slot-dodge').addEventListener('click', ()=> { if(this.stageActive) this.tryDodge(); });
+    document.getElementById('slot-dodge').addEventListener('click', ()=> { if(this.stageActive||this.inLobby) this.tryDodge(); });
 
     this.wireTooltip('slot-skill1','skill1');
     this.wireTooltip('slot-skill2','skill2');
@@ -1494,7 +1544,7 @@ class GameApp{
     document.getElementById('mbtn-skill2').addEventListener('touchstart', e=>{e.preventDefault(); if(this.stageActive) this.trySkill('skill2');});
     document.getElementById('mbtn-skill3').addEventListener('touchstart', e=>{e.preventDefault(); if(this.stageActive) this.trySkill('skill3');});
     document.getElementById('mbtn-ultimate').addEventListener('touchstart', e=>{e.preventDefault(); if(this.stageActive) this.trySkill('ultimate');});
-    document.getElementById('mbtn-dodge').addEventListener('touchstart', e=>{e.preventDefault(); if(this.stageActive) this.tryDodge();});
+    document.getElementById('mbtn-dodge').addEventListener('touchstart', e=>{e.preventDefault(); if(this.stageActive||this.inLobby) this.tryDodge();});
 
     document.getElementById('interact-prompt').addEventListener('click', ()=>{
       if(this.inLobby && !this.panelOpen && this._nearStationKey) this.openStationPanel(this._nearStationKey);
@@ -1987,7 +2037,7 @@ class GameApp{
     this.spawnFX({type:'smoke', color:0xcccccc}, p.mesh.position.clone(), p.mesh.position.clone());
     const dir = new THREE.Vector3(Math.sin(this.player.facing),0,Math.cos(this.player.facing));
     const from = p.mesh.position.clone();
-    const to = from.clone().addScaledVector(dir, -2.4);
+    const to = from.clone().addScaledVector(dir, 2.4);
     const bound = this.inLobby ? 40 : 28;
     to.x = Math.max(-bound, Math.min(bound, to.x));
     to.z = Math.max(-bound, Math.min(bound, to.z));

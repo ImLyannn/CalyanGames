@@ -206,7 +206,7 @@
     #break-banner{top:auto; bottom:60px; font-size:14px;}
   }
 
-  body.lobby-mode #enemy-frame, body.lobby-mode #combo-counter,
+  body.lobby-mode #enemy-frame, body.lobby-mode #combo-counter, body.lobby-mode #break-banner,
   body.lobby-mode #controls-hint, body.lobby-mode #stage-banner,
   body.lobby-mode #skill-tooltip { display:none !important; }
   body.lobby-mode #lobby-hint{ display:block; }
@@ -278,6 +278,7 @@
   <div class="sub">Pilih Kelas Petualangmu</div>
   <div id="class-cards"></div>
   <div id="start-hint">Prototype build — Green Forest, Region 1</div>
+  <div id="reset-progress-btn" class="ghost-btn" style="margin-top:16px; font-size:11px;">🗑️ Reset Semua Progress</div>
 </div>
 
 <canvas id="game-canvas"></canvas>
@@ -453,23 +454,32 @@ const DungeonData = {
 const DomainData = {
   artifactDomain:{ name:'Artifact Domain', desc:'Drop Artifact. Makin tinggi level, makin besar peluang rarity tinggi.',
     tiers:[
-      {level:1, mobs:[{type:'Goblin', count:3}], artifactChance:0.5},
-      {level:2, mobs:[{type:'Goblin', count:3},{type:'GoblinElite', count:1}], artifactChance:0.62},
-      {level:3, mobs:[{type:'Goblin', count:2},{type:'GoblinElite', count:2}], artifactChance:0.78}
+      {level:1, mobs:[{type:'Goblin', count:3}], artifactChance:0.45},
+      {level:2, mobs:[{type:'Goblin', count:3},{type:'GoblinElite', count:1}], artifactChance:0.52},
+      {level:3, mobs:[{type:'Goblin', count:2},{type:'GoblinElite', count:2}], artifactChance:0.6},
+      {level:4, mobs:[{type:'GoblinElite', count:3}], artifactChance:0.68},
+      {level:5, mobs:[{type:'GoblinElite', count:3},{type:'Goblin', count:2}], artifactChance:0.75},
+      {level:6, mobs:[{type:'GoblinElite', count:4}], artifactChance:0.85}
     ]
   },
   materialDomain:{ name:'Material Domain', desc:'Drop Skill Book & Essence. Makin tinggi level, makin banyak dropnya.',
     tiers:[
       {level:1, mobs:[{type:'Goblin', count:4}], lootMult:1},
-      {level:2, mobs:[{type:'Goblin', count:3},{type:'GoblinElite', count:1}], lootMult:1.6},
-      {level:3, mobs:[{type:'Goblin', count:2},{type:'GoblinElite', count:2}], lootMult:2.3}
+      {level:2, mobs:[{type:'Goblin', count:4},{type:'GoblinElite', count:1}], lootMult:1.4},
+      {level:3, mobs:[{type:'Goblin', count:3},{type:'GoblinElite', count:2}], lootMult:1.8},
+      {level:4, mobs:[{type:'GoblinElite', count:3}], lootMult:2.3},
+      {level:5, mobs:[{type:'GoblinElite', count:3},{type:'Goblin', count:2}], lootMult:2.8},
+      {level:6, mobs:[{type:'GoblinElite', count:5}], lootMult:3.5}
     ]
   },
   rewardDomain:{ name:'Domain Ganjaran', desc:'Fokus Gold/EXP/Gems. Makin tinggi level, makin besar rewardnya.',
     tiers:[
       {level:1, mobs:[{type:'Goblin', count:3},{type:'GoblinElite', count:1}], lootMult:1},
-      {level:2, mobs:[{type:'Goblin', count:2},{type:'GoblinElite', count:2}], lootMult:1.7},
-      {level:3, mobs:[{type:'GoblinElite', count:3}], lootMult:2.4}
+      {level:2, mobs:[{type:'Goblin', count:2},{type:'GoblinElite', count:2}], lootMult:1.5},
+      {level:3, mobs:[{type:'GoblinElite', count:3}], lootMult:2.0},
+      {level:4, mobs:[{type:'GoblinElite', count:4}], lootMult:2.6},
+      {level:5, mobs:[{type:'GoblinElite', count:4},{type:'Goblin', count:2}], lootMult:3.2},
+      {level:6, mobs:[{type:'GoblinElite', count:6}], lootMult:4.0}
     ]
   }
 };
@@ -502,16 +512,19 @@ const SUBSTAT_POOL = [
 const ARTIFACT_MAX_LEVEL = 15;
 // 5-tier rarity, odds shift toward Legendary as the domain's difficulty level rises.
 const RARITY_TABLE_BY_TIER = {
-  1:[{name:'Common',weight:40},{name:'Uncommon',weight:30},{name:'Rare',weight:20},{name:'Epic',weight:8},{name:'Legendary',weight:2}],
-  2:[{name:'Common',weight:20},{name:'Uncommon',weight:25},{name:'Rare',weight:30},{name:'Epic',weight:18},{name:'Legendary',weight:7}],
-  3:[{name:'Common',weight:5},{name:'Uncommon',weight:15},{name:'Rare',weight:30},{name:'Epic',weight:30},{name:'Legendary',weight:20}]
+  1:[{name:'Common',weight:100}],
+  2:[{name:'Common',weight:30},{name:'Uncommon',weight:70}],
+  3:[{name:'Common',weight:10},{name:'Uncommon',weight:30},{name:'Rare',weight:60}],
+  4:[{name:'Common',weight:5},{name:'Uncommon',weight:10},{name:'Rare',weight:35},{name:'Epic',weight:50}],
+  5:[{name:'Uncommon',weight:5},{name:'Rare',weight:25},{name:'Epic',weight:50},{name:'Legendary',weight:20}],
+  6:[{name:'Rare',weight:20},{name:'Epic',weight:40},{name:'Legendary',weight:40}]
 };
 const RARITY_COLOR = {Common:'var(--r-common)', Uncommon:'var(--r-uncommon)', Rare:'var(--r-rare)', Epic:'var(--r-epic)', Legendary:'var(--r-legendary)'};
 // Full-set bonus: all 5 artifact slots filled with the same rarity grants a flat
 // bonus applied across HP/Attack/Magic/Defense on top of each artifact's own stat.
 const SET_BONUS_BY_RARITY = {Common:0.03, Uncommon:0.05, Rare:0.08, Epic:0.12, Legendary:0.20};
 // Deleting an artifact ("salvage") gives Magical Dust, the only way to fund upgrades.
-const DUST_BASE_BY_RARITY = {Common:2, Uncommon:3, Rare:5, Epic:8, Legendary:12};
+const DUST_BASE_BY_RARITY = {Common:3, Uncommon:5, Rare:8, Epic:13, Legendary:20};
 
 const SKILL_UPGRADE_COST = {
   2:{gold:500, book:1, ess:2}, 3:{gold:900, book:2, ess:4}, 4:{gold:1500, book:3, ess:6},
@@ -599,6 +612,27 @@ async function storageGet(key){
   }catch(e){ /* fall through to localStorage */ }
   try{ return localStorage.getItem(key); }catch(e){ return null; }
 }
+async function storageDelete(key){
+  try{
+    if(window.storage && typeof window.storage.delete==='function'){
+      await window.storage.delete(key, false);
+      return;
+    }
+  }catch(e){ /* fall through to localStorage */ }
+  try{ localStorage.removeItem(key); }catch(e){ /* ignore */ }
+}
+
+document.getElementById('reset-progress-btn').addEventListener('click', async ()=>{
+  if(!confirm('Yakin mau reset SEMUA progress (semua class) dan mulai dari awal? Gold, Gems, Artifact, Level, dan progress dungeon/domain akan hilang.')) return;
+  const typed = prompt('Ketik "lanjutkan" (tanpa tanda kutip) untuk konfirmasi reset total:');
+  if(typed===null) return;
+  if(typed.trim().toLowerCase()!=='lanjutkan'){ alert('Reset dibatalkan — teks yang diketik tidak sesuai.'); return; }
+  if(!confirm('Konfirmasi terakhir: benar-benar reset semua progress sekarang?')) return;
+  await storageDelete('save_shared');
+  for(const k of Object.keys(CharacterData)) await storageDelete('save_class_'+k);
+  alert('Semua progress sudah direset.');
+  window.location.reload();
+});
 
 // =======================================================================
 // CLASS SELECT SCREEN
@@ -1114,20 +1148,28 @@ class GameApp{
     this.panelOpen = true;
     const title = document.getElementById('station-panel-title');
     const body = document.getElementById('station-panel-body');
-    if(key==='inventory'){ title.textContent='🎒 Inventory'; body.innerHTML=this.renderInventoryHTML(); }
-    else if(key==='stats'){ title.textContent='📊 Character Stats'; body.innerHTML=this.renderStatsHTML(); }
-    else if(key==='artifact'){ title.textContent='💎 Artifact Master'; body.innerHTML=this.renderArtifactHTML(); this.wireArtifactPanel(); }
-    else if(key==='skill'){ title.textContent='📖 Skill Upgrade'; body.innerHTML=this.renderSkillUpgradeHTML(); this.wireSkillPanel(); }
-    else if(key==='quest'){ title.textContent='📜 Quest'; body.innerHTML=this.renderQuestHTML(); this.wireQuestPanel(); }
-    else if(key==='mainStage'){ title.textContent='🗺️ Main Quest'; body.innerHTML=this.renderMainStageHTML(); this.wireMainStagePanel(); }
-    else if(key==='artifactDomain' || key==='materialDomain' || key==='rewardDomain'){
-      const st = this.stations.find(s=>s.key===key);
-      title.textContent = `${st.icon} ${st.name}`;
-      body.innerHTML = this.renderFarmDomainHTML(key);
-      this.wireFarmDomainPanel(key);
+    try{
+      if(key==='inventory'){ title.textContent='🎒 Inventory'; body.innerHTML=this.renderInventoryHTML(); }
+      else if(key==='stats'){ title.textContent='📊 Character Stats'; body.innerHTML=this.renderStatsHTML(); }
+      else if(key==='artifact'){ title.textContent='💎 Artifact Master'; body.innerHTML=this.renderArtifactHTML(); this.wireArtifactPanel(); }
+      else if(key==='skill'){ title.textContent='📖 Skill Upgrade'; body.innerHTML=this.renderSkillUpgradeHTML(); this.wireSkillPanel(); }
+      else if(key==='quest'){ title.textContent='📜 Quest'; body.innerHTML=this.renderQuestHTML(); this.wireQuestPanel(); }
+      else if(key==='mainStage'){ title.textContent='🗺️ Main Quest'; body.innerHTML=this.renderMainStageHTML(); this.wireMainStagePanel(); }
+      else if(key==='artifactDomain' || key==='materialDomain' || key==='rewardDomain'){
+        const st = this.stations.find(s=>s.key===key);
+        title.textContent = `${st.icon} ${st.name}`;
+        body.innerHTML = this.renderFarmDomainHTML(key);
+        this.wireFarmDomainPanel(key);
+      }
+      else if(key==='shop'){ title.textContent='🛒 Merchant'; body.innerHTML=this.renderShopHTML(); this.wireShopPanel(); }
+      document.getElementById('station-panel').style.display='flex';
+    }catch(err){
+      // never leave the player stuck: show the error and let them close out instead of freezing
+      console.error('openStationPanel error', key, err);
+      title.textContent = '⚠️ Error';
+      body.innerHTML = `<div class="panel-row"><span class="prl">Panel ini gagal dimuat (${err.message}). Coba tutup dan buka lagi — kalau masih error, kabari dengan detail ini.</span></div>`;
+      document.getElementById('station-panel').style.display='flex';
     }
-    else if(key==='shop'){ title.textContent='🛒 Merchant'; body.innerHTML=this.renderShopHTML(); this.wireShopPanel(); }
-    document.getElementById('station-panel').style.display='flex';
   }
   closeStationPanel(){
     this.panelOpen = false;
@@ -1217,7 +1259,7 @@ class GameApp{
 
   renderArtifactCard(a, isEquipped){
     const maxed = a.level>=ARTIFACT_MAX_LEVEL;
-    const cost = maxed ? null : a.level*3;
+    const cost = maxed ? null : (a.level+2);
     const dust = this.player.materials['Magical Dust']||0;
     const canUpgrade = !maxed && dust>=cost;
     const subRows = a.subStats.length
@@ -1285,7 +1327,7 @@ class GameApp{
     const p = this.player;
     const art = this.findArtifactById(id);
     if(!art || art.level>=ARTIFACT_MAX_LEVEL) return;
-    const cost = art.level*3;
+    const cost = art.level+2;
     if((p.materials['Magical Dust']||0) < cost){ this.toast('Magical Dust tidak cukup'); return; }
     p.materials['Magical Dust'] -= cost;
     art.level++;
@@ -1309,7 +1351,7 @@ class GameApp{
     const idx = p.artifacts.findIndex(a=>a.id===id);
     if(idx<0) return;
     const art = p.artifacts[idx];
-    const dust = (DUST_BASE_BY_RARITY[art.rarity]||2) + (art.level-1)*2;
+    const dust = (DUST_BASE_BY_RARITY[art.rarity]||3) + (art.level-1)*3;
     p.materials['Magical Dust'] = (p.materials['Magical Dust']||0) + dust;
     p.artifacts.splice(idx,1);
     this.toast(`Artifact dihancurkan: +${dust} Magical Dust`);
@@ -1530,6 +1572,7 @@ class GameApp{
 
   beginRunCommon(){
     this.closeStationPanel();
+    document.getElementById('break-banner').style.opacity='0';
     document.body.classList.remove('lobby-mode');
     this.inLobby = false;
     this.stageActive = true;
@@ -1593,7 +1636,7 @@ class GameApp{
     this.currentRun = {kind:'farm', dungeonKey:key, tier};
     const dd = DomainData[key];
     const tdef = dd.tiers.find(t=>t.level===tier) || dd.tiers[0];
-    const statMult = 1 + (tier-1)*0.3;
+    const statMult = 1 + (tier-1)*0.32;
     const center = new THREE.Vector3(0,0,-6);
     this.spawnWave(tdef.mobs, center, statMult);
     document.getElementById('stage-banner').style.display='block';
@@ -2009,6 +2052,7 @@ class GameApp{
     const p = this.player;
     target.state='dead';
     target.mesh.visible = false;
+    document.getElementById('break-banner').style.opacity='0';
 
     const domainKey = this.currentRun ? this.currentRun.dungeonKey : null;
     const kind = this.currentRun ? this.currentRun.kind : 'story';
@@ -2073,7 +2117,8 @@ class GameApp{
       }
     } else if(kind==='farm'){
       const prog = this.domainProgress[this.currentRun.dungeonKey];
-      prog.unlockedTier = Math.max(prog.unlockedTier, this.currentRun.tier+1>3?3:this.currentRun.tier+1);
+      const maxTier = DomainData[this.currentRun.dungeonKey].tiers.length;
+      prog.unlockedTier = Math.max(prog.unlockedTier, Math.min(maxTier, this.currentRun.tier+1));
       farmTitle = DomainData[this.currentRun.dungeonKey].name+' Lv.'+this.currentRun.tier+' Selesai!';
     }
     this.saveGame();
@@ -2100,7 +2145,8 @@ class GameApp{
       againBtn.addEventListener('click', ()=>{ ov.style.display='none'; this.runFarmDomain(this.currentRun.dungeonKey, this.currentRun.tier); this.stageActive=true; });
       btns.appendChild(againBtn);
       const nextTierProg = this.domainProgress[this.currentRun.dungeonKey];
-      if(this.currentRun.tier<3 && nextTierProg.unlockedTier>this.currentRun.tier){
+      const maxTier = DomainData[this.currentRun.dungeonKey].tiers.length;
+      if(this.currentRun.tier<maxTier && nextTierProg.unlockedTier>this.currentRun.tier){
         const nextTierBtn = document.createElement('div');
         nextTierBtn.className='gold-btn'; nextTierBtn.textContent='Lanjut ke Level '+(this.currentRun.tier+1);
         nextTierBtn.addEventListener('click', ()=>{ ov.style.display='none'; this.runFarmDomain(this.currentRun.dungeonKey, this.currentRun.tier+1); this.stageActive=true; });

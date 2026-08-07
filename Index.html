@@ -431,9 +431,9 @@ const CharacterData = {
 };
 
 const EnemyData = {
-  Goblin:{ name:'Goblin', hp:210, patk:17, pdef:6, poiseMax:55, detectionRadius:9, attackRange:1.7, moveSpeed:3.3, expReward:40, goldReward:14, scale:1.0, color:0x4a7c3f },
-  GoblinElite:{ name:'Goblin Elite', hp:460, patk:26, pdef:11, poiseMax:95, detectionRadius:10, attackRange:1.8, moveSpeed:3.6, expReward:110, goldReward:36, scale:1.25, color:0x4a7c3f, isElite:true },
-  GoblinKing:{ name:'Goblin King', hp:1400, patk:30, pdef:19, poiseMax:320, detectionRadius:40, attackRange:2.3, moveSpeed:2.9, expReward:900, goldReward:280, scale:1.9, color:0x2f5c2f, isBoss:true }
+  Goblin:{ name:'Goblin', hp:250, patk:19, pdef:7, poiseMax:58, detectionRadius:9, attackRange:1.7, moveSpeed:3.5, expReward:44, goldReward:15, scale:1.0, color:0x4a7c3f },
+  GoblinElite:{ name:'Goblin Elite', hp:540, patk:29, pdef:13, poiseMax:100, detectionRadius:10, attackRange:1.8, moveSpeed:3.8, expReward:120, goldReward:40, scale:1.25, color:0x4a7c3f, isElite:true },
+  GoblinKing:{ name:'Goblin King', hp:1650, patk:34, pdef:22, poiseMax:340, detectionRadius:40, attackRange:2.3, moveSpeed:3.1, expReward:1000, goldReward:310, scale:1.9, color:0x2f5c2f, isBoss:true }
 };
 
 const DungeonData = {
@@ -475,18 +475,43 @@ const DomainData = {
 };
 
 const ARTIFACT_SLOTS = ['Crown','Bracelet','Ring','Necklace','Core'];
-const ARTIFACT_STATS = [{type:'hp',label:'HP'},{type:'patk',label:'Attack'},{type:'magic',label:'Magic Power'},{type:'defense',label:'Defense'}];
+// Main-stat types an artifact can roll, each with its own base value per rarity
+// (percentages except moveSpeed, which is flat units added to base Move Speed).
+const STAT_LABELS = {hp:'HP', patk:'Attack', magic:'Magic Power', defense:'Defense', critRate:'Crit Chance', critDmg:'Crit Damage', cooldown:'Cooldown Reduction', moveSpeed:'Movement Speed'};
+const MAIN_STAT_BASE = {
+  hp:       {Common:0.05, Uncommon:0.08, Rare:0.12, Epic:0.18, Legendary:0.26},
+  patk:     {Common:0.05, Uncommon:0.08, Rare:0.12, Epic:0.18, Legendary:0.26},
+  magic:    {Common:0.05, Uncommon:0.08, Rare:0.12, Epic:0.18, Legendary:0.26},
+  defense:  {Common:0.05, Uncommon:0.08, Rare:0.12, Epic:0.18, Legendary:0.26},
+  critRate: {Common:0.02, Uncommon:0.03, Rare:0.04, Epic:0.06, Legendary:0.09},
+  critDmg:  {Common:0.04, Uncommon:0.06, Rare:0.09, Epic:0.13, Legendary:0.18},
+  cooldown: {Common:0.02, Uncommon:0.03, Rare:0.05, Epic:0.07, Legendary:0.10},
+  moveSpeed:{Common:0.15, Uncommon:0.25, Rare:0.35, Epic:0.5,  Legendary:0.7}
+};
+// Substats: rolled once (fixed value) every 5 upgrade levels (5/10/15), never grow further.
+const SUBSTAT_POOL = [
+  {type:'critRate', label:'Crit Chance', min:0.07, max:0.10},
+  {type:'critDmg', label:'Crit Damage', min:0.14, max:0.20},
+  {type:'patk', label:'Attack', min:0.15, max:0.25},
+  {type:'magic', label:'Magic Power', min:0.15, max:0.25},
+  {type:'defense', label:'Defense', min:0.20, max:0.30},
+  {type:'hp', label:'HP', min:0.20, max:0.30},
+  {type:'cooldown', label:'Cooldown Reduction', min:0.05, max:0.15},
+  {type:'moveSpeed', label:'Movement Speed', min:0.4, max:1.2}
+];
+const ARTIFACT_MAX_LEVEL = 15;
 // 5-tier rarity, odds shift toward Legendary as the domain's difficulty level rises.
 const RARITY_TABLE_BY_TIER = {
-  1:[{name:'Common',weight:40,pct:0.03},{name:'Uncommon',weight:30,pct:0.05},{name:'Rare',weight:20,pct:0.08},{name:'Epic',weight:8,pct:0.12},{name:'Legendary',weight:2,pct:0.18}],
-  2:[{name:'Common',weight:20,pct:0.03},{name:'Uncommon',weight:25,pct:0.05},{name:'Rare',weight:30,pct:0.08},{name:'Epic',weight:18,pct:0.12},{name:'Legendary',weight:7,pct:0.18}],
-  3:[{name:'Common',weight:5,pct:0.03},{name:'Uncommon',weight:15,pct:0.05},{name:'Rare',weight:30,pct:0.08},{name:'Epic',weight:30,pct:0.12},{name:'Legendary',weight:20,pct:0.18}]
+  1:[{name:'Common',weight:40},{name:'Uncommon',weight:30},{name:'Rare',weight:20},{name:'Epic',weight:8},{name:'Legendary',weight:2}],
+  2:[{name:'Common',weight:20},{name:'Uncommon',weight:25},{name:'Rare',weight:30},{name:'Epic',weight:18},{name:'Legendary',weight:7}],
+  3:[{name:'Common',weight:5},{name:'Uncommon',weight:15},{name:'Rare',weight:30},{name:'Epic',weight:30},{name:'Legendary',weight:20}]
 };
 const RARITY_COLOR = {Common:'var(--r-common)', Uncommon:'var(--r-uncommon)', Rare:'var(--r-rare)', Epic:'var(--r-epic)', Legendary:'var(--r-legendary)'};
 // Full-set bonus: all 5 artifact slots filled with the same rarity grants a flat
 // bonus applied across HP/Attack/Magic/Defense on top of each artifact's own stat.
 const SET_BONUS_BY_RARITY = {Common:0.03, Uncommon:0.05, Rare:0.08, Epic:0.12, Legendary:0.20};
-const RARITY_PCT = {Common:0.03, Uncommon:0.05, Rare:0.08, Epic:0.12, Legendary:0.18};
+// Deleting an artifact ("salvage") gives Magical Dust, the only way to fund upgrades.
+const DUST_BASE_BY_RARITY = {Common:2, Uncommon:3, Rare:5, Epic:8, Legendary:12};
 
 const SKILL_UPGRADE_COST = {
   2:{gold:500, book:1, ess:2}, 3:{gold:900, book:2, ess:4}, 4:{gold:1500, book:3, ess:6},
@@ -501,18 +526,32 @@ function pickWeighted(table){
   for(const t of table){ if(r<t.weight) return t; r-=t.weight; }
   return table[0];
 }
+function makeArtifact(rarityName){
+  const slot = ARTIFACT_SLOTS[Math.floor(Math.random()*ARTIFACT_SLOTS.length)];
+  const statTypes = Object.keys(MAIN_STAT_BASE);
+  const statType = statTypes[Math.floor(Math.random()*statTypes.length)];
+  const base = MAIN_STAT_BASE[statType][rarityName];
+  return {
+    id:'art_'+Date.now()+'_'+Math.floor(Math.random()*9999),
+    name:`${rarityName} ${slot}`,
+    rarity:rarityName, slot,
+    mainStatType:statType, mainStatLabel:STAT_LABELS[statType], mainStatBase:base,
+    level:1, subStats:[]
+  };
+}
 function generateArtifact(tier){
   const table = RARITY_TABLE_BY_TIER[tier] || RARITY_TABLE_BY_TIER[1];
   const rarity = pickWeighted(table);
-  const slot = ARTIFACT_SLOTS[Math.floor(Math.random()*ARTIFACT_SLOTS.length)];
-  const stat = ARTIFACT_STATS[Math.floor(Math.random()*ARTIFACT_STATS.length)];
-  return { id:'art_'+Date.now()+'_'+Math.floor(Math.random()*9999), name:`${rarity.name} ${slot}`, rarity:rarity.name, slot, statType:stat.type, statLabel:stat.label, pct:rarity.pct };
+  return makeArtifact(rarity.name);
 }
 function generateArtifactOfRarity(rarityName){
-  const slot = ARTIFACT_SLOTS[Math.floor(Math.random()*ARTIFACT_SLOTS.length)];
-  const stat = ARTIFACT_STATS[Math.floor(Math.random()*ARTIFACT_STATS.length)];
-  const pct = RARITY_PCT[rarityName];
-  return { id:'art_'+Date.now()+'_'+Math.floor(Math.random()*9999), name:`${rarityName} ${slot}`, rarity:rarityName, slot, statType:stat.type, statLabel:stat.label, pct };
+  return makeArtifact(rarityName);
+}
+function artifactMainStatValue(a){
+  return a.mainStatBase * (1 + (a.level-1)*0.06);
+}
+function formatStatValue(type, value){
+  return type==='moveSpeed' ? '+'+value.toFixed(2) : '+'+Math.round(value*100)+'%';
 }
 function defenseReduction(def){
   const K = 566.7;
@@ -856,9 +895,10 @@ class GameApp{
       mesh:g, facing:0,
       level:1, exp:0,
       baseHpMax:c.hp, baseManaMax:c.mana, basePatk:c.patk, baseMagic:c.magic, basePdef:c.pdef, baseMdef:c.mdef,
+      baseCritRate:c.critRate, baseCritDmg:c.critDmg, baseMoveSpeed:c.moveSpeed,
       hpMax:c.hp, hp:c.hp, manaMax:c.mana, mana:c.mana,
       patk:c.patk, magic:c.magic, pdef:c.pdef, mdef:c.mdef, aspd:c.aspd,
-      critRate:c.critRate, critDmg:c.critDmg, moveSpeed:c.moveSpeed,
+      critRate:c.critRate, critDmg:c.critDmg, moveSpeed:c.moveSpeed, cdr:0,
       combo:0, comboTimer:0,
       attackCd:0, dodgeCd:0,
       cooldowns:{skill1:0, skill2:0, skill3:0, ultimate:0},
@@ -875,14 +915,22 @@ class GameApp{
 
   recalcStats(){
     const p = this.player;
-    let hpPct=0, atkPct=0, magicPct=0, defPct=0;
+    let hpPct=0, atkPct=0, magicPct=0, defPct=0, critRateAdd=0, critDmgAdd=0, cdrPct=0, moveSpeedFlat=0;
     const equipped = Object.values(p.equippedArtifacts);
+    const addStat = (type, val)=>{
+      if(type==='hp') hpPct+=val;
+      else if(type==='patk') atkPct+=val;
+      else if(type==='magic') magicPct+=val;
+      else if(type==='defense') defPct+=val;
+      else if(type==='critRate') critRateAdd+=val;
+      else if(type==='critDmg') critDmgAdd+=val;
+      else if(type==='cooldown') cdrPct+=val;
+      else if(type==='moveSpeed') moveSpeedFlat+=val;
+    };
     equipped.forEach(a=>{
       if(!a) return;
-      if(a.statType==='hp') hpPct+=a.pct;
-      else if(a.statType==='patk') atkPct+=a.pct;
-      else if(a.statType==='magic') magicPct+=a.pct;
-      else if(a.statType==='defense') defPct+=a.pct;
+      addStat(a.mainStatType, artifactMainStatValue(a));
+      a.subStats.forEach(s=> addStat(s.type, s.value));
     });
     p.setBonusRarity = null;
     if(equipped.every(a=>a)){
@@ -899,6 +947,10 @@ class GameApp{
     p.magic = Math.round(p.baseMagic*(1+magicPct));
     p.pdef = Math.round(p.basePdef*(1+defPct));
     p.mdef = p.baseMdef;
+    p.critRate = Math.min(0.75, p.baseCritRate + critRateAdd);
+    p.critDmg = Math.min(3.0, p.baseCritDmg + critDmgAdd);
+    p.cdr = Math.min(0.4, cdrPct);
+    p.moveSpeed = p.baseMoveSpeed + moveSpeedFlat;
     p.hp = Math.min(p.hp, p.hpMax);
     p.mana = Math.min(p.mana, p.manaMax);
   }
@@ -1072,7 +1124,7 @@ class GameApp{
       ? Object.entries(p.materials).map(([n,q])=>`<div class="panel-row"><span class="prl">${n}</span><span class="prr">${q}</span></div>`).join('')
       : `<div class="panel-row"><span class="prl">Belum ada material. Coba Material Domain!</span></div>`;
     const artRows = p.artifacts.length
-      ? p.artifacts.map(a=>`<div class="panel-row"><span class="prl" style="color:${RARITY_COLOR[a.rarity]}">${a.name}</span><span class="prr">+${Math.round(a.pct*100)}% ${a.statLabel}</span></div>`).join('')
+      ? p.artifacts.map(a=>`<div class="panel-row"><span class="prl" style="color:${RARITY_COLOR[a.rarity]}">${a.name} (Lv.${a.level})</span><span class="prr">${formatStatValue(a.mainStatType, artifactMainStatValue(a))} ${a.mainStatLabel}</span></div>`).join('')
       : `<div class="panel-row"><span class="prl">Belum ada artifact belum di-equip. Coba Artifact Domain!</span></div>`;
     return `
       <div class="panel-row"><span class="prl">🪙 Gold</span><span class="prr">${p.gold}</span></div>
@@ -1095,13 +1147,14 @@ class GameApp{
       <div class="panel-row"><span class="prl">Critical Rate</span><span class="prr">${Math.round(p.critRate*100)}%</span></div>
       <div class="panel-row"><span class="prl">Critical Damage</span><span class="prr">${Math.round(p.critDmg*100)}%</span></div>
       <div class="panel-row"><span class="prl">Move Speed</span><span class="prr">${p.moveSpeed.toFixed(2)}</span></div>
+      <div class="panel-row"><span class="prl">Cooldown Reduction</span><span class="prr">${Math.round(p.cdr*100)}%</span></div>
     `;
     const slots = [
       {def:c.basic, level:1, isBasic:true, cooldown:(1/p.aspd)},
-      {def:c.skill1, level:p.skillLevels.skill1, cooldown:c.skill1.cooldown},
-      {def:c.skill2, level:p.skillLevels.skill2, cooldown:c.skill2.cooldown},
-      {def:c.skill3, level:p.skillLevels.skill3, cooldown:c.skill3.cooldown},
-      {def:c.ultimate, level:p.skillLevels.ultimate, cooldown:c.ultimate.cooldown}
+      {def:c.skill1, level:p.skillLevels.skill1, cooldown:this.getEffCooldown(c.skill1.cooldown)},
+      {def:c.skill2, level:p.skillLevels.skill2, cooldown:this.getEffCooldown(c.skill2.cooldown)},
+      {def:c.skill3, level:p.skillLevels.skill3, cooldown:this.getEffCooldown(c.skill3.cooldown)},
+      {def:c.ultimate, level:p.skillLevels.ultimate, cooldown:this.getEffCooldown(c.ultimate.cooldown)}
     ];
     const skillRows = slots.map(s=>{
       const effMult = s.def.mult>0 ? s.def.mult*(1+(s.level-1)*0.08) : 0;
@@ -1121,31 +1174,71 @@ class GameApp{
     const slotsHtml = ARTIFACT_SLOTS.map(slot=>{
       const a = p.equippedArtifacts[slot];
       const style = a ? `style="color:${RARITY_COLOR[a.rarity]}"` : '';
-      return `<div class="art-slot ${a?'filled':''}" ${style} data-slot="${slot}">${a? a.rarity+'<br>'+slot : slot}</div>`;
+      return `<div class="art-slot ${a?'filled':''}" ${style} data-slot="${slot}">${a? a.rarity+'<br>Lv.'+a.level : slot}</div>`;
     }).join('');
-    const poolHtml = p.artifacts.length ? p.artifacts.map(a=>`
-      <div class="art-pool-item" data-id="${a.id}"><span style="color:${RARITY_COLOR[a.rarity]}">${a.name}</span><span class="mini-btn">Equip</span></div>
-    `).join('') : `<div class="panel-row"><span class="prl">Belum ada artifact. Coba Artifact Domain!</span></div>`;
+
+    const equippedList = Object.values(p.equippedArtifacts).filter(a=>a);
+    const equippedRows = equippedList.length ? equippedList.map(a=>this.renderArtifactCard(a, true)).join('')
+      : `<div class="panel-row"><span class="prl">Belum ada artifact terpasang</span></div>`;
+
+    const poolHtml = p.artifacts.length ? p.artifacts.map(a=>this.renderArtifactCard(a, false)).join('')
+      : `<div class="panel-row"><span class="prl">Belum ada artifact. Coba Artifact Domain!</span></div>`;
+
     const setRows = Object.entries(SET_BONUS_BY_RARITY).map(([r,pct])=>
       `<div class="panel-row"><span class="prl" style="color:${RARITY_COLOR[r]}">Full Set ${r}</span><span class="prr">+${Math.round(pct*100)}% All Stats</span></div>`
     ).join('');
     const setStatus = p.setBonusRarity
       ? `<div class="panel-row"><span class="prl">🎁 Set Bonus Aktif</span><span class="prr" style="color:${RARITY_COLOR[p.setBonusRarity]}">${p.setBonusRarity} +${Math.round(SET_BONUS_BY_RARITY[p.setBonusRarity]*100)}%</span></div>`
       : `<div class="panel-row"><span class="prl">🎁 Set Bonus</span><span class="prr">Belum aktif</span></div>`;
+
     return `<div class="artifact-slots">${slotsHtml}</div>
+      <div class="panel-row"><span class="prl">✨ Magical Dust</span><span class="prr">${p.materials['Magical Dust']||0}</span></div>
       ${setStatus}
       <div class="panel-h">Tabel Full Set Bonus (isi 5 slot rarity sama)</div>${setRows}
-      <div class="panel-h">Koleksi Artifact (klik utk equip, klik slot terisi utk lepas)</div>${poolHtml}`;
+      <div class="panel-h">Artifact Terpasang</div>${equippedRows}
+      <div class="panel-h">Koleksi Artifact (klik nama utk equip)</div>${poolHtml}`;
   }
+
+  renderArtifactCard(a, isEquipped){
+    const maxed = a.level>=ARTIFACT_MAX_LEVEL;
+    const cost = maxed ? null : a.level*3;
+    const dust = this.player.materials['Magical Dust']||0;
+    const canUpgrade = !maxed && dust>=cost;
+    const subRows = a.subStats.length
+      ? a.subStats.map(s=>`<div style="font-size:9.5px; color:var(--text-dim);">↳ ${s.label} ${formatStatValue(s.type,s.value)}</div>`).join('')
+      : `<div style="font-size:9.5px; color:var(--text-dim);">Belum ada substat (muncul tiap Lv.5)</div>`;
+    return `<div class="panel-row" style="flex-direction:column; align-items:stretch;">
+      <div style="display:flex; justify-content:space-between;">
+        <span class="prl" style="color:${RARITY_COLOR[a.rarity]}">${a.name} (Lv.${a.level}/${ARTIFACT_MAX_LEVEL})</span>
+        <span class="prr">${formatStatValue(a.mainStatType, artifactMainStatValue(a))} ${a.mainStatLabel}</span>
+      </div>
+      ${subRows}
+      <div style="display:flex; gap:6px; margin-top:6px; flex-wrap:wrap;">
+        ${isEquipped ? `<span class="mini-btn" data-unequip="${a.id}">Lepas</span>` : `<span class="mini-btn" data-equip="${a.id}">Equip</span>`}
+        <span class="mini-btn ${canUpgrade?'':'disabled'}" data-upgrade="${a.id}">${maxed?'MAX':'Upgrade ('+cost+' Dust)'}</span>
+        ${isEquipped ? '' : `<span class="mini-btn" data-delete="${a.id}" style="background:#7a3030; color:#ffdada;">Hapus</span>`}
+      </div>
+    </div>`;
+  }
+
   wireArtifactPanel(){
-    document.querySelectorAll('#station-panel-body .art-slot.filled').forEach(el=>{
-      el.addEventListener('click', ()=>{ this.unequipArtifact(el.dataset.slot); this.openStationPanel('artifact'); });
-    });
-    document.querySelectorAll('#station-panel-body .art-pool-item').forEach(el=>{
+    document.querySelectorAll('#station-panel-body [data-equip]').forEach(el=>{
       el.addEventListener('click', ()=>{
-        const art = this.player.artifacts.find(a=>a.id===el.dataset.id);
+        const art = this.player.artifacts.find(a=>a.id===el.dataset.equip);
         if(art){ this.equipArtifact(art); this.openStationPanel('artifact'); }
       });
+    });
+    document.querySelectorAll('#station-panel-body [data-unequip]').forEach(el=>{
+      el.addEventListener('click', ()=>{
+        const art = Object.values(this.player.equippedArtifacts).find(a=>a && a.id===el.dataset.unequip);
+        if(art){ this.unequipArtifact(art.slot); this.openStationPanel('artifact'); }
+      });
+    });
+    document.querySelectorAll('#station-panel-body [data-upgrade]:not(.disabled)').forEach(el=>{
+      el.addEventListener('click', ()=> this.upgradeArtifact(el.dataset.upgrade));
+    });
+    document.querySelectorAll('#station-panel-body [data-delete]').forEach(el=>{
+      el.addEventListener('click', ()=> this.deleteArtifact(el.dataset.delete));
     });
   }
   equipArtifact(art){
@@ -1165,6 +1258,46 @@ class GameApp{
     p.artifacts.push(a);
     p.equippedArtifacts[slot] = null;
     this.recalcStats();
+    this.saveGame();
+  }
+  findArtifactById(id){
+    const equipped = Object.values(this.player.equippedArtifacts).find(a=>a && a.id===id);
+    if(equipped) return equipped;
+    return this.player.artifacts.find(a=>a.id===id);
+  }
+  upgradeArtifact(id){
+    const p = this.player;
+    const art = this.findArtifactById(id);
+    if(!art || art.level>=ARTIFACT_MAX_LEVEL) return;
+    const cost = art.level*3;
+    if((p.materials['Magical Dust']||0) < cost){ this.toast('Magical Dust tidak cukup'); return; }
+    p.materials['Magical Dust'] -= cost;
+    art.level++;
+    if(art.level%5===0){
+      const usedTypes = new Set([art.mainStatType, ...art.subStats.map(s=>s.type)]);
+      const pool = SUBSTAT_POOL.filter(s=>!usedTypes.has(s.type));
+      if(pool.length){
+        const chosen = pool[Math.floor(Math.random()*pool.length)];
+        const value = chosen.min + Math.random()*(chosen.max-chosen.min);
+        art.subStats.push({type:chosen.type, label:chosen.label, value});
+        this.toast(`Substat baru: ${chosen.label}!`);
+      }
+    }
+    this.toast(`${art.name} naik ke Lv.${art.level}!`);
+    this.recalcStats();
+    this.openStationPanel('artifact');
+    this.saveGame();
+  }
+  deleteArtifact(id){
+    const p = this.player;
+    const idx = p.artifacts.findIndex(a=>a.id===id);
+    if(idx<0) return;
+    const art = p.artifacts[idx];
+    const dust = (DUST_BASE_BY_RARITY[art.rarity]||2) + (art.level-1)*2;
+    p.materials['Magical Dust'] = (p.materials['Magical Dust']||0) + dust;
+    p.artifacts.splice(idx,1);
+    this.toast(`Artifact dihancurkan: +${dust} Magical Dust`);
+    this.openStationPanel('artifact');
     this.saveGame();
   }
 
@@ -2023,10 +2156,14 @@ class GameApp{
     this.applySkillDamage(this.cdata.basic, true, null);
   }
 
+  getEffCooldown(baseCooldown){
+    return baseCooldown * (1 - this.player.cdr);
+  }
+
   trySkill(slot){
     const p = this.player, s = this.cdata[slot];
     if(p.cooldowns[slot]>0 || p.mana < s.manaCost) return;
-    p.mana -= s.manaCost; p.cooldowns[slot] = s.cooldown;
+    p.mana -= s.manaCost; p.cooldowns[slot] = this.getEffCooldown(s.cooldown);
     this.applySkillDamage(s, false, slot);
   }
 
@@ -2254,10 +2391,10 @@ class GameApp{
     }
 
     this.updateCooldownVisual('slot-attack', p.attackCd, 1/p.aspd);
-    this.updateCooldownVisual('slot-skill1', p.cooldowns.skill1, this.cdata.skill1.cooldown);
-    this.updateCooldownVisual('slot-skill2', p.cooldowns.skill2, this.cdata.skill2.cooldown);
-    this.updateCooldownVisual('slot-skill3', p.cooldowns.skill3, this.cdata.skill3.cooldown);
-    this.updateCooldownVisual('slot-ultimate', p.cooldowns.ultimate, this.cdata.ultimate.cooldown);
+    this.updateCooldownVisual('slot-skill1', p.cooldowns.skill1, this.getEffCooldown(this.cdata.skill1.cooldown));
+    this.updateCooldownVisual('slot-skill2', p.cooldowns.skill2, this.getEffCooldown(this.cdata.skill2.cooldown));
+    this.updateCooldownVisual('slot-skill3', p.cooldowns.skill3, this.getEffCooldown(this.cdata.skill3.cooldown));
+    this.updateCooldownVisual('slot-ultimate', p.cooldowns.ultimate, this.getEffCooldown(this.cdata.ultimate.cooldown));
     this.updateCooldownVisual('slot-dodge', p.dodgeCd, 2.5);
   }
 

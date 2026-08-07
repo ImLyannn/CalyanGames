@@ -547,6 +547,21 @@ function generateArtifact(tier){
 function generateArtifactOfRarity(rarityName){
   return makeArtifact(rarityName);
 }
+function normalizeArtifact(a){
+  if(!a) return a;
+  if(a.subStats===undefined) a.subStats=[];
+  if(a.level===undefined) a.level=1;
+  if(a.mainStatType===undefined){
+    // migrate from the old pre-upgrade artifact shape (statType/statLabel/pct)
+    const oldType = a.statType || 'hp';
+    a.mainStatType = oldType;
+    a.mainStatLabel = a.statLabel || STAT_LABELS[oldType] || oldType;
+    a.mainStatBase = (a.pct!==undefined) ? a.pct : ((MAIN_STAT_BASE[oldType]||{})[a.rarity] || 0.05);
+  }
+  if(a.mainStatBase===undefined) a.mainStatBase = (MAIN_STAT_BASE[a.mainStatType]||{})[a.rarity] || 0.05;
+  if(a.mainStatLabel===undefined) a.mainStatLabel = STAT_LABELS[a.mainStatType] || a.mainStatType;
+  return a;
+}
 function artifactMainStatValue(a){
   return a.mainStatBase * (1 + (a.level-1)*0.06);
 }
@@ -976,8 +991,9 @@ class GameApp{
     if(shared){
       p.gold = shared.gold||0; p.gems = shared.gems||0;
       p.materials = shared.materials||{};
-      p.artifacts = shared.artifacts||[];
+      p.artifacts = (shared.artifacts||[]).map(normalizeArtifact);
       p.equippedArtifacts = shared.equippedArtifacts||{Crown:null,Bracelet:null,Ring:null,Necklace:null,Core:null};
+      Object.keys(p.equippedArtifacts).forEach(slot=> normalizeArtifact(p.equippedArtifacts[slot]));
       this.dungeonProgress = shared.dungeonProgress||this.dungeonProgress;
       this.domainProgress = shared.domainProgress||this.domainProgress;
       this.quests = shared.quests||this.quests;

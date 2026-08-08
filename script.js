@@ -1661,7 +1661,7 @@ class GameApp{
   }
 
   triggerBreak(target){
-    target.state='break'; target.breakTimer = 1;
+    target.state='break'; target.breakTimer = 5;
     const b = document.getElementById('break-banner');
     b.style.opacity='1';
     setTimeout(()=>{ if(target.state!=='dead') b.style.opacity='0'; }, 1400);

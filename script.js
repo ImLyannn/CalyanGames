@@ -8,18 +8,18 @@ const CharacterData = {
     key:'Mage', icon:'🧙', role:'Burst / Crowd Control', color:0x8a5cff,
     hp:500, mana:350, patk:20, magic:45, pdef:20, mdef:30, aspd:1.0, critRate:0.0, critDmg:1.5, moveSpeed:5.0,
     growth:{hp:30, mana:25, patk:2, magic:7, pdef:2, mdef:3},
-    basic:{name:'Arcane Bolt', icon:'✨', mult:0.9, isMagic:true, range:6.5, aoe:true, aoeRadius:3.0, fx:{type:'bolt', color:0xb98aff}},
+    basic:{name:'Arcane Bolt', icon:'✨', mult:1.0, isMagic:true, range:6.5, aoe:true, aoeRadius:3.0, fx:{type:'bolt', color:0xb98aff}},
     passive:{name:'Mana Flow', icon:'🔷', desc:'Setiap 4 Basic Attack, kembalikan 8 Mana.'},
     skill1:{name:'Frozen Spike', icon:'❄️', mult:1.6, isMagic:true, manaCost:25, cooldown:6, aoe:true, aoeRadius:4.5, effect:{type:'stun', duration:1.0}, fx:{type:'ice', color:0xbfe8ff}, desc:'Damage area + root musuh 1 detik.'},
-    skill2:{name:'Fire Blast', icon:'🔥', mult:1.5, isMagic:true, manaCost:35, cooldown:12, aoe:true, aoeRadius:5.2, effect:{type:'dot', dps:100, duration:3}, fx:{type:'fire', color:0xff7a3f}, desc:'Ledakan area + Burn dahsyat 3 detik.'},
-    skill3:{name:'Temporal Shift', icon:'⏳', mult:0, isMagic:true, manaCost:35, cooldown:18, selfBuff:{type:'shield', pct:0.20, duration:4}, resetSkills:['skill1','skill2'], fx:{type:'shield', color:0x7fe0d0}, desc:'Shield 20% Max HP 4 detik + reset cooldown Skill 1 & 2.'},
+    skill2:{name:'Fire Blast', icon:'🔥', mult:1.5, isMagic:true, manaCost:35, cooldown:12, aoe:true, aoeRadius:5.2, effect:{type:'dot', dps:50, duration:3}, fx:{type:'fire', color:0xff7a3f}, desc:'Ledakan area + Burn dahsyat 3 detik.'},
+    skill3:{name:'Temporal Shift', icon:'⏳', mult:0, isMagic:true, manaCost:35, cooldown:22, selfBuff:{type:'shield', pct:0.10, duration:4}, resetSkills:['skill1','skill2'], fx:{type:'shield', color:0x7fe0d0}, desc:'Shield 10% Max HP 4 detik + reset cooldown Skill 1 & 2.'},
     ultimate:{name:'Meteor Tornado', icon:'🌪️', mult:4.2, isMagic:true, manaCost:90, cooldown:25, aoe:true, aoeRadius:5.8, effect:{type:'stun', duration:1.5}, fx:{type:'tornado', color:0x8a5cff}, desc:'Damage besar area + Stun 1.5 detik.'}
   },
   Archer: {
     key:'Archer', icon:'🏹', role:'Sustained DPS / Critical', color:0x4fd68c,
-    hp:580, mana:180, patk:45, magic:0, pdef:20, mdef:20, aspd:1.4, critRate:0.15, critDmg:1.5, moveSpeed:5.4,
+    hp:580, mana:180, patk:45, magic:0, pdef:20, mdef:20, aspd:1.5, critRate:0.15, critDmg:1.5, moveSpeed:5.4,
     growth:{hp:35, mana:10, patk:6, pdef:2, mdef:2},
-    basic:{name:'Quick Shot', icon:'🏹', mult:1.0, isMagic:false, range:7.5, fx:{type:'arrow', color:0x4fd68c}},
+    basic:{name:'Quick Shot', icon:'🏹', mult:1.05, isMagic:false, range:7.5, fx:{type:'arrow', color:0x4fd68c}},
     passive:{name:'Hawk Eye', icon:'🦅', desc:'+8% Crit Rate selama 3 detik setelah pakai skill.'},
     skill1:{name:'Multi Shot', icon:'🎯', mult:1.35, isMagic:false, manaCost:18, cooldown:3, range:7, fx:{type:'arrow', color:0x8fe8b0}, desc:'Beberapa anak panah sekaligus.'},
     skill2:{name:'Piercing Arrow', icon:'🏹', mult:1.9, isMagic:false, manaCost:28, cooldown:5, range:7.5, defShred:0.3, fx:{type:'arrow', color:0xfff07a}, desc:'Damage tinggi, abaikan 30% Defense.'},
@@ -41,19 +41,19 @@ const CharacterData = {
     key:'Fighter', icon:'🛡️', role:'Tank / Bruiser', color:0xe8b64c,
     hp:800, mana:120, patk:40, magic:0, pdef:40, mdef:40, aspd:0.9, critRate:0.05, critDmg:1.5, moveSpeed:4.75,
     growth:{hp:45, mana:8, patk:5, pdef:4, mdef:4},
-    basic:{name:'Slam', icon:'🔨', mult:1.1, isMagic:false, aoe:true, aoeRadius:2.8, fx:{type:'shockwave', color:0xe8b64c}},
+    basic:{name:'Slam', icon:'🔨', mult:1.15, isMagic:false, aoe:true, aoeRadius:2.8, fx:{type:'shockwave', color:0xe8b64c}},
     passive:{name:'Bulwark', icon:'🧱', desc:'Shield 15% Max HP otomatis saat HP < 30% (CD 30 detik).'},
-    skill1:{name:'Shield Bash', icon:'🛡️', mult:1.3, isMagic:false, manaCost:15, cooldown:4, aoe:true, aoeRadius:3.0, effect:{type:'stun', duration:1.0}, fx:{type:'shockwave', color:0xf2d34c}, desc:'Damage area + Stun 1 detik.'},
+    skill1:{name:'Shield Bash', icon:'🛡️', mult:1.4, isMagic:false, manaCost:15, cooldown:4, aoe:true, aoeRadius:3.0, effect:{type:'stun', duration:1.0}, fx:{type:'shockwave', color:0xf2d34c}, desc:'Damage area + Stun 1 detik.'},
     skill2:{name:'Guardian Smash', icon:'💢', mult:1.8, isMagic:false, manaCost:28, cooldown:6, aoe:true, fx:{type:'shockwave', color:0xff8a3f}, desc:'Hantaman area damage besar.'},
-    skill3:{name:'Iron Will', icon:'🩸', mult:0, isMagic:false, manaCost:18, cooldown:15, selfBuff:{type:'ironwill', defMult:1.3, lifesteal:0.30, duration:7}, fx:{type:'shield', color:0xe8b64c}, desc:'+30% Defense & 30% Lifesteal, 7 detik.'},
-    ultimate:{name:'Earth Sunder', icon:'🌋', mult:2.9, isMagic:false, manaCost:75, cooldown:20, aoe:true, effect:{type:'stun', duration:1.5}, fx:{type:'shockwave', color:0xb5651d}, desc:'Damage besar area + Knockdown 1.5 detik.'}
+    skill3:{name:'Iron Will', icon:'🩸', mult:0, isMagic:false, manaCost:18, cooldown:18, selfBuff:{type:'ironwill', defMult:1.3, lifesteal:0.25, duration:7}, fx:{type:'shield', color:0xe8b64c}, desc:'+30% Defense & 30% Lifesteal, 7 detik.'},
+    ultimate:{name:'Earth Sunder', icon:'🌋', mult:3.0, isMagic:false, manaCost:75, cooldown:20, aoe:true, effect:{type:'stun', duration:1.5}, fx:{type:'shockwave', color:0xb5651d}, desc:'Damage besar area + Knockdown 1.5 detik.'}
   }
 };
 
 const EnemyData = {
-  Goblin:{ name:'Goblin', hp:300, patk:24, pdef:9, breakHits:7, detectionRadius:9, attackRange:1.7, moveSpeed:3.7, expReward:48, goldReward:16, scale:1.0, color:0x4a7c3f },
-  GoblinElite:{ name:'Goblin Elite', hp:650, patk:36, pdef:16, breakHits:15, detectionRadius:10, attackRange:1.8, moveSpeed:4.1, expReward:130, goldReward:44, scale:1.25, color:0x4a7c3f, isElite:true },
-  GoblinKing:{ name:'Goblin King', hp:40000, patk:60, pdef:27, breakHits:25, detectionRadius:40, attackRange:2.3, moveSpeed:3.4, expReward:1100, goldReward:340, scale:1.9, color:0x2f5c2f, isBoss:true }
+  Goblin:{ name:'Goblin', hp:300, patk:30, pdef:9, breakHits:7, detectionRadius:9, attackRange:1.7, moveSpeed:3.7, expReward:48, goldReward:16, scale:1.0, color:0x4a7c3f },
+  GoblinElite:{ name:'Goblin Elite', hp:650, patk:50, pdef:16, breakHits:15, detectionRadius:10, attackRange:1.8, moveSpeed:4.1, expReward:130, goldReward:44, scale:1.25, color:0x4a7c3f, isElite:true },
+  GoblinKing:{ name:'Goblin King', hp:40000, patk:220, pdef:27, breakHits:25, detectionRadius:40, attackRange:2.3, moveSpeed:3.4, expReward:1100, goldReward:340, scale:1.9, color:0x2f5c2f, isBoss:true }
 };
 
 const DungeonData = {

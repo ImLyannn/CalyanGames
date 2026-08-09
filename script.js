@@ -11,9 +11,9 @@ const CharacterData = {
     basic:{name:'Arcane Bolt', icon:'✨', mult:0.9, isMagic:true, range:6.5, aoe:true, fx:{type:'bolt', color:0xb98aff}},
     passive:{name:'Mana Flow', icon:'🔷', desc:'Setiap 4 Basic Attack, kembalikan 8 Mana.'},
     skill1:{name:'Frozen Spike', icon:'❄️', mult:1.6, isMagic:true, manaCost:25, cooldown:6, aoe:true, range:6.5, effect:{type:'stun', duration:1.0}, fx:{type:'ice', color:0xbfe8ff}, desc:'Damage + root musuh 1 detik.'},
-    skill2:{name:'Fire Blast', icon:'🔥', mult:1.5, isMagic:true, manaCost:35, cooldown:6, aoe:true, aoeRadius:5.2, effect:{type:'dot', dps:25, duration:3}, fx:{type:'fire', color:0xff7a3f}, desc:'Ledakan area + Burn 3 detik.'},
+    skill2:{name:'Fire Blast', icon:'🔥', mult:1.5, isMagic:true, manaCost:35, cooldown:12, aoe:true, aoeRadius:5.2, effect:{type:'dot', dps:100, duration:4}, fx:{type:'fire', color:0xff7a3f}, desc:'Ledakan area + Burn 4 detik.'},
     skill3:{name:'Arcane Barrier', icon:'🛡️', mult:0, isMagic:true, manaCost:20, cooldown:10, selfBuff:{type:'shield', pct:0.20, duration:4}, fx:{type:'shield', color:0x7fe0d0}, desc:'Shield 20% Max HP selama 4 detik.'},
-    ultimate:{name:'Meteor Tornado', icon:'🌪️', mult:3.2, isMagic:true, manaCost:90, cooldown:25, aoe:true, aoeRadius:5.8, effect:{type:'stun', duration:1.5}, fx:{type:'tornado', color:0x8a5cff}, desc:'Damage besar area + Stun 1.5 detik.'}
+    ultimate:{name:'Meteor Tornado', icon:'🌪️', mult:4.2, isMagic:true, manaCost:90, cooldown:25, aoe:true, aoeRadius:5.8, effect:{type:'stun', duration:1.5}, fx:{type:'tornado', color:0x8a5cff}, desc:'Damage besar area + Stun 1.5 detik.'}
   },
   Archer: {
     key:'Archer', icon:'🏹', role:'Sustained DPS / Critical', color:0x4fd68c,
@@ -35,7 +35,7 @@ const CharacterData = {
     skill1:{name:'Shadow Strike', icon:'🌑', mult:2.0, isMagic:false, manaCost:18, cooldown:3.5, dash:true, fx:{type:'slash', color:0xff5c5c}, desc:'Gap-close cepat + damage besar.'},
     skill2:{name:'Poison Blade', icon:'🧪', mult:1.3, isMagic:false, manaCost:22, cooldown:5, aoe:true, effect:{type:'dot', dps:20, duration:3}, fx:{type:'slash', color:0x7fe08a}, desc:'Damage + Poison 3 detik.'},
     skill3:{name:'Smoke Bomb', icon:'💨', mult:0, isMagic:false, manaCost:20, cooldown:8, selfBuff:{type:'haste', mult:2.0, duration:2, iframe:0.5}, fx:{type:'smoke', color:0xaaaaaa}, desc:'Haste 40% + I-Frame singkat.'},
-    ultimate:{name:'Execution', icon:'☠️', mult:3.5, isMagic:false, manaCost:85, cooldown:24, executeBonus:0.5, blinkStrike:true, blinkHits:4, fx:{type:'slash', color:0xff2b2b}, desc:'Blink 4x ke musuh terdekat, tiap hit damage besar. Tak bisa di-hit selama durasi.'}
+    ultimate:{name:'Execution', icon:'☠️', mult:4.0, isMagic:false, manaCost:85, cooldown:24, executeBonus:0.5, blinkStrike:true, blinkHits:4, fx:{type:'slash', color:0xff2b2b}, desc:'Blink 4x ke musuh terdekat, tiap hit damage besar. Tak bisa di-hit selama durasi.'}
   },
   Fighter: {
     key:'Fighter', icon:'🛡️', role:'Tank / Bruiser', color:0xe8b64c,
@@ -45,7 +45,7 @@ const CharacterData = {
     passive:{name:'Bulwark', icon:'🧱', desc:'Shield 15% Max HP otomatis saat HP < 30% (CD 30 detik).'},
     skill1:{name:'Shield Bash', icon:'🛡️', mult:1.3, isMagic:false, manaCost:15, cooldown:4, aoe:true, effect:{type:'stun', duration:1.0}, fx:{type:'shockwave', color:0xf2d34c}, desc:'Damage + Stun 1 detik.'},
     skill2:{name:'Guardian Smash', icon:'💢', mult:1.8, isMagic:false, manaCost:28, cooldown:6, aoe:true, fx:{type:'shockwave', color:0xff8a3f}, desc:'Hantaman area damage besar.'},
-    skill3:{name:'Iron Will', icon:'🩸', mult:0, isMagic:false, manaCost:18, cooldown:15, selfBuff:{type:'ironwill', defMult:1.3, lifesteal:0.4, duration:7}, fx:{type:'shield', color:0xe8b64c}, desc:'+30% Defense & 15% Lifesteal, 5 detik.'},
+    skill3:{name:'Iron Will', icon:'🩸', mult:0, isMagic:false, manaCost:18, cooldown:15, selfBuff:{type:'ironwill', defMult:1.3, lifesteal:0.3, duration:7}, fx:{type:'shield', color:0xe8b64c}, desc:'+30% Defense & 30% Lifesteal, 7 detik.'},
     ultimate:{name:'Earth Sunder', icon:'🌋', mult:2.9, isMagic:false, manaCost:75, cooldown:20, aoe:true, effect:{type:'stun', duration:1.5}, fx:{type:'shockwave', color:0xb5651d}, desc:'Damage besar area + Knockdown 1.5 detik.'}
   }
 };

@@ -30,18 +30,18 @@ const CharacterData = {
     key:'Assassin', icon:'⚔️', role:'Burst Physical / Mobility', color:0xe0475a,
     hp:560, mana:160, patk:55, magic:0, pdef:20, mdef:20, aspd:1.3, critRate:0.10, critDmg:1.7, moveSpeed:5.75,
     growth:{hp:33, mana:10, patk:7, pdef:2, mdef:2},
-    basic:{name:'Slash', icon:'🗡', mult:1.05, isMagic:false, fx:{type:'slash', color:0xe0475a}},
+    basic:{name:'Slash', icon:'🗡', mult:1.05, isMagic:false, aoe:true, aoeRadius:2.6, fx:{type:'slash', color:0xe0475a}},
     passive:{name:'Killer Instinct', icon:'💀', desc:'+20% Crit Damage ke musuh HP < 50%.'},
     skill1:{name:'Shadow Strike', icon:'🌑', mult:2.0, isMagic:false, manaCost:18, cooldown:3.5, dash:true, fx:{type:'slash', color:0xff5c5c}, desc:'Gap-close cepat + damage besar.'},
     skill2:{name:'Poison Blade', icon:'🧪', mult:1.3, isMagic:false, manaCost:22, cooldown:5, effect:{type:'dot', dps:7, duration:3}, fx:{type:'slash', color:0x7fe08a}, desc:'Damage + Poison 3 detik.'},
     skill3:{name:'Smoke Bomb', icon:'💨', mult:0, isMagic:false, manaCost:20, cooldown:8, selfBuff:{type:'haste', mult:1.4, duration:2, iframe:0.5}, fx:{type:'smoke', color:0xaaaaaa}, desc:'Haste 40% + I-Frame singkat.'},
-    ultimate:{name:'Execution', icon:'☠️', mult:3.8, isMagic:false, manaCost:85, cooldown:24, executeBonus:0.5, fx:{type:'slash', color:0xff2b2b}, desc:'Damage sangat besar, +50% jika musuh HP < 30%.'}
+    ultimate:{name:'Execution', icon:'☠️', mult:1.35, isMagic:false, manaCost:85, cooldown:24, executeBonus:0.5, blinkStrike:true, blinkHits:4, fx:{type:'slash', color:0xff2b2b}, desc:'Blink 4x ke musuh terdekat, tiap hit damage besar. Tak bisa di-hit selama durasi.'}
   },
   Fighter: {
     key:'Fighter', icon:'🛡️', role:'Tank / Bruiser', color:0xe8b64c,
     hp:800, mana:120, patk:40, magic:0, pdef:40, mdef:40, aspd:0.9, critRate:0.05, critDmg:1.5, moveSpeed:4.75,
     growth:{hp:45, mana:8, patk:5, pdef:4, mdef:4},
-    basic:{name:'Slam', icon:'🔨', mult:1.1, isMagic:false, fx:{type:'shockwave', color:0xe8b64c}},
+    basic:{name:'Slam', icon:'🔨', mult:1.1, isMagic:false, aoe:true, aoeRadius:2.8, fx:{type:'shockwave', color:0xe8b64c}},
     passive:{name:'Bulwark', icon:'🧱', desc:'Shield 15% Max HP otomatis saat HP < 30% (CD 30 detik).'},
     skill1:{name:'Shield Bash', icon:'🛡️', mult:1.3, isMagic:false, manaCost:15, cooldown:4, effect:{type:'stun', duration:1.0}, fx:{type:'shockwave', color:0xf2d34c}, desc:'Damage + Stun 1 detik.'},
     skill2:{name:'Guardian Smash', icon:'💢', mult:1.8, isMagic:false, manaCost:28, cooldown:6, aoe:true, fx:{type:'shockwave', color:0xff8a3f}, desc:'Hantaman area damage besar.'},
@@ -490,10 +490,6 @@ class GameApp{
     ground.rotation.x=-Math.PI/2;
     this.dungeonGroup.add(ground);
 
-    const ring = new THREE.Mesh(new THREE.RingGeometry(9.6,10,48), new THREE.MeshBasicMaterial({color:0x6a4fae, side:THREE.DoubleSide, transparent:true, opacity:0.25}));
-    ring.rotation.x=-Math.PI/2; ring.position.y=0.02;
-    this.dungeonGroup.add(ring);
-
     for(let i=0;i<22;i++){
       const angle = Math.random()*Math.PI*2;
       const rad = 14 + Math.random()*30;
@@ -575,7 +571,7 @@ class GameApp{
       equippedArtifacts:{Crown:null, Bracelet:null, Ring:null, Necklace:null, Core:null},
       autoDelete:{Common:false, Uncommon:false, Rare:false, Epic:false, Legendary:false},
       buffs:{ shield:0, hasteMult:1, hasteTimer:0, defMult:1, defTimer:0, lifestealPct:0, lifestealTimer:0, critBonus:0, critBonusTimer:0 },
-      bulwarkCd:0
+      bulwarkCd:0, attackLock:0
     };
     this.recalcStats();
     this.player.hp = this.player.hpMax;
@@ -1879,6 +1875,10 @@ class GameApp{
     const p = this.player;
     if(p.attackCd>0) return;
     p.attackCd = 1/p.aspd;
+    // Ranged classes plant their feet for a beat to fire — Archer's draw takes
+    // longer than Mage's quick cast. Melee classes stay fully mobile.
+    if(this.classKey==='Archer') p.attackLock = 0.35;
+    else if(this.classKey==='Mage') p.attackLock = 0.2;
     this.applySkillDamage(this.cdata.basic, true, null);
   }
 
@@ -1890,7 +1890,31 @@ class GameApp{
     const p = this.player, s = this.cdata[slot];
     if(p.cooldowns[slot]>0 || p.mana < s.manaCost) return;
     p.mana -= s.manaCost; p.cooldowns[slot] = this.getEffCooldown(s.cooldown);
-    this.applySkillDamage(s, false, slot);
+    if(s.blinkStrike){ this.performBlinkStrike(s); }
+    else{ this.applySkillDamage(s, false, slot); }
+  }
+
+  // Assassin ultimate: blink to the nearest enemy several times in a row,
+  // dealing a big hit each time, fully invulnerable for the whole sequence.
+  performBlinkStrike(skillDef){
+    const p = this.player;
+    const hits = skillDef.blinkHits || 4;
+    const gap = 140;
+    p.iFrame = Math.max(p.iFrame, hits*(gap/1000) + 0.3);
+    this.toast(`${skillDef.name}!`);
+    p.combo++; p.comboTimer = 2.2;
+    for(let i=0;i<hits;i++){
+      setTimeout(()=>{
+        if(!this.stageActive) return;
+        const target = this.getNearestEnemy(9);
+        if(!target) return;
+        const dir = new THREE.Vector3().subVectors(target.mesh.position, p.mesh.position);
+        const d = dir.length();
+        if(d>0.1){ dir.normalize(); p.mesh.position.addScaledVector(dir, Math.max(0, d-1.2)); }
+        this.spawnFX(skillDef.fx, p.mesh.position.clone().setY(1.1), target.mesh.position.clone().setY(1.1));
+        this.dealDamage(target, skillDef);
+      }, i*gap);
+    }
   }
 
   tryDodge(){
@@ -1956,7 +1980,7 @@ class GameApp{
     if(e.state==='idle'){
       if(dist < e.data.detectionRadius) e.state='chase';
     } else if(e.state==='chase'){
-      if(dist <= e.data.attackRange){ e.state='attack'; e.attackTimer=0.6; }
+      if(dist <= e.data.attackRange){ e.state='attack'; e.attackTimer=0.1; }
       else{
         const dir = new THREE.Vector3().subVectors(p.mesh.position, e.mesh.position).normalize();
         e.mesh.position.addScaledVector(dir, moveSpeed*dt);
@@ -2129,9 +2153,23 @@ class GameApp{
     p.dodgeCd = Math.max(0, p.dodgeCd-dt);
     p.iFrame = Math.max(0, p.iFrame-dt);
     p.bulwarkCd = Math.max(0, p.bulwarkCd-dt);
+    p.attackLock = Math.max(0, (p.attackLock||0)-dt);
     for(const k in p.cooldowns) p.cooldowns[k] = Math.max(0, p.cooldowns[k]-dt);
     if(p.comboTimer>0){ p.comboTimer -= dt; if(p.comboTimer<=0) p.combo=0; }
     if(p.mana < p.manaMax) p.mana = Math.min(p.manaMax, p.mana + (12)*dt);
+
+    // Passive regen: fast full-heal pace while safe in the Lobby, plus a small
+    // periodic regen tick that applies everywhere (Lobby and combat alike).
+    if(this.inLobby && p.hp < p.hpMax){ p.hp = Math.min(p.hpMax, p.hp + 50*dt); }
+    if(p.hp < p.hpMax){
+      p.regenTimer = (p.regenTimer||0) + dt;
+      if(p.regenTimer>=4){
+        p.regenTimer -= 4;
+        p.hp = Math.min(p.hpMax, p.hp + 20);
+      }
+    } else {
+      p.regenTimer = 0;
+    }
 
     const b = p.buffs;
     if(b.hasteTimer>0){ b.hasteTimer -= dt; if(b.hasteTimer<=0) b.hasteMult=1; }
@@ -2141,7 +2179,7 @@ class GameApp{
 
     this.updateDodgeAnim(dt);
     const dodging = p.dodgeAnim && p.dodgeAnim.active;
-    const canMove = (this.stageActive || this.inLobby) && !this.panelOpen && !dodging;
+    const canMove = (this.stageActive || this.inLobby) && !this.panelOpen && !dodging && !(p.attackLock>0);
     if(canMove) this.updatePlayerMovement(dt);
 
     this.enemies.forEach(e=> this.updateEnemyAI(dt, e));

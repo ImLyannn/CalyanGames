@@ -35,7 +35,7 @@ const CharacterData = {
     skill1:{name:'Shadow Strike', icon:'🌑', mult:2.0, isMagic:false, manaCost:18, cooldown:3.5, dash:true, fx:{type:'slash', color:0xff5c5c}, desc:'Gap-close cepat + damage besar.'},
     skill2:{name:'Poison Blade', icon:'🧪', mult:1.3, isMagic:false, manaCost:22, cooldown:5, aoe:true, effect:{type:'dot', dps:20, duration:3}, fx:{type:'slash', color:0x7fe08a}, desc:'Damage + Poison 3 detik.'},
     skill3:{name:'Smoke Bomb', icon:'💨', mult:0, isMagic:false, manaCost:20, cooldown:8, selfBuff:{type:'haste', mult:2.0, duration:2, iframe:0.5}, fx:{type:'smoke', color:0xaaaaaa}, desc:'Haste 40% + I-Frame singkat.'},
-    ultimate:{name:'Execution', icon:'☠️', mult:2.0, isMagic:false, manaCost:85, cooldown:24, executeBonus:0.5, blinkStrike:true, blinkHits:4, fx:{type:'slash', color:0xff2b2b}, desc:'Blink 4x ke musuh terdekat, tiap hit damage besar. Tak bisa di-hit selama durasi.'}
+    ultimate:{name:'Execution', icon:'☠️', mult:3.5, isMagic:false, manaCost:85, cooldown:24, executeBonus:0.5, blinkStrike:true, blinkHits:4, fx:{type:'slash', color:0xff2b2b}, desc:'Blink 4x ke musuh terdekat, tiap hit damage besar. Tak bisa di-hit selama durasi.'}
   },
   Fighter: {
     key:'Fighter', icon:'🛡️', role:'Tank / Bruiser', color:0xe8b64c,
@@ -45,7 +45,7 @@ const CharacterData = {
     passive:{name:'Bulwark', icon:'🧱', desc:'Shield 15% Max HP otomatis saat HP < 30% (CD 30 detik).'},
     skill1:{name:'Shield Bash', icon:'🛡️', mult:1.3, isMagic:false, manaCost:15, cooldown:4, aoe:true, effect:{type:'stun', duration:1.0}, fx:{type:'shockwave', color:0xf2d34c}, desc:'Damage + Stun 1 detik.'},
     skill2:{name:'Guardian Smash', icon:'💢', mult:1.8, isMagic:false, manaCost:28, cooldown:6, aoe:true, fx:{type:'shockwave', color:0xff8a3f}, desc:'Hantaman area damage besar.'},
-    skill3:{name:'Iron Will', icon:'🩸', mult:0, isMagic:false, manaCost:18, cooldown:10, selfBuff:{type:'ironwill', defMult:1.3, lifesteal:0.5, duration:5}, fx:{type:'shield', color:0xe8b64c}, desc:'+30% Defense & 15% Lifesteal, 5 detik.'},
+    skill3:{name:'Iron Will', icon:'🩸', mult:0, isMagic:false, manaCost:18, cooldown:15, selfBuff:{type:'ironwill', defMult:1.3, lifesteal:0.4, duration:7}, fx:{type:'shield', color:0xe8b64c}, desc:'+30% Defense & 15% Lifesteal, 5 detik.'},
     ultimate:{name:'Earth Sunder', icon:'🌋', mult:2.9, isMagic:false, manaCost:75, cooldown:20, aoe:true, effect:{type:'stun', duration:1.5}, fx:{type:'shockwave', color:0xb5651d}, desc:'Damage besar area + Knockdown 1.5 detik.'}
   }
 };

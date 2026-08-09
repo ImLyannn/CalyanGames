@@ -53,7 +53,7 @@ const CharacterData = {
 const EnemyData = {
   Goblin:{ name:'Goblin', hp:300, patk:24, pdef:9, breakHits:7, detectionRadius:9, attackRange:1.7, moveSpeed:3.7, expReward:48, goldReward:16, scale:1.0, color:0x4a7c3f },
   GoblinElite:{ name:'Goblin Elite', hp:650, patk:36, pdef:16, breakHits:15, detectionRadius:10, attackRange:1.8, moveSpeed:4.1, expReward:130, goldReward:44, scale:1.25, color:0x4a7c3f, isElite:true },
-  GoblinKing:{ name:'Goblin King', hp:2000, patk:42, pdef:27, breakHits:25, detectionRadius:40, attackRange:2.3, moveSpeed:3.4, expReward:1100, goldReward:340, scale:1.9, color:0x2f5c2f, isBoss:true }
+  GoblinKing:{ name:'Goblin King', hp:10000, patk:60, pdef:27, breakHits:25, detectionRadius:40, attackRange:2.3, moveSpeed:3.4, expReward:1100, goldReward:340, scale:1.9, color:0x2f5c2f, isBoss:true }
 };
 
 const DungeonData = {
@@ -62,9 +62,9 @@ const DungeonData = {
     stages:[
       {id:1, mobs:[{type:'Goblin', count:2}]},
       {id:2, mobs:[{type:'Goblin', count:3}]},
-      {id:3, mobs:[{type:'Goblin', count:2},{type:'GoblinElite', count:1}]},
-      {id:4, mobs:[{type:'Goblin', count:2},{type:'GoblinElite', count:2}]},
-      {id:5, boss:'GoblinKing'}
+      {id:3, mobs:[{type:'Goblin', count:2},{type:'GoblinElite', count:2}]},
+      {id:4, mobs:[{type:'Goblin', count:2},{type:'GoblinElite', count:4}]},
+      {id:5, boss:'GoblinKing', mobs:[{type:'GoblinElite', count:4}]}
     ]
   }
 };

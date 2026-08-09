@@ -8,11 +8,11 @@ const CharacterData = {
     key:'Mage', icon:'🧙', role:'Burst / Crowd Control', color:0x8a5cff,
     hp:500, mana:350, patk:20, magic:45, pdef:20, mdef:30, aspd:1.0, critRate:0.0, critDmg:1.5, moveSpeed:5.0,
     growth:{hp:30, mana:25, patk:2, magic:7, pdef:2, mdef:3},
-    basic:{name:'Arcane Bolt', icon:'✨', mult:0.9, isMagic:true, range:6.5, aoe:true, fx:{type:'bolt', color:0xb98aff}},
+    basic:{name:'Arcane Bolt', icon:'✨', mult:0.9, isMagic:true, range:6.5, aoe:true, aoeRadius:3.0, fx:{type:'bolt', color:0xb98aff}},
     passive:{name:'Mana Flow', icon:'🔷', desc:'Setiap 4 Basic Attack, kembalikan 8 Mana.'},
-    skill1:{name:'Frozen Spike', icon:'❄️', mult:1.6, isMagic:true, manaCost:25, cooldown:6, aoe:true, range:6.5, effect:{type:'stun', duration:1.0}, fx:{type:'ice', color:0xbfe8ff}, desc:'Damage + root musuh 1 detik.'},
-    skill2:{name:'Fire Blast', icon:'🔥', mult:1.5, isMagic:true, manaCost:35, cooldown:12, aoe:true, aoeRadius:5.2, effect:{type:'dot', dps:100, duration:4}, fx:{type:'fire', color:0xff7a3f}, desc:'Ledakan area + Burn 4 detik.'},
-    skill3:{name:'Arcane Barrier', icon:'🛡️', mult:0, isMagic:true, manaCost:20, cooldown:10, selfBuff:{type:'shield', pct:0.20, duration:4}, fx:{type:'shield', color:0x7fe0d0}, desc:'Shield 20% Max HP selama 4 detik.'},
+    skill1:{name:'Frozen Spike', icon:'❄️', mult:1.6, isMagic:true, manaCost:25, cooldown:6, aoe:true, aoeRadius:4.5, effect:{type:'stun', duration:1.0}, fx:{type:'ice', color:0xbfe8ff}, desc:'Damage area + root musuh 1 detik.'},
+    skill2:{name:'Fire Blast', icon:'🔥', mult:1.5, isMagic:true, manaCost:35, cooldown:12, aoe:true, aoeRadius:5.2, effect:{type:'dot', dps:100, duration:3}, fx:{type:'fire', color:0xff7a3f}, desc:'Ledakan area + Burn dahsyat 3 detik.'},
+    skill3:{name:'Temporal Shift', icon:'⏳', mult:0, isMagic:true, manaCost:35, cooldown:18, selfBuff:{type:'shield', pct:0.20, duration:4}, resetSkills:['skill1','skill2'], fx:{type:'shield', color:0x7fe0d0}, desc:'Shield 20% Max HP 4 detik + reset cooldown Skill 1 & 2.'},
     ultimate:{name:'Meteor Tornado', icon:'🌪️', mult:4.2, isMagic:true, manaCost:90, cooldown:25, aoe:true, aoeRadius:5.8, effect:{type:'stun', duration:1.5}, fx:{type:'tornado', color:0x8a5cff}, desc:'Damage besar area + Stun 1.5 detik.'}
   },
   Archer: {
@@ -33,8 +33,8 @@ const CharacterData = {
     basic:{name:'Slash', icon:'🗡', mult:1.05, isMagic:false, aoe:true, aoeRadius:2.6, fx:{type:'slash', color:0xe0475a}},
     passive:{name:'Killer Instinct', icon:'💀', desc:'+20% Crit Damage ke musuh HP < 50%.'},
     skill1:{name:'Shadow Strike', icon:'🌑', mult:2.0, isMagic:false, manaCost:18, cooldown:3.5, dash:true, fx:{type:'slash', color:0xff5c5c}, desc:'Gap-close cepat + damage besar.'},
-    skill2:{name:'Poison Blade', icon:'🧪', mult:1.3, isMagic:false, manaCost:22, cooldown:5, aoe:true, effect:{type:'dot', dps:20, duration:3}, fx:{type:'slash', color:0x7fe08a}, desc:'Damage + Poison 3 detik.'},
-    skill3:{name:'Smoke Bomb', icon:'💨', mult:0, isMagic:false, manaCost:20, cooldown:8, selfBuff:{type:'haste', mult:2.0, duration:2, iframe:0.5}, fx:{type:'smoke', color:0xaaaaaa}, desc:'Haste 40% + I-Frame singkat.'},
+    skill2:{name:'Poison Blade', icon:'🧪', mult:1.3, isMagic:false, manaCost:22, cooldown:5, aoe:true, aoeRadius:3.4, effect:{type:'dot', dps:20, duration:3}, fx:{type:'slash', color:0x7fe08a}, desc:'Damage area + Poison 3 detik.'},
+    skill3:{name:'Shadow Dash', icon:'💨', mult:2.0, isMagic:false, manaCost:20, cooldown:8, dashAttack:true, dashDistance:3.5, dashRadius:2.2, fx:{type:'slash', color:0xaaaaaa}, desc:'Dash sesuai arah gerak, damage musuh yang dilewati + I-Frame singkat.'},
     ultimate:{name:'Execution', icon:'☠️', mult:4.0, isMagic:false, manaCost:85, cooldown:24, executeBonus:0.5, blinkStrike:true, blinkHits:4, fx:{type:'slash', color:0xff2b2b}, desc:'Blink 4x ke musuh terdekat, tiap hit damage besar. Tak bisa di-hit selama durasi.'}
   },
   Fighter: {
@@ -43,9 +43,9 @@ const CharacterData = {
     growth:{hp:45, mana:8, patk:5, pdef:4, mdef:4},
     basic:{name:'Slam', icon:'🔨', mult:1.1, isMagic:false, aoe:true, aoeRadius:2.8, fx:{type:'shockwave', color:0xe8b64c}},
     passive:{name:'Bulwark', icon:'🧱', desc:'Shield 15% Max HP otomatis saat HP < 30% (CD 30 detik).'},
-    skill1:{name:'Shield Bash', icon:'🛡️', mult:1.3, isMagic:false, manaCost:15, cooldown:4, aoe:true, effect:{type:'stun', duration:1.0}, fx:{type:'shockwave', color:0xf2d34c}, desc:'Damage + Stun 1 detik.'},
+    skill1:{name:'Shield Bash', icon:'🛡️', mult:1.3, isMagic:false, manaCost:15, cooldown:4, aoe:true, aoeRadius:3.0, effect:{type:'stun', duration:1.0}, fx:{type:'shockwave', color:0xf2d34c}, desc:'Damage area + Stun 1 detik.'},
     skill2:{name:'Guardian Smash', icon:'💢', mult:1.8, isMagic:false, manaCost:28, cooldown:6, aoe:true, fx:{type:'shockwave', color:0xff8a3f}, desc:'Hantaman area damage besar.'},
-    skill3:{name:'Iron Will', icon:'🩸', mult:0, isMagic:false, manaCost:18, cooldown:15, selfBuff:{type:'ironwill', defMult:1.3, lifesteal:0.3, duration:7}, fx:{type:'shield', color:0xe8b64c}, desc:'+30% Defense & 30% Lifesteal, 7 detik.'},
+    skill3:{name:'Iron Will', icon:'🩸', mult:0, isMagic:false, manaCost:18, cooldown:15, selfBuff:{type:'ironwill', defMult:1.3, lifesteal:0.30, duration:7}, fx:{type:'shield', color:0xe8b64c}, desc:'+30% Defense & 30% Lifesteal, 7 detik.'},
     ultimate:{name:'Earth Sunder', icon:'🌋', mult:2.9, isMagic:false, manaCost:75, cooldown:20, aoe:true, effect:{type:'stun', duration:1.5}, fx:{type:'shockwave', color:0xb5651d}, desc:'Damage besar area + Knockdown 1.5 detik.'}
   }
 };
@@ -53,7 +53,7 @@ const CharacterData = {
 const EnemyData = {
   Goblin:{ name:'Goblin', hp:300, patk:24, pdef:9, breakHits:7, detectionRadius:9, attackRange:1.7, moveSpeed:3.7, expReward:48, goldReward:16, scale:1.0, color:0x4a7c3f },
   GoblinElite:{ name:'Goblin Elite', hp:650, patk:36, pdef:16, breakHits:15, detectionRadius:10, attackRange:1.8, moveSpeed:4.1, expReward:130, goldReward:44, scale:1.25, color:0x4a7c3f, isElite:true },
-  GoblinKing:{ name:'Goblin King', hp:40000, patk:100, pdef:27, breakHits:25, detectionRadius:40, attackRange:2.3, moveSpeed:3.4, expReward:1100, goldReward:340, scale:1.9, color:0x2f5c2f, isBoss:true }
+  GoblinKing:{ name:'Goblin King', hp:40000, patk:60, pdef:27, breakHits:25, detectionRadius:40, attackRange:2.3, moveSpeed:3.4, expReward:1100, goldReward:340, scale:1.9, color:0x2f5c2f, isBoss:true }
 };
 
 const DungeonData = {
@@ -62,9 +62,9 @@ const DungeonData = {
     stages:[
       {id:1, mobs:[{type:'Goblin', count:2}]},
       {id:2, mobs:[{type:'Goblin', count:3}]},
-      {id:3, mobs:[{type:'Goblin', count:2},{type:'GoblinElite', count:2}]},
-      {id:4, mobs:[{type:'Goblin', count:2},{type:'GoblinElite', count:4}]},
-      {id:5, boss:'GoblinKing'}
+      {id:3, mobs:[{type:'GoblinElite', count:2}]},
+      {id:4, mobs:[{type:'GoblinElite', count:4}]},
+      {id:5, boss:'GoblinKing', mobs:[{type:'GoblinElite', count:4}]}
     ]
   }
 };
@@ -112,8 +112,8 @@ const MAIN_STAT_BASE = {
   patk:     {Common:0.05, Uncommon:0.08, Rare:0.12, Epic:0.18, Legendary:0.26},
   magic:    {Common:0.05, Uncommon:0.08, Rare:0.12, Epic:0.18, Legendary:0.26},
   defense:  {Common:0.05, Uncommon:0.08, Rare:0.12, Epic:0.18, Legendary:0.26},
-  critRate: {Common:0.02, Uncommon:0.03, Rare:0.04, Epic:0.06, Legendary:0.11},
-  critDmg:  {Common:0.04, Uncommon:0.06, Rare:0.09, Epic:0.13, Legendary:0.22},
+  critRate: {Common:0.02, Uncommon:0.03, Rare:0.04, Epic:0.06, Legendary:0.09},
+  critDmg:  {Common:0.04, Uncommon:0.06, Rare:0.09, Epic:0.13, Legendary:0.18},
   cooldown: {Common:0.02, Uncommon:0.03, Rare:0.05, Epic:0.07, Legendary:0.10},
   moveSpeed:{Common:0.15, Uncommon:0.25, Rare:0.35, Epic:0.5,  Legendary:0.7}
 };
@@ -613,7 +613,7 @@ class GameApp{
     p.pdef = Math.round(p.basePdef*(1+defPct));
     p.mdef = p.baseMdef;
     p.critRate = Math.min(0.75, p.baseCritRate + critRateAdd);
-    p.critDmg = Math.min(3.0, p.baseCritDmg + critDmgAdd);
+    p.critDmg = p.baseCritDmg + critDmgAdd;
     p.cdr = Math.min(0.4, cdrPct);
     p.moveSpeed = p.baseMoveSpeed + moveSpeedFlat;
     p.hp = Math.min(p.hp, p.hpMax);
@@ -1279,6 +1279,7 @@ class GameApp{
     const isBoss = !!stageDef.boss;
     if(isBoss){
       this.spawnEnemy(stageDef.boss, center.clone());
+      if(stageDef.mobs) this.spawnWave(stageDef.mobs, center.clone());
       this.toast('⚠️ Goblin King muncul!');
     } else {
       this.spawnWave(stageDef.mobs, center);
@@ -1657,6 +1658,7 @@ class GameApp{
 
     if(effSkill.mult<=0){
       this.applySelfBuff(effSkill.selfBuff);
+      if(effSkill.resetSkills){ effSkill.resetSkills.forEach(sk=> p.cooldowns[sk]=0); }
       if(effSkill.fx) this.spawnFX(effSkill.fx, p.mesh.position.clone(), p.mesh.position.clone());
       this.toast(`${effSkill.name}!`);
       return;
@@ -1753,7 +1755,10 @@ class GameApp{
     const aliveLeft = this.enemies.filter(e=>e.state!=='dead').length;
     document.getElementById('stage-banner-sub').textContent = target.isBoss ? 'Kalahkan Goblin King!' : `Musuh tersisa: ${aliveLeft}`;
 
-    if(aliveLeft===0){ this.onStageClear(target.isBoss); }
+    if(aliveLeft===0){
+      const hadBoss = this.enemies.some(e=>e.isBoss);
+      this.onStageClear(hadBoss);
+    }
   }
 
   onStageClear(wasBoss){
@@ -1891,7 +1896,49 @@ class GameApp{
     if(p.cooldowns[slot]>0 || p.mana < s.manaCost) return;
     p.mana -= s.manaCost; p.cooldowns[slot] = this.getEffCooldown(s.cooldown);
     if(s.blinkStrike){ this.performBlinkStrike(s); }
+    else if(s.dashAttack){ this.performDashAttack(s); }
     else{ this.applySkillDamage(s, false, slot); }
+  }
+
+  // Assassin Shadow Dash: dash in the current movement-input direction
+  // (falls back to facing direction if standing still), hitting anything
+  // it lands near, with a brief I-Frame like the old Smoke Bomb had.
+  performDashAttack(skillDef){
+    const p = this.player;
+    let inputForward=0, inputRight=0;
+    if(this.keys['KeyW']) inputForward += 1;
+    if(this.keys['KeyS']) inputForward -= 1;
+    if(this.keys['KeyA']) inputRight -= 1;
+    if(this.keys['KeyD']) inputRight += 1;
+    if(this.joystickVec.x || this.joystickVec.y){ inputRight += this.joystickVec.x; inputForward -= this.joystickVec.y; }
+    let dir;
+    const len = Math.hypot(inputForward, inputRight);
+    if(len>0.001){
+      inputForward/=len; inputRight/=len;
+      const yaw=this.camYaw;
+      const worldX = -inputRight*Math.cos(yaw) + inputForward*Math.sin(yaw);
+      const worldZ = inputRight*Math.sin(yaw) + inputForward*Math.cos(yaw);
+      dir = new THREE.Vector3(worldX,0,worldZ).normalize();
+    } else {
+      dir = new THREE.Vector3(Math.sin(p.facing),0,Math.cos(p.facing));
+    }
+    p.iFrame = Math.max(p.iFrame, 0.35);
+    this.spawnFX({type:'smoke', color:0xaaaaaa}, p.mesh.position.clone(), p.mesh.position.clone());
+    const dashDist = skillDef.dashDistance||3.5;
+    const bound = this.inLobby ? 40 : 28;
+    p.mesh.position.addScaledVector(dir, dashDist);
+    p.mesh.position.x = Math.max(-bound, Math.min(bound, p.mesh.position.x));
+    p.mesh.position.z = Math.max(-bound, Math.min(bound, p.mesh.position.z));
+    p.facing = Math.atan2(dir.x, dir.z);
+    p.mesh.rotation.y = p.facing;
+    const radius = skillDef.dashRadius||2.2;
+    const hitTargets = this.enemies.filter(e=> e.state!=='dead' && p.mesh.position.distanceTo(e.mesh.position)<=radius);
+    hitTargets.forEach(t=> this.dealDamage(t, skillDef));
+    if(hitTargets.length){
+      this.spawnFX(skillDef.fx, p.mesh.position.clone().setY(1.1), hitTargets[0].mesh.position.clone().setY(1.1));
+      p.combo++; p.comboTimer=2.2;
+    }
+    this.toast(`${skillDef.name}!`);
   }
 
   // Assassin ultimate: blink to the nearest enemy several times in a row,

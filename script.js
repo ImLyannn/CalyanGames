@@ -109,20 +109,20 @@ const ARTIFACT_SLOTS = ['Crown','Bracelet','Ring','Necklace','Core'];
 const STAT_LABELS = {hp:'HP', patk:'Attack', magic:'Magic Power', defense:'Defense', critRate:'Crit Chance', critDmg:'Crit Damage', cooldown:'Cooldown Reduction', moveSpeed:'Movement Speed'};
 const MAIN_STAT_BASE = {
   hp:       {Common:0.05, Uncommon:0.08, Rare:0.12, Epic:0.18, Legendary:0.26},
-  patk:     {Common:0.05, Uncommon:0.08, Rare:0.12, Epic:0.18, Legendary:999.99},
-  magic:    {Common:0.05, Uncommon:0.08, Rare:0.12, Epic:0.18, Legendary:999.99},
+  patk:     {Common:0.05, Uncommon:0.08, Rare:0.12, Epic:0.18, Legendary:0.26},
+  magic:    {Common:0.05, Uncommon:0.08, Rare:0.12, Epic:0.18, Legendary:0.26},
   defense:  {Common:0.05, Uncommon:0.08, Rare:0.12, Epic:0.18, Legendary:0.26},
-  critRate: {Common:0.02, Uncommon:0.03, Rare:0.04, Epic:0.06, Legendary:0.09},
-  critDmg:  {Common:0.04, Uncommon:0.06, Rare:0.09, Epic:0.13, Legendary:999.99},
+  critRate: {Common:0.02, Uncommon:0.03, Rare:0.04, Epic:0.06, Legendary:0.11},
+  critDmg:  {Common:0.04, Uncommon:0.06, Rare:0.09, Epic:0.13, Legendary:0.22},
   cooldown: {Common:0.02, Uncommon:0.03, Rare:0.05, Epic:0.07, Legendary:0.10},
   moveSpeed:{Common:0.15, Uncommon:0.25, Rare:0.35, Epic:0.5,  Legendary:0.7}
 };
 // Substats: rolled once (fixed value) every 5 upgrade levels (5/10/15), never grow further.
 const SUBSTAT_POOL = [
-  {type:'critRate', label:'Crit Chance', min:999.99, max:999.99},
-  {type:'critDmg', label:'Crit Damage', min:999.99, max:999.9},
-  {type:'patk', label:'Attack', min:999.99, max:999.9},
-  {type:'magic', label:'Magic Power', min:999.99, max:999.99},
+  {type:'critRate', label:'Crit Chance', min:0.07, max:0.10},
+  {type:'critDmg', label:'Crit Damage', min:0.14, max:0.20},
+  {type:'patk', label:'Attack', min:0.15, max:0.25},
+  {type:'magic', label:'Magic Power', min:0.15, max:0.25},
   {type:'defense', label:'Defense', min:0.20, max:0.30},
   {type:'hp', label:'HP', min:0.20, max:0.30},
   {type:'cooldown', label:'Cooldown Reduction', min:0.05, max:0.15},

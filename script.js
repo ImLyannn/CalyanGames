@@ -73,12 +73,12 @@ const DungeonData = {
 const DomainData = {
   artifactDomain:{ name:'Artifact Domain', desc:'Drop Artifact. Makin tinggi level, makin besar peluang rarity tinggi.',
     tiers:[
-      {level:1, mobs:[{type:'Goblin', count:3}], artifactChance:0.45},
-      {level:2, mobs:[{type:'Goblin', count:3},{type:'GoblinElite', count:1}], artifactChance:0.52},
-      {level:3, mobs:[{type:'Goblin', count:2},{type:'GoblinElite', count:2}], artifactChance:0.6},
-      {level:4, mobs:[{type:'GoblinElite', count:3}], artifactChance:0.68},
-      {level:5, mobs:[{type:'GoblinElite', count:3},{type:'Goblin', count:2}], artifactChance:0.75},
-      {level:6, mobs:[{type:'GoblinElite', count:4}], artifactChance:0.85}
+      {level:1, mobs:[{type:'Goblin', count:5}], artifactChance:0.2},
+      {level:2, mobs:[{type:'Goblin', count:3},{type:'GoblinElite', count:2}], artifactChance:0.3},
+      {level:3, mobs:[{type:'Goblin', count:2},{type:'GoblinElite', count:3}], artifactChance:0.35},
+      {level:4, mobs:[{type:'Goblin', count:2},{type:'GoblinElite', count:4}], artifactChance:0.4},
+      {level:5, mobs:[{type:'Goblin', count:3},{type:'GoblinElite', count:5}], artifactChance:0.45},
+      {level:6, mobs:[{type:'Goblin', count:4},{type:'GoblinElite', count:6}], artifactChance:0.5}
     ]
   },
   materialDomain:{ name:'Material Domain', desc:'Drop Skill Book & Essence. Makin tinggi level, makin banyak dropnya.',
@@ -290,7 +290,7 @@ Object.values(CharacterData).forEach(c=>{
         if(card && !card.querySelector('.save-badge')){
           const badge = document.createElement('div');
           badge.className='save-badge';
-          badge.textContent='💾 Ada Progress';
+          badge.textContent='💾 In Progress';
           card.appendChild(badge);
         }
       }

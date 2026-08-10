@@ -11,7 +11,7 @@ const CharacterData = {
     basic:{name:'Arcane Bolt', icon:'✨', mult:1.0, isMagic:true, range:6.5, aoe:true, aoeRadius:3.0, fx:{type:'bolt', color:0xb98aff}},
     passive:{name:'Mana Flow', icon:'🔷', desc:'Setiap 4 Basic Attack, kembalikan 8 Mana.'},
     skill1:{name:'Frozen Spike', icon:'❄️', mult:1.6, isMagic:true, manaCost:25, cooldown:6, aoe:true, aoeRadius:4.5, effect:{type:'stun', duration:1.0}, fx:{type:'ice', color:0xbfe8ff}, desc:'Damage area + root musuh 1 detik.'},
-    skill2:{name:'Fire Blast', icon:'🔥', mult:1.5, isMagic:true, manaCost:35, cooldown:12, aoe:true, aoeRadius:5.2, effect:{type:'dot', dps:50, duration:3}, fx:{type:'fire', color:0xff7a3f}, desc:'Ledakan area + Burn dahsyat 3 detik.'},
+    skill2:{name:'Fire Blast', icon:'🔥', mult:1.5, isMagic:true, manaCost:35, cooldown:12, aoe:true, aoeRadius:5.2, effect:{type:'dot', dps:50, duration:3}, fx:{type:'fire', color:0xff7a3f}, desc:'Ledakan area + Burn 3 detik.'},
     skill3:{name:'Temporal Shift', icon:'⏳', mult:0, isMagic:true, manaCost:35, cooldown:22, selfBuff:{type:'shield', pct:0.10, duration:4}, resetSkills:['skill1','skill2'], fx:{type:'shield', color:0x7fe0d0}, desc:'Shield 10% Max HP 4 detik + reset cooldown Skill 1 & 2.'},
     ultimate:{name:'Meteor Tornado', icon:'🌪️', mult:4.2, isMagic:true, manaCost:90, cooldown:25, aoe:true, aoeRadius:5.8, effect:{type:'stun', duration:1.5}, fx:{type:'tornado', color:0x8a5cff}, desc:'Damage besar area + Stun 1.5 detik.'}
   },
@@ -32,7 +32,7 @@ const CharacterData = {
     growth:{hp:33, mana:10, patk:7, pdef:2, mdef:2},
     basic:{name:'Slash', icon:'🗡', mult:1.05, isMagic:false, aoe:true, aoeRadius:2.6, fx:{type:'slash', color:0xe0475a}},
     passive:{name:'Killer Instinct', icon:'💀', desc:'+20% Crit Damage ke musuh HP < 50%.'},
-    skill1:{name:'Shadow Strike', icon:'🌑', mult:2.0, isMagic:false, manaCost:18, cooldown:3.5, dash:true, fx:{type:'slash', color:0xff5c5c}, desc:'Gap-close cepat + damage besar.'},
+    skill1:{name:'Shadow Strike', icon:'🌑', mult:2.0, isMagic:false, manaCost:18, cooldown:3.5, aoe:true, dash:true, fx:{type:'slash', color:0xff5c5c}, desc:'Gap-close cepat + damage besar.'},
     skill2:{name:'Poison Blade', icon:'🧪', mult:1.3, isMagic:false, manaCost:22, cooldown:5, aoe:true, aoeRadius:3.4, effect:{type:'dot', dps:20, duration:3}, fx:{type:'slash', color:0x7fe08a}, desc:'Damage area + Poison 3 detik.'},
     skill3:{name:'Shadow Dash', icon:'💨', mult:2.0, isMagic:false, manaCost:20, cooldown:8, dashAttack:true, dashDistance:3.5, dashRadius:2.2, fx:{type:'slash', color:0xaaaaaa}, desc:'Dash sesuai arah gerak, damage musuh yang dilewati + I-Frame singkat.'},
     ultimate:{name:'Execution', icon:'☠️', mult:4.0, isMagic:false, manaCost:85, cooldown:24, executeBonus:0.5, blinkStrike:true, blinkHits:4, fx:{type:'slash', color:0xff2b2b}, desc:'Blink 4x ke musuh terdekat, tiap hit damage besar. Tak bisa di-hit selama durasi.'}
@@ -45,14 +45,14 @@ const CharacterData = {
     passive:{name:'Bulwark', icon:'🧱', desc:'Shield 15% Max HP otomatis saat HP < 30% (CD 30 detik).'},
     skill1:{name:'Shield Bash', icon:'🛡️', mult:1.4, isMagic:false, manaCost:15, cooldown:4, aoe:true, aoeRadius:3.0, effect:{type:'stun', duration:1.0}, fx:{type:'shockwave', color:0xf2d34c}, desc:'Damage area + Stun 1 detik.'},
     skill2:{name:'Guardian Smash', icon:'💢', mult:1.8, isMagic:false, manaCost:28, cooldown:6, aoe:true, fx:{type:'shockwave', color:0xff8a3f}, desc:'Hantaman area damage besar.'},
-    skill3:{name:'Iron Will', icon:'🩸', mult:0, isMagic:false, manaCost:18, cooldown:18, selfBuff:{type:'ironwill', defMult:1.3, lifesteal:0.25, duration:7}, fx:{type:'shield', color:0xe8b64c}, desc:'+30% Defense & 30% Lifesteal, 7 detik.'},
+    skill3:{name:'Iron Will', icon:'🩸', mult:0, isMagic:false, manaCost:18, cooldown:18, selfBuff:{type:'ironwill', defMult:1.3, lifesteal:0.25, duration:7}, fx:{type:'shield', color:0xe8b64c}, desc:'+30% Defense & 25% Lifesteal, 7 detik.'},
     ultimate:{name:'Earth Sunder', icon:'🌋', mult:3.0, isMagic:false, manaCost:75, cooldown:20, aoe:true, effect:{type:'stun', duration:1.5}, fx:{type:'shockwave', color:0xb5651d}, desc:'Damage besar area + Knockdown 1.5 detik.'}
   }
 };
 
 const EnemyData = {
-  Goblin:{ name:'Goblin', hp:300, patk:30, pdef:9, breakHits:7, detectionRadius:9, attackRange:1.7, moveSpeed:3.7, expReward:48, goldReward:16, scale:1.0, color:0x4a7c3f },
-  GoblinElite:{ name:'Goblin Elite', hp:650, patk:50, pdef:16, breakHits:15, detectionRadius:10, attackRange:1.8, moveSpeed:4.1, expReward:130, goldReward:44, scale:1.25, color:0x4a7c3f, isElite:true },
+  Goblin:{ name:'Goblin', hp:300, patk:30, pdef:9, breakHits:5, detectionRadius:9, attackRange:1.7, moveSpeed:3.7, expReward:48, goldReward:16, scale:1.0, color:0x4a7c3f },
+  GoblinElite:{ name:'Goblin Elite', hp:650, patk:50, pdef:16, breakHits:10, detectionRadius:10, attackRange:1.8, moveSpeed:4.1, expReward:130, goldReward:44, scale:1.25, color:0x4a7c3f, isElite:true },
   GoblinKing:{ name:'Goblin King', hp:40000, patk:220, pdef:27, breakHits:25, detectionRadius:40, attackRange:2.3, moveSpeed:3.4, expReward:1100, goldReward:340, scale:1.9, color:0x2f5c2f, isBoss:true }
 };
 
@@ -73,12 +73,12 @@ const DungeonData = {
 const DomainData = {
   artifactDomain:{ name:'Artifact Domain', desc:'Drop Artifact. Makin tinggi level, makin besar peluang rarity tinggi.',
     tiers:[
-      {level:1, mobs:[{type:'Goblin', count:5}], artifactChance:0.2},
-      {level:2, mobs:[{type:'Goblin', count:3},{type:'GoblinElite', count:2}], artifactChance:0.3},
-      {level:3, mobs:[{type:'Goblin', count:2},{type:'GoblinElite', count:3}], artifactChance:0.35},
-      {level:4, mobs:[{type:'Goblin', count:2},{type:'GoblinElite', count:4}], artifactChance:0.4},
-      {level:5, mobs:[{type:'Goblin', count:3},{type:'GoblinElite', count:5}], artifactChance:0.45},
-      {level:6, mobs:[{type:'Goblin', count:4},{type:'GoblinElite', count:6}], artifactChance:0.5}
+      {level:1, mobs:[{type:'Goblin', count:3}], artifactChance:0.45},
+      {level:2, mobs:[{type:'Goblin', count:3},{type:'GoblinElite', count:1}], artifactChance:0.52},
+      {level:3, mobs:[{type:'Goblin', count:2},{type:'GoblinElite', count:2}], artifactChance:0.6},
+      {level:4, mobs:[{type:'GoblinElite', count:3}], artifactChance:0.68},
+      {level:5, mobs:[{type:'GoblinElite', count:3},{type:'Goblin', count:2}], artifactChance:0.75},
+      {level:6, mobs:[{type:'GoblinElite', count:4}], artifactChance:0.85}
     ]
   },
   materialDomain:{ name:'Material Domain', desc:'Drop Skill Book & Essence. Makin tinggi level, makin banyak dropnya.',
@@ -151,6 +151,12 @@ const SKILL_UPGRADE_COST = {
   8:{gold:9500, book:8, ess:15}, 9:{gold:14000, book:10, ess:18}, 10:{gold:20000, book:12, ess:25}
 };
 const CLASS_ESSENCE = {Mage:'Magic Essence', Archer:'Arrow Emblem', Assassin:'Shadow Core', Fighter:'War Medal'};
+// Skills unlock as the player levels up (Lv1 has none), and each further
+// skill-level upgrade needs its own player-level gate: unlock + (skillLevel-1).
+const UNLOCK_LEVEL = {skill1:2, skill2:5, skill3:10, ultimate:16};
+function skillUpgradeLevelReq(slot, targetSkillLevel){
+  return UNLOCK_LEVEL[slot] + (targetSkillLevel-1);
+}
 
 function pickWeighted(table){
   const total = table.reduce((a,t)=>a+t.weight,0);
@@ -290,7 +296,7 @@ Object.values(CharacterData).forEach(c=>{
         if(card && !card.querySelector('.save-badge')){
           const badge = document.createElement('div');
           badge.className='save-badge';
-          badge.textContent='💾 In Progress';
+          badge.textContent='💾 Ada Progress';
           card.appendChild(badge);
         }
       }
@@ -825,13 +831,16 @@ class GameApp{
       <div class="panel-row"><span class="prl">Cooldown Reduction</span><span class="prr">${Math.round(p.cdr*100)}%</span></div>
     `;
     const slots = [
-      {def:c.basic, level:1, isBasic:true, cooldown:(1/p.aspd)},
-      {def:c.skill1, level:p.skillLevels.skill1, cooldown:this.getEffCooldown(c.skill1.cooldown)},
-      {def:c.skill2, level:p.skillLevels.skill2, cooldown:this.getEffCooldown(c.skill2.cooldown)},
-      {def:c.skill3, level:p.skillLevels.skill3, cooldown:this.getEffCooldown(c.skill3.cooldown)},
-      {def:c.ultimate, level:p.skillLevels.ultimate, cooldown:this.getEffCooldown(c.ultimate.cooldown)}
+      {def:c.basic, slot:null, level:1, isBasic:true, cooldown:(1/p.aspd)},
+      {def:c.skill1, slot:'skill1', level:p.skillLevels.skill1, cooldown:this.getEffCooldown(c.skill1.cooldown)},
+      {def:c.skill2, slot:'skill2', level:p.skillLevels.skill2, cooldown:this.getEffCooldown(c.skill2.cooldown)},
+      {def:c.skill3, slot:'skill3', level:p.skillLevels.skill3, cooldown:this.getEffCooldown(c.skill3.cooldown)},
+      {def:c.ultimate, slot:'ultimate', level:p.skillLevels.ultimate, cooldown:this.getEffCooldown(c.ultimate.cooldown)}
     ];
     const skillRows = slots.map(s=>{
+      if(s.slot && p.level<UNLOCK_LEVEL[s.slot]){
+        return `<div class="panel-row"><span class="prl">${s.def.icon} ${s.def.name}</span><span class="prr">🔒 Lv.${UNLOCK_LEVEL[s.slot]}</span></div>`;
+      }
       const effMult = s.def.mult>0 ? s.def.mult*(1+(s.level-1)*0.08) : 0;
       const atk = s.def.isMagic ? p.magic : p.patk;
       const dmgText = effMult>0 ? Math.round(atk*effMult)+' dmg (dasar)' : 'Buff / Utility';
@@ -1025,17 +1034,28 @@ class GameApp{
     const essence = CLASS_ESSENCE[this.classKey];
     const slots = ['skill1','skill2','skill3','ultimate'];
     return slots.map(slot=>{
-      const lvl = p.skillLevels[slot];
       const s = c[slot];
+      if(p.level < UNLOCK_LEVEL[slot]){
+        return `
+          <div class="panel-row" style="flex-direction:column; align-items:stretch;">
+            <div style="display:flex; justify-content:space-between;">
+              <span class="prl">${s.icon} ${s.name}</span><span class="prr">🔒 Perlu Lv.${UNLOCK_LEVEL[slot]}</span>
+            </div>
+          </div>`;
+      }
+      const lvl = p.skillLevels[slot];
       const maxed = lvl>=10;
       const next = maxed ? null : SKILL_UPGRADE_COST[lvl+1];
-      const canAfford = !maxed && p.gold>=next.gold && (p.materials['Skill Book']||0)>=next.book && (p.materials[essence]||0)>=next.ess;
+      const reqLevel = maxed ? null : skillUpgradeLevelReq(slot, lvl+1);
+      const levelOk = maxed || p.level>=reqLevel;
+      const canAfford = !maxed && levelOk && p.gold>=next.gold && (p.materials['Skill Book']||0)>=next.book && (p.materials[essence]||0)>=next.ess;
+      const costLine = maxed ? 'Skill sudah maksimal' : `Biaya: ${next.gold} Gold, ${next.book} Skill Book, ${next.ess} ${essence}${levelOk?'':' — Perlu Level '+reqLevel}`;
       return `
         <div class="panel-row" style="flex-direction:column; align-items:stretch;">
           <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
             <span class="prl">${s.icon} ${s.name}</span><span class="prr">Lv. ${lvl}/10</span>
           </div>
-          <div style="font-size:10px; color:var(--text-dim); margin-bottom:6px;">${maxed?'Skill sudah maksimal':'Biaya: '+next.gold+' Gold, '+next.book+' Skill Book, '+next.ess+' '+essence}</div>
+          <div style="font-size:10px; color:var(--text-dim); margin-bottom:6px;">${costLine}</div>
           ${maxed?'':`<div class="mini-btn ${canAfford?'':'disabled'}" data-slot="${slot}">Upgrade</div>`}
         </div>`;
     }).join('');
@@ -1048,6 +1068,9 @@ class GameApp{
   upgradeSkill(slot){
     const p = this.player, lvl = p.skillLevels[slot];
     if(lvl>=10) return;
+    if(p.level < UNLOCK_LEVEL[slot]){ this.toast('Skill belum terbuka'); return; }
+    const reqLevel = skillUpgradeLevelReq(slot, lvl+1);
+    if(p.level < reqLevel){ this.toast(`Perlu Level ${reqLevel} untuk upgrade ini`); return; }
     const cost = SKILL_UPGRADE_COST[lvl+1];
     const essence = CLASS_ESSENCE[this.classKey];
     const haveBook = p.materials['Skill Book']||0, haveEss = p.materials[essence]||0;
@@ -1893,6 +1916,7 @@ class GameApp{
 
   trySkill(slot){
     const p = this.player, s = this.cdata[slot];
+    if(p.level < UNLOCK_LEVEL[slot]){ this.toast(`${s.name} terkunci — perlu Level ${UNLOCK_LEVEL[slot]}`); return; }
     if(p.cooldowns[slot]>0 || p.mana < s.manaCost) return;
     p.mana -= s.manaCost; p.cooldowns[slot] = this.getEffCooldown(s.cooldown);
     if(s.blinkStrike){ this.performBlinkStrike(s); }
@@ -2187,10 +2211,16 @@ class GameApp{
     }
 
     this.updateCooldownVisual('slot-attack', p.attackCd, 1/p.aspd);
-    this.updateCooldownVisual('slot-skill1', p.cooldowns.skill1, this.getEffCooldown(this.cdata.skill1.cooldown));
-    this.updateCooldownVisual('slot-skill2', p.cooldowns.skill2, this.getEffCooldown(this.cdata.skill2.cooldown));
-    this.updateCooldownVisual('slot-skill3', p.cooldowns.skill3, this.getEffCooldown(this.cdata.skill3.cooldown));
-    this.updateCooldownVisual('slot-ultimate', p.cooldowns.ultimate, this.getEffCooldown(this.cdata.ultimate.cooldown));
+    ['skill1','skill2','skill3','ultimate'].forEach(slot=>{
+      const elId = 'slot-'+slot;
+      if(p.level < UNLOCK_LEVEL[slot]){
+        const el = document.getElementById(elId);
+        el.querySelector('.cd-overlay').style.height='100%';
+        el.querySelector('.cd-text').textContent = 'Lv.'+UNLOCK_LEVEL[slot];
+      } else {
+        this.updateCooldownVisual(elId, p.cooldowns[slot], this.getEffCooldown(this.cdata[slot].cooldown));
+      }
+    });
     this.updateCooldownVisual('slot-dodge', p.dodgeCd, 2.5);
   }
 

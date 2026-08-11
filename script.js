@@ -1,4 +1,3 @@
-
 /* =====================================================================
    PROJECT ECLIPSE — PROTOTYPE
    ===================================================================== */
@@ -41,7 +40,7 @@ const CharacterData = {
     key:'Fighter', icon:'🛡️', role:'Tank / Bruiser', color:0xe8b64c,
     hp:800, mana:120, patk:40, magic:0, pdef:40, mdef:40, aspd:0.9, critRate:0.05, critDmg:1.5, moveSpeed:4.75,
     growth:{hp:45, mana:8, patk:5, pdef:4, mdef:4},
-    basic:{name:'Slam', icon:'🔨', mult:1.15, isMagic:false, aoe:true, aoeRadius:2.8, fx:{type:'shockwave', color:0xe8b64c}},
+    basic:{name:'Slam', icon:'🔨', mult:1.15, isMagic:false, aoe:true, aoeRadius:2.6, fx:{type:'shockwave', color:0xe8b64c}},
     passive:{name:'Bulwark', icon:'🧱', desc:'Shield 15% Max HP otomatis saat HP < 30% (CD 30 detik).'},
     skill1:{name:'Shield Bash', icon:'🛡️', mult:1.4, isMagic:false, manaCost:15, cooldown:4, aoe:true, aoeRadius:3.0, effect:{type:'stun', duration:1.0}, fx:{type:'shockwave', color:0xf2d34c}, desc:'Damage area + Stun 1 detik.'},
     skill2:{name:'Guardian Smash', icon:'💢', mult:1.8, isMagic:false, manaCost:28, cooldown:6, aoe:true, fx:{type:'shockwave', color:0xff8a3f}, desc:'Hantaman area damage besar.'},
@@ -73,12 +72,12 @@ const DungeonData = {
 const DomainData = {
   artifactDomain:{ name:'Artifact Domain', desc:'Drop Artifact. Makin tinggi level, makin besar peluang rarity tinggi.',
     tiers:[
-      {level:1, mobs:[{type:'Goblin', count:3}], artifactChance:0.45},
-      {level:2, mobs:[{type:'Goblin', count:3},{type:'GoblinElite', count:1}], artifactChance:0.52},
-      {level:3, mobs:[{type:'Goblin', count:2},{type:'GoblinElite', count:2}], artifactChance:0.6},
-      {level:4, mobs:[{type:'GoblinElite', count:3}], artifactChance:0.68},
-      {level:5, mobs:[{type:'GoblinElite', count:3},{type:'Goblin', count:2}], artifactChance:0.75},
-      {level:6, mobs:[{type:'GoblinElite', count:4}], artifactChance:0.85}
+      {level:1, mobs:[{type:'Goblin', count:5}], artifactChance:0.2},
+      {level:2, mobs:[{type:'Goblin', count:3},{type:'GoblinElite', count:2}], artifactChance:0.3},
+      {level:3, mobs:[{type:'Goblin', count:2},{type:'GoblinElite', count:4}], artifactChance:0.35},
+      {level:4, mobs:[{type:'Goblin', count:2},{type:'GoblinElite', count:5}], artifactChance:0.4},
+      {level:5, mobs:[{type:'Goblin', count:3},{type:'GoblinElite', count:5}], artifactChance:0.45},
+      {level:6, mobs:[{type:'Goblin', count:4},{type:'GoblinElite', count:6}], artifactChance:0.5}
     ]
   },
   materialDomain:{ name:'Material Domain', desc:'Drop Skill Book & Essence. Makin tinggi level, makin banyak dropnya.',
@@ -88,7 +87,7 @@ const DomainData = {
       {level:3, mobs:[{type:'Goblin', count:3},{type:'GoblinElite', count:2}], lootMult:1.8},
       {level:4, mobs:[{type:'GoblinElite', count:3},{type:'Goblin', count:1}], lootMult:2.3},
       {level:5, mobs:[{type:'GoblinElite', count:3},{type:'Goblin', count:2}], lootMult:2.8},
-      {level:6, mobs:[{type:'GoblinElite', count:5},{type:'Goblin', count:2}], lootMult:3.5}
+      {level:6, mobs:[{type:'GoblinElite', count:5},{type:'Goblin', count:2}], lootMult:3.3}
     ]
   },
   rewardDomain:{ name:'Domain Ganjaran', desc:'Fokus Gold/EXP/Gems. Makin tinggi level, makin besar rewardnya.',
@@ -112,7 +111,7 @@ const MAIN_STAT_BASE = {
   patk:     {Common:0.05, Uncommon:0.08, Rare:0.12, Epic:0.18, Legendary:0.26},
   magic:    {Common:0.05, Uncommon:0.08, Rare:0.12, Epic:0.18, Legendary:0.26},
   defense:  {Common:0.05, Uncommon:0.08, Rare:0.12, Epic:0.18, Legendary:0.26},
-  critRate: {Common:0.02, Uncommon:0.03, Rare:0.04, Epic:0.07, Legendary:0.11},
+  critRate: {Common:0.02, Uncommon:0.03, Rare:0.04, Epic:0.07, Legendary:0.10},
   critDmg:  {Common:0.04, Uncommon:0.06, Rare:0.09, Epic:0.14, Legendary:0.22},
   cooldown: {Common:0.02, Uncommon:0.03, Rare:0.05, Epic:0.07, Legendary:0.10},
   moveSpeed:{Common:0.15, Uncommon:0.25, Rare:0.35, Epic:0.5,  Legendary:0.7}
@@ -128,7 +127,7 @@ const SUBSTAT_POOL = [
   {type:'cooldown', label:'Cooldown Reduction', min:0.05, max:0.15},
   {type:'moveSpeed', label:'Movement Speed', min:0.4, max:1.2}
 ];
-const ARTIFACT_MAX_LEVEL = 15;
+const ARTIFACT_MAX_LEVEL = 20;
 // 5-tier rarity, odds shift toward Legendary as the domain's difficulty level rises.
 const RARITY_TABLE_BY_TIER = {
   1:[{name:'Common',weight:100}],

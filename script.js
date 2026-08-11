@@ -8,7 +8,7 @@ const CharacterData = {
     key:'Mage', icon:'🧙', role:'Burst / Crowd Control', color:0x8a5cff,
     hp:500, mana:350, patk:20, magic:45, pdef:20, mdef:30, aspd:1.0, critRate:0.0, critDmg:1.5, moveSpeed:5.0,
     growth:{hp:30, mana:25, patk:2, magic:7, pdef:2, mdef:3},
-    basic:{name:'Arcane Bolt', icon:'✨', mult:1.0, isMagic:true, range:6.5, aoe:true, aoeRadius:3.0, fx:{type:'bolt', color:0xb98aff}},
+    basic:{name:'Arcane Bolt', icon:'✨', mult:1.0, isMagic:true, range:7.2, aoe:true, aoeRadius:3.0, fx:{type:'bolt', color:0xb98aff}},
     passive:{name:'Mana Flow', icon:'🔷', desc:'Setiap 4 Basic Attack, kembalikan 8 Mana.'},
     skill1:{name:'Frozen Spike', icon:'❄️', mult:1.6, isMagic:true, manaCost:25, cooldown:6, aoe:true, aoeRadius:4.5, effect:{type:'stun', duration:1.0}, fx:{type:'ice', color:0xbfe8ff}, desc:'Damage area + root musuh 1 detik.'},
     skill2:{name:'Fire Blast', icon:'🔥', mult:1.5, isMagic:true, manaCost:35, cooldown:12, aoe:true, aoeRadius:5.2, effect:{type:'dot', dps:50, duration:3}, fx:{type:'fire', color:0xff7a3f}, desc:'Ledakan area + Burn 3 detik.'},
@@ -30,7 +30,7 @@ const CharacterData = {
     key:'Assassin', icon:'⚔️', role:'Burst Physical / Mobility', color:0xe0475a,
     hp:560, mana:160, patk:55, magic:0, pdef:20, mdef:20, aspd:1.3, critRate:0.10, critDmg:1.7, moveSpeed:5.75,
     growth:{hp:33, mana:10, patk:7, pdef:2, mdef:2},
-    basic:{name:'Slash', icon:'🗡', mult:1.05, isMagic:false, aoe:true, aoeRadius:2.6, fx:{type:'slash', color:0xe0475a}},
+    basic:{name:'Slash', icon:'🗡', mult:1.05, isMagic:false, aoe:true, aoeRadius:2.4, fx:{type:'slash', color:0xe0475a}},
     passive:{name:'Killer Instinct', icon:'💀', desc:'+20% Crit Damage ke musuh HP < 50%.'},
     skill1:{name:'Shadow Strike', icon:'🌑', mult:2.0, isMagic:false, manaCost:18, cooldown:3.5, dash:true, fx:{type:'slash', color:0xff5c5c}, desc:'Gap-close cepat + damage besar.'},
     skill2:{name:'Poison Blade', icon:'🧪', mult:1.3, isMagic:false, manaCost:22, cooldown:5, aoe:true, aoeRadius:3.4, effect:{type:'dot', dps:20, duration:3}, fx:{type:'slash', color:0x7fe08a}, desc:'Damage area + Poison 3 detik.'},
@@ -51,9 +51,9 @@ const CharacterData = {
 };
 
 const EnemyData = {
-  Goblin:{ name:'Goblin', hp:300, patk:30, pdef:9, breakHits:5, detectionRadius:9, attackRange:1.7, moveSpeed:3.7, expReward:48, goldReward:16, scale:1.0, color:0x4a7c3f },
-  GoblinElite:{ name:'Goblin Elite', hp:650, patk:50, pdef:16, breakHits:10, detectionRadius:10, attackRange:1.8, moveSpeed:4.1, expReward:130, goldReward:44, scale:1.25, color:0x4a7c3f, isElite:true },
-  GoblinKing:{ name:'Goblin King', hp:40000, patk:220, pdef:27, breakHits:25, detectionRadius:40, attackRange:2.3, moveSpeed:3.4, expReward:1100, goldReward:340, scale:1.9, color:0x2f5c2f, isBoss:true }
+  Goblin:{ name:'Goblin', hp:300, patk:30, pdef:9, breakHits:5, detectionRadius:10, attackRange:1.7, moveSpeed:3.7, expReward:48, goldReward:16, scale:1.0, color:0x4a7c3f },
+  GoblinElite:{ name:'Goblin Elite', hp:650, patk:50, pdef:16, breakHits:10, detectionRadius:12, attackRange:1.8, moveSpeed:4.1, expReward:118, goldReward:44, scale:1.25, color:0x4a7c3f, isElite:true },
+  GoblinKing:{ name:'Goblin King', hp:40000, patk:220, pdef:27, breakHits:25, detectionRadius:40, attackRange:2.3, moveSpeed:3.4, expReward:1800, goldReward:560, scale:2.2, color:0x2f5c2f, isBoss:true }
 };
 
 const DungeonData = {
@@ -86,9 +86,9 @@ const DomainData = {
       {level:1, mobs:[{type:'Goblin', count:4}], lootMult:1},
       {level:2, mobs:[{type:'Goblin', count:4},{type:'GoblinElite', count:1}], lootMult:1.4},
       {level:3, mobs:[{type:'Goblin', count:3},{type:'GoblinElite', count:2}], lootMult:1.8},
-      {level:4, mobs:[{type:'GoblinElite', count:3}], lootMult:2.3},
+      {level:4, mobs:[{type:'GoblinElite', count:3},{type:'Goblin', count:1}], lootMult:2.3},
       {level:5, mobs:[{type:'GoblinElite', count:3},{type:'Goblin', count:2}], lootMult:2.8},
-      {level:6, mobs:[{type:'GoblinElite', count:5}], lootMult:3.5}
+      {level:6, mobs:[{type:'GoblinElite', count:5},{type:'Goblin', count:2}], lootMult:3.5}
     ]
   },
   rewardDomain:{ name:'Domain Ganjaran', desc:'Fokus Gold/EXP/Gems. Makin tinggi level, makin besar rewardnya.',
@@ -112,8 +112,8 @@ const MAIN_STAT_BASE = {
   patk:     {Common:0.05, Uncommon:0.08, Rare:0.12, Epic:0.18, Legendary:0.26},
   magic:    {Common:0.05, Uncommon:0.08, Rare:0.12, Epic:0.18, Legendary:0.26},
   defense:  {Common:0.05, Uncommon:0.08, Rare:0.12, Epic:0.18, Legendary:0.26},
-  critRate: {Common:0.02, Uncommon:0.03, Rare:0.04, Epic:0.06, Legendary:0.09},
-  critDmg:  {Common:0.04, Uncommon:0.06, Rare:0.09, Epic:0.13, Legendary:0.18},
+  critRate: {Common:0.02, Uncommon:0.03, Rare:0.04, Epic:0.07, Legendary:0.11},
+  critDmg:  {Common:0.04, Uncommon:0.06, Rare:0.09, Epic:0.14, Legendary:0.22},
   cooldown: {Common:0.02, Uncommon:0.03, Rare:0.05, Epic:0.07, Legendary:0.10},
   moveSpeed:{Common:0.15, Uncommon:0.25, Rare:0.35, Epic:0.5,  Legendary:0.7}
 };
@@ -618,9 +618,9 @@ class GameApp{
     p.magic = Math.round(p.baseMagic*(1+magicPct));
     p.pdef = Math.round(p.basePdef*(1+defPct));
     p.mdef = p.baseMdef;
-    p.critRate = Math.min(0.75, p.baseCritRate + critRateAdd);
+    p.critRate = Math.min(1, p.baseCritRate + critRateAdd);
     p.critDmg = p.baseCritDmg + critDmgAdd;
-    p.cdr = Math.min(0.4, cdrPct);
+    p.cdr = Math.min(0.5, cdrPct);
     p.moveSpeed = p.baseMoveSpeed + moveSpeedFlat;
     p.hp = Math.min(p.hp, p.hpMax);
     p.mana = Math.min(p.mana, p.manaMax);

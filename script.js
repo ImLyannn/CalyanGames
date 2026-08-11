@@ -1,3 +1,4 @@
+
 /* =====================================================================
    PROJECT ECLIPSE — PROTOTYPE
    ===================================================================== */
@@ -617,7 +618,7 @@ class GameApp{
     p.magic = Math.round(p.baseMagic*(1+magicPct));
     p.pdef = Math.round(p.basePdef*(1+defPct));
     p.mdef = p.baseMdef;
-    p.critRate = Math.min(1, p.baseCritRate + critRateAdd);
+    p.critRate = p.baseCritRate + critRateAdd;
     p.critDmg = p.baseCritDmg + critDmgAdd;
     p.cdr = Math.min(0.5, cdrPct);
     p.moveSpeed = p.baseMoveSpeed + moveSpeedFlat;

@@ -32,7 +32,7 @@ const CharacterData = {
     growth:{hp:33, mana:10, patk:7, pdef:2, mdef:2},
     basic:{name:'Slash', icon:'🗡', mult:1.05, isMagic:false, aoe:true, aoeRadius:2.6, fx:{type:'slash', color:0xe0475a}},
     passive:{name:'Killer Instinct', icon:'💀', desc:'+20% Crit Damage ke musuh HP < 50%.'},
-    skill1:{name:'Shadow Strike', icon:'🌑', mult:2.0, isMagic:false, manaCost:18, cooldown:3.5, aoe:true, dash:true, fx:{type:'slash', color:0xff5c5c}, desc:'Gap-close cepat + damage besar.'},
+    skill1:{name:'Shadow Strike', icon:'🌑', mult:2.0, isMagic:false, manaCost:18, cooldown:3.5, dash:true, fx:{type:'slash', color:0xff5c5c}, desc:'Gap-close cepat + damage besar.'},
     skill2:{name:'Poison Blade', icon:'🧪', mult:1.3, isMagic:false, manaCost:22, cooldown:5, aoe:true, aoeRadius:3.4, effect:{type:'dot', dps:20, duration:3}, fx:{type:'slash', color:0x7fe08a}, desc:'Damage area + Poison 3 detik.'},
     skill3:{name:'Shadow Dash', icon:'💨', mult:2.0, isMagic:false, manaCost:20, cooldown:8, dashAttack:true, dashDistance:3.5, dashRadius:2.2, fx:{type:'slash', color:0xaaaaaa}, desc:'Dash sesuai arah gerak, damage musuh yang dilewati + I-Frame singkat.'},
     ultimate:{name:'Execution', icon:'☠️', mult:4.0, isMagic:false, manaCost:85, cooldown:24, executeBonus:0.5, blinkStrike:true, blinkHits:4, fx:{type:'slash', color:0xff2b2b}, desc:'Blink 4x ke musuh terdekat, tiap hit damage besar. Tak bisa di-hit selama durasi.'}
@@ -1345,26 +1345,22 @@ class GameApp{
 
     const canvas = document.getElementById('game-canvas');
     canvas.addEventListener('mousedown', e=>{
-      this.mouse.down=true; this.mouse.lastX=e.clientX; this.mouse.lastY=e.clientY;
-      if(this.stageActive) this.tryAttack();
-      // Pointer Lock lets the drag keep rotating the camera even if the cursor
-      // would otherwise hit the edge of the browser window (fixes camera
-      // "getting stuck" when dragged far on desktop).
-      if(canvas.requestPointerLock){ canvas.requestPointerLock().catch(()=>{}); }
+      if(e.button===0){
+        // Left click = Basic Attack. Right click = camera drag (below).
+        if(this.stageActive) this.tryAttack();
+      } else if(e.button===2){
+        this.mouse.down = true;
+        this.mouse.lastX = e.clientX; this.mouse.lastY = e.clientY;
+      }
     });
-    window.addEventListener('mouseup', ()=>{
-      this.mouse.down=false;
-      if(document.exitPointerLock && document.pointerLockElement===canvas) document.exitPointerLock();
+    canvas.addEventListener('contextmenu', e=> e.preventDefault());
+    window.addEventListener('mouseup', e=>{
+      if(e.button===2) this.mouse.down=false;
     });
     window.addEventListener('mousemove', e=>{
       if(!this.mouse.down) return;
-      let dx, dy;
-      if(document.pointerLockElement===canvas){
-        dx = e.movementX||0; dy = e.movementY||0;
-      } else {
-        dx = e.clientX-this.mouse.lastX; dy = e.clientY-this.mouse.lastY;
-        this.mouse.lastX=e.clientX; this.mouse.lastY=e.clientY;
-      }
+      const dx = e.clientX-this.mouse.lastX, dy = e.clientY-this.mouse.lastY;
+      this.mouse.lastX=e.clientX; this.mouse.lastY=e.clientY;
       this.camYaw -= dx*0.0055;
       this.camPitch = Math.max(0.08, Math.min(1.15, this.camPitch + dy*0.0045));
     });

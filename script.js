@@ -111,7 +111,7 @@ const MAIN_STAT_BASE = {
   patk:     {Common:0.05, Uncommon:0.08, Rare:0.12, Epic:0.18, Legendary:0.26},
   magic:    {Common:0.05, Uncommon:0.08, Rare:0.12, Epic:0.18, Legendary:0.26},
   defense:  {Common:0.05, Uncommon:0.08, Rare:0.12, Epic:0.18, Legendary:0.26},
-  critRate: {Common:0.02, Uncommon:0.03, Rare:0.04, Epic:0.07, Legendary:0.10},
+  critRate: {Common:0.02, Uncommon:0.03, Rare:0.04, Epic:0.07, Legendary:0.11},
   critDmg:  {Common:0.04, Uncommon:0.06, Rare:0.09, Epic:0.14, Legendary:0.22},
   cooldown: {Common:0.02, Uncommon:0.03, Rare:0.05, Epic:0.07, Legendary:0.10},
   moveSpeed:{Common:0.15, Uncommon:0.25, Rare:0.35, Epic:0.5,  Legendary:0.7}

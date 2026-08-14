@@ -8,12 +8,12 @@ const CharacterData = {
     key:'Mage', icon:'🧙', role:'Burst / Crowd Control', color:0x8a5cff,
     hp:500, mana:350, patk:20, magic:45, pdef:20, mdef:30, aspd:1.0, critRate:0.0, critDmg:1.5, moveSpeed:5.0,
     growth:{hp:30, mana:25, patk:2, magic:7, pdef:2, mdef:3},
-    basic:{name:'Arcane Bolt', icon:'✨', mult:1.0, isMagic:true, range:7.2, aoe:true, aoeRadius:3.0, fx:{type:'bolt', color:0xb98aff}},
+    basic:{name:'Arcane Bolt', icon:'✨', mult:1.0, isMagic:true, aoe:true, aoeRadius:7.2, fx:{type:'bolt', color:0xb98aff}},
     passive:{name:'Mana Flow', icon:'🔷', desc:'Setiap 4 Basic Attack, kembalikan 8 Mana.'},
     skill1:{name:'Frozen Spike', icon:'❄️', mult:1.6, isMagic:true, manaCost:25, cooldown:6, aoe:true, aoeRadius:4.5, effect:{type:'stun', duration:1.0}, fx:{type:'ice', color:0xbfe8ff}, desc:'Damage area + root musuh 1 detik.'},
     skill2:{name:'Fire Blast', icon:'🔥', mult:1.5, isMagic:true, manaCost:35, cooldown:12, aoe:true, aoeRadius:5.2, effect:{type:'dot', dps:50, duration:3}, fx:{type:'fire', color:0xff7a3f}, desc:'Ledakan area + Burn 3 detik.'},
     skill3:{name:'Temporal Shift', icon:'⏳', mult:0, isMagic:true, manaCost:35, cooldown:22, selfBuff:{type:'shield', pct:0.10, duration:4}, resetSkills:['skill1','skill2'], fx:{type:'shield', color:0x7fe0d0}, desc:'Shield 10% Max HP 4 detik + reset cooldown Skill 1 & 2.'},
-    ultimate:{name:'Meteor Tornado', icon:'🌪️', mult:4.2, isMagic:true, manaCost:90, cooldown:25, aoe:true, aoeRadius:5.8, effect:{type:'stun', duration:1.5}, fx:{type:'tornado', color:0x8a5cff}, desc:'Damage besar area + Stun 1.5 detik.'}
+    ultimate:{name:'Dimensional Tornado', icon:'🌪️', mult:4.8, isMagic:true, manaCost:90, cooldown:46, aoe:true, aoeRadius:5.8, effect:{type:'stun', duration:1.5}, resetSkills:['skill3'], fx:{type:'tornado', color:0x8a5cff}, desc:'Damage besar area + Stun 1.5 detik + reset cooldown Skill 3.'}
   },
   Archer: {
     key:'Archer', icon:'🏹', role:'Sustained DPS / Critical', color:0x4fd68c,
@@ -24,7 +24,7 @@ const CharacterData = {
     skill1:{name:'Multi Shot', icon:'🎯', mult:1.35, isMagic:false, manaCost:18, cooldown:3, range:7, fx:{type:'arrow', color:0x8fe8b0}, desc:'Beberapa anak panah sekaligus.'},
     skill2:{name:'Piercing Arrow', icon:'🏹', mult:1.9, isMagic:false, manaCost:28, cooldown:5, range:7.5, defShred:0.3, fx:{type:'arrow', color:0xfff07a}, desc:'Damage tinggi, abaikan 30% Defense.'},
     skill3:{name:'Explosive Trap', icon:'💣', mult:1.7, isMagic:false, manaCost:24, cooldown:12, aoe:true, aoeRadius:5, effect:{type:'slow', value:0.4, duration:2}, fx:{type:'shockwave', color:0xffb84f}, desc:'AoE + Slow 40% selama 2 detik.'},
-    ultimate:{name:'Rain of Arrows', icon:'🌧️', mult:3.4, isMagic:false, manaCost:85, cooldown:24, aoe:true, aoeRadius:5.8, fx:{type:'shockwave', color:0x4fd68c}, desc:'Hujan panah damage besar ke area.'}
+    ultimate:{name:'Rain of Arrows', icon:'🌧️', mult:3.4, isMagic:false, manaCost:85, cooldown:42, aoe:true, aoeRadius:5.8, selfBuff:{type:'archerBoost', atkPct:0.25, critRatePct:0.20, critDmgPct:0.40, duration:12}, fx:{type:'shockwave', color:0x4fd68c}, desc:'Hujan panah damage besar ke area + Marksman Focus 12 detik: +25% Attack, +20% Crit Chance, +40% Crit Damage.'}
   },
   Assassin: {
     key:'Assassin', icon:'⚔️', role:'Burst Physical / Mobility', color:0xe0475a,
@@ -35,7 +35,7 @@ const CharacterData = {
     skill1:{name:'Shadow Strike', icon:'🌑', mult:2.0, isMagic:false, manaCost:18, cooldown:3.5, dash:true, fx:{type:'slash', color:0xff5c5c}, desc:'Gap-close cepat + damage besar.'},
     skill2:{name:'Poison Blade', icon:'🧪', mult:1.3, isMagic:false, manaCost:22, cooldown:5, aoe:true, aoeRadius:3.4, effect:{type:'dot', dps:20, duration:3}, fx:{type:'slash', color:0x7fe08a}, desc:'Damage area + Poison 3 detik.'},
     skill3:{name:'Shadow Dash', icon:'💨', mult:2.0, isMagic:false, manaCost:20, cooldown:8, dashAttack:true, dashDistance:3.5, dashRadius:2.2, fx:{type:'slash', color:0xaaaaaa}, desc:'Dash sesuai arah gerak, damage musuh yang dilewati + I-Frame singkat.'},
-    ultimate:{name:'Execution', icon:'☠️', mult:4.0, isMagic:false, manaCost:85, cooldown:24, executeBonus:0.5, blinkStrike:true, blinkHits:4, fx:{type:'slash', color:0xff2b2b}, desc:'Blink 4x ke musuh terdekat, tiap hit damage besar. Tak bisa di-hit selama durasi.'}
+    ultimate:{name:'Execution', icon:'☠️', mult:5, isMagic:false, manaCost:85, cooldown:24, executeBonus:0.5, blinkStrike:true, blinkHits:4, fx:{type:'slash', color:0xff2b2b}, desc:'Blink 4x ke musuh terdekat, tiap hit damage besar. Tak bisa di-hit selama durasi.'}
   },
   Fighter: {
     key:'Fighter', icon:'🛡️', role:'Tank / Bruiser', color:0xe8b64c,
@@ -45,8 +45,8 @@ const CharacterData = {
     passive:{name:'Bulwark', icon:'🧱', desc:'Shield 15% Max HP otomatis saat HP < 30% (CD 30 detik).'},
     skill1:{name:'Shield Bash', icon:'🛡️', mult:1.4, isMagic:false, manaCost:15, cooldown:4, aoe:true, aoeRadius:3.0, effect:{type:'stun', duration:1.0}, fx:{type:'shockwave', color:0xf2d34c}, desc:'Damage area + Stun 1 detik.'},
     skill2:{name:'Guardian Smash', icon:'💢', mult:1.8, isMagic:false, manaCost:28, cooldown:6, aoe:true, fx:{type:'shockwave', color:0xff8a3f}, desc:'Hantaman area damage besar.'},
-    skill3:{name:'Iron Will', icon:'🩸', mult:0, isMagic:false, manaCost:18, cooldown:18, selfBuff:{type:'ironwill', defMult:1.3, lifesteal:0.25, duration:7}, fx:{type:'shield', color:0xe8b64c}, desc:'+30% Defense & 25% Lifesteal, 7 detik.'},
-    ultimate:{name:'Earth Sunder', icon:'🌋', mult:3.0, isMagic:false, manaCost:75, cooldown:20, aoe:true, effect:{type:'stun', duration:1.5}, fx:{type:'shockwave', color:0xb5651d}, desc:'Damage besar area + Knockdown 1.5 detik.'}
+    skill3:{name:'Iron Will', icon:'🩸', mult:0, isMagic:false, manaCost:18, cooldown:24, selfBuff:{type:'ironwill', defMult:1.3, lifesteal:0.15, duration:7}, fx:{type:'shield', color:0xe8b64c}, desc:'+30% Defense & 25% Lifesteal, 7 detik.'},
+    ultimate:{name:'Earth Sunder', icon:'🌋', mult:4.2, isMagic:false, manaCost:75, cooldown:54, aoe:true, effect:{type:'stun', duration:1.5}, selfBuff:{type:'titan', atkPct:0.1, hpPct:0.2, defPct:0.2, lifesteal:0.25, duration:12}, fx:{type:'shockwave', color:0xb5651d}, desc:'Damage besar area + Knockdown 1.5 detik. Berubah raksasa 1.5x selama 12 detik: +10% Damage, +20% Max HP, +20% Defense, +20% Lifesteal (stack dgn Iron Will).'}
   }
 };
 
@@ -576,7 +576,9 @@ class GameApp{
       iFrame:0, gold:0, gems:0, materials:{}, artifacts:[],
       equippedArtifacts:{Crown:null, Bracelet:null, Ring:null, Necklace:null, Core:null},
       autoDelete:{Common:false, Uncommon:false, Rare:false, Epic:false, Legendary:false},
-      buffs:{ shield:0, hasteMult:1, hasteTimer:0, defMult:1, defTimer:0, lifestealPct:0, lifestealTimer:0, critBonus:0, critBonusTimer:0 },
+      buffs:{ shield:0, hasteMult:1, hasteTimer:0, defMult:1, defTimer:0, lifestealPct:0, lifestealTimer:0, critBonus:0, critBonusTimer:0,
+        titanTimer:0, titanAtkPct:0, titanHpPct:0, titanDefPct:0, titanLifesteal:0, titanBonusHp:0,
+        archerBoostTimer:0, archerBoostAtkPct:0, archerBoostCritRate:0, archerBoostCritDmg:0 },
       bulwarkCd:0, attackLock:0
     };
     this.recalcStats();
@@ -756,6 +758,11 @@ class GameApp{
     this.currentRun = null;
     this.clearEnemies();
     this.setEnvironmentMode('lobby');
+    const p = this.player;
+    if(p.buffs.titanTimer>0){ p.hpMax -= (p.buffs.titanBonusHp||0); p.hp = Math.min(p.hp, p.hpMax); }
+    p.buffs.titanTimer=0; p.buffs.titanBonusHp=0; p.buffs.titanAtkPct=0; p.buffs.titanHpPct=0; p.buffs.titanDefPct=0; p.buffs.titanLifesteal=0;
+    p.buffs.archerBoostTimer=0; p.buffs.archerBoostAtkPct=0; p.buffs.archerBoostCritRate=0; p.buffs.archerBoostCritDmg=0;
+    p.mesh.scale.set(1,1,1);
     document.getElementById('stage-overlay').style.display='none';
     document.getElementById('station-panel').style.display='none';
     document.getElementById('hud').style.display='block';
@@ -1266,6 +1273,10 @@ class GameApp{
     const p = this.player;
     p.hp = p.hpMax; p.mana = p.manaMax;
     p.buffs.shield=0; p.buffs.hasteTimer=0; p.buffs.defTimer=0; p.buffs.lifestealTimer=0;
+    if(p.buffs.titanTimer>0){ p.hpMax -= (p.buffs.titanBonusHp||0); p.hp = Math.min(p.hp, p.hpMax); }
+    p.buffs.titanTimer=0; p.buffs.titanBonusHp=0; p.buffs.titanAtkPct=0; p.buffs.titanHpPct=0; p.buffs.titanDefPct=0; p.buffs.titanLifesteal=0;
+    p.buffs.archerBoostTimer=0; p.buffs.archerBoostAtkPct=0; p.buffs.archerBoostCritRate=0; p.buffs.archerBoostCritDmg=0;
+    p.mesh.scale.set(1,1,1);
     p.mesh.position.set(0,0,3);
     this.camYaw = 0; this.camPitch=0.35; this.camDist=6.5;
     this.stageStartTime = this.clock.getElapsedTime();
@@ -1633,18 +1644,37 @@ class GameApp{
 
   applySelfBuff(buff){
     if(!buff) return;
-    const b = this.player.buffs;
-    if(buff.type==='shield'){ b.shield = this.player.hpMax * buff.pct; this.toast('Shield aktif!'); }
-    else if(buff.type==='haste'){ b.hasteMult = buff.mult; b.hasteTimer = buff.duration; this.player.iFrame = Math.max(this.player.iFrame, buff.iframe||0); }
+    const p = this.player, b = p.buffs;
+    if(buff.type==='shield'){ b.shield = p.hpMax * buff.pct; this.toast('Shield aktif!'); }
+    else if(buff.type==='haste'){ b.hasteMult = buff.mult; b.hasteTimer = buff.duration; p.iFrame = Math.max(p.iFrame, buff.iframe||0); }
     else if(buff.type==='ironwill'){ b.defMult = buff.defMult; b.defTimer = buff.duration; b.lifestealPct = buff.lifesteal; b.lifestealTimer = buff.duration; }
+    else if(buff.type==='titan'){
+      const bonusHp = Math.round(p.hpMax * buff.hpPct);
+      p.hpMax += bonusHp; p.hp += bonusHp;
+      b.titanBonusHp = bonusHp;
+      b.titanTimer = buff.duration;
+      b.titanAtkPct = buff.atkPct; b.titanHpPct = buff.hpPct; b.titanDefPct = buff.defPct; b.titanLifesteal = buff.lifesteal;
+      this.toast('Titan Form aktif!');
+    }
+    else if(buff.type==='archerBoost'){
+      b.archerBoostTimer = buff.duration;
+      b.archerBoostAtkPct = buff.atkPct; b.archerBoostCritRate = buff.critRatePct; b.archerBoostCritDmg = buff.critDmgPct;
+      this.toast('Marksman Focus aktif!');
+    }
   }
 
   dealDamage(target, skillDef){
-    const p = this.player;
-    const atk = skillDef.isMagic ? p.magic : p.patk;
-    const effCrit = p.critRate + (p.buffs.critBonusTimer>0 ? p.buffs.critBonus : 0);
+    const p = this.player, b = p.buffs;
+    let atk = skillDef.isMagic ? p.magic : p.patk;
+    let atkBonusPct = 0;
+    if(b.titanTimer>0) atkBonusPct += b.titanAtkPct;
+    if(b.archerBoostTimer>0) atkBonusPct += b.archerBoostAtkPct;
+    atk *= (1+atkBonusPct);
+
+    const effCrit = p.critRate + (b.critBonusTimer>0 ? b.critBonus : 0) + (b.archerBoostTimer>0 ? b.archerBoostCritRate : 0);
     const isCrit = Math.random() < effCrit;
-    let critMult = isCrit ? p.critDmg : 1;
+    const effCritDmg = p.critDmg + (b.archerBoostTimer>0 ? b.archerBoostCritDmg : 0);
+    let critMult = isCrit ? effCritDmg : 1;
     if(this.classKey==='Assassin' && target.hp/target.hpMax < 0.5) critMult += (isCrit?0.2:0);
 
     let dmg = atk * skillDef.mult * critMult * this.comboMultiplier();
@@ -1665,7 +1695,10 @@ class GameApp{
     this.spawnDamageNumber(above, (isCrit? dmg+'!':dmg), isCrit?'crit':(skillDef.isMagic?'magic':''));
 
     this.applyEnemyEffect(target, skillDef.effect);
-    if(p.buffs.lifestealTimer>0){ this.healPlayer(dmg*p.buffs.lifestealPct, true); }
+    let lifestealPct = 0;
+    if(p.buffs.lifestealTimer>0) lifestealPct += p.buffs.lifestealPct;
+    if(p.buffs.titanTimer>0) lifestealPct += p.buffs.titanLifesteal;
+    if(lifestealPct>0){ this.healPlayer(dmg*lifestealPct, true); }
 
     if(target.hp<=0 && target.state!=='dead'){ this.killEnemy(target); }
   }
@@ -1675,9 +1708,10 @@ class GameApp{
     const lvl = slotForLevel ? p.skillLevels[slotForLevel] : 1;
     const effSkill = Object.assign({}, skillDef, { mult: skillDef.mult>0 ? skillDef.mult*(1+(lvl-1)*0.08) : skillDef.mult });
 
+    if(effSkill.resetSkills){ effSkill.resetSkills.forEach(sk=> p.cooldowns[sk]=0); }
+
     if(effSkill.mult<=0){
       this.applySelfBuff(effSkill.selfBuff);
-      if(effSkill.resetSkills){ effSkill.resetSkills.forEach(sk=> p.cooldowns[sk]=0); }
       if(effSkill.fx) this.spawnFX(effSkill.fx, p.mesh.position.clone(), p.mesh.position.clone());
       this.toast(`${effSkill.name}!`);
       return;
@@ -2068,7 +2102,10 @@ class GameApp{
   enemyHitPlayer(e){
     const p = this.player;
     if(p.iFrame>0) { this.spawnDamageNumber(p.mesh.position.clone().setY(1.9), 'DODGE', 'enemy'); return; }
-    const effPdef = p.pdef * (p.buffs.defTimer>0 ? p.buffs.defMult : 1);
+    let defBonusPct = 0;
+    if(p.buffs.defTimer>0) defBonusPct += (p.buffs.defMult-1);
+    if(p.buffs.titanTimer>0) defBonusPct += p.buffs.titanDefPct;
+    const effPdef = p.pdef * (1+defBonusPct);
     let dmg = e.patk * (1 - defenseReduction(effPdef));
     dmg = Math.max(1, Math.round(dmg));
 
@@ -2162,6 +2199,8 @@ class GameApp{
     if(p.buffs.hasteTimer>0) icons.push('💨');
     if(p.buffs.defTimer>0) icons.push('🛡️');
     if(p.buffs.critBonusTimer>0) icons.push('🎯');
+    if(p.buffs.titanTimer>0) icons.push('🗿');
+    if(p.buffs.archerBoostTimer>0) icons.push('🏹');
     document.getElementById('buff-row').innerHTML = icons.map(i=>`<div class="buff-icon">${i}</div>`).join('');
   }
 
@@ -2249,6 +2288,20 @@ class GameApp{
     if(b.defTimer>0){ b.defTimer -= dt; if(b.defTimer<=0){ b.defMult=1; b.lifestealPct=0; } }
     if(b.lifestealTimer>0){ b.lifestealTimer -= dt; }
     if(b.critBonusTimer>0){ b.critBonusTimer -= dt; }
+    if(b.titanTimer>0){
+      b.titanTimer -= dt;
+      if(b.titanTimer<=0){
+        p.hpMax -= (b.titanBonusHp||0);
+        p.hp = Math.min(p.hp, p.hpMax);
+        b.titanBonusHp=0; b.titanAtkPct=0; b.titanHpPct=0; b.titanDefPct=0; b.titanLifesteal=0;
+      }
+    }
+    if(b.archerBoostTimer>0){
+      b.archerBoostTimer -= dt;
+      if(b.archerBoostTimer<=0){ b.archerBoostAtkPct=0; b.archerBoostCritRate=0; b.archerBoostCritDmg=0; }
+    }
+    const titanScale = b.titanTimer>0 ? 1.5 : 1.0;
+    p.mesh.scale.lerp(new THREE.Vector3(titanScale,titanScale,titanScale), Math.min(1, dt*3));
 
     this.updateDodgeAnim(dt);
     const dodging = p.dodgeAnim && p.dodgeAnim.active;

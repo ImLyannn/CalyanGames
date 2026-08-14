@@ -35,7 +35,7 @@ const CharacterData = {
     skill1:{name:'Shadow Strike', icon:'🌑', mult:2.0, isMagic:false, manaCost:18, cooldown:3.5, dash:true, fx:{type:'slash', color:0xff5c5c}, desc:'Gap-close cepat + damage besar.'},
     skill2:{name:'Poison Blade', icon:'🧪', mult:1.3, isMagic:false, manaCost:22, cooldown:5, aoe:true, aoeRadius:3.4, effect:{type:'dot', dps:20, duration:3}, fx:{type:'slash', color:0x7fe08a}, desc:'Damage area + Poison 3 detik.'},
     skill3:{name:'Shadow Dash', icon:'💨', mult:2.0, isMagic:false, manaCost:20, cooldown:8, dashAttack:true, dashDistance:3.5, dashRadius:2.2, fx:{type:'slash', color:0xaaaaaa}, desc:'Dash sesuai arah gerak, damage musuh yang dilewati + I-Frame singkat.'},
-    ultimate:{name:'Execution', icon:'☠️', mult:5, isMagic:false, manaCost:85, cooldown:24, executeBonus:0.5, blinkStrike:true, blinkHits:4, fx:{type:'slash', color:0xff2b2b}, desc:'Blink 4x ke musuh terdekat, tiap hit damage besar. Tak bisa di-hit selama durasi.'}
+    ultimate:{name:'Execution', icon:'☠️', mult:5.0, isMagic:false, manaCost:85, cooldown:24, executeBonus:0.5, blinkStrike:true, blinkHits:4, fx:{type:'slash', color:0xff2b2b}, desc:'Blink 4x ke musuh terdekat, tiap hit damage besar. Tak bisa di-hit selama durasi.'}
   },
   Fighter: {
     key:'Fighter', icon:'🛡️', role:'Tank / Bruiser', color:0xe8b64c,
@@ -45,8 +45,8 @@ const CharacterData = {
     passive:{name:'Bulwark', icon:'🧱', desc:'Shield 15% Max HP otomatis saat HP < 30% (CD 30 detik).'},
     skill1:{name:'Shield Bash', icon:'🛡️', mult:1.4, isMagic:false, manaCost:15, cooldown:4, aoe:true, aoeRadius:3.0, effect:{type:'stun', duration:1.0}, fx:{type:'shockwave', color:0xf2d34c}, desc:'Damage area + Stun 1 detik.'},
     skill2:{name:'Guardian Smash', icon:'💢', mult:1.8, isMagic:false, manaCost:28, cooldown:6, aoe:true, fx:{type:'shockwave', color:0xff8a3f}, desc:'Hantaman area damage besar.'},
-    skill3:{name:'Iron Will', icon:'🩸', mult:0, isMagic:false, manaCost:18, cooldown:24, selfBuff:{type:'ironwill', defMult:1.3, lifesteal:0.15, duration:7}, fx:{type:'shield', color:0xe8b64c}, desc:'+30% Defense & 25% Lifesteal, 7 detik.'},
-    ultimate:{name:'Earth Sunder', icon:'🌋', mult:4.2, isMagic:false, manaCost:75, cooldown:54, aoe:true, effect:{type:'stun', duration:1.5}, selfBuff:{type:'titan', atkPct:0.1, hpPct:0.2, defPct:0.2, lifesteal:0.25, duration:12}, fx:{type:'shockwave', color:0xb5651d}, desc:'Damage besar area + Knockdown 1.5 detik. Berubah raksasa 1.5x selama 12 detik: +10% Damage, +20% Max HP, +20% Defense, +20% Lifesteal (stack dgn Iron Will).'}
+    skill3:{name:'Iron Will', icon:'🩸', mult:0, isMagic:false, manaCost:18, cooldown:24, selfBuff:{type:'ironwill', defMult:1.3, lifesteal:0.15, duration:7}, fx:{type:'shield', color:0xe8b64c}, desc:'+30% Defense & 15% Lifesteal, 7 detik.'},
+    ultimate:{name:'Earth Sunder', icon:'🌋', mult:4.2, isMagic:false, manaCost:75, cooldown:54, aoe:true, effect:{type:'stun', duration:1.5}, selfBuff:{type:'titan', atkPct:0.1, hpPct:0.2, defPct:0.2, lifesteal:0.25, duration:12}, fx:{type:'shockwave', color:0xb5651d}, desc:'Damage besar area + Knockdown 1.5 detik. Berubah raksasa 1.5x selama 12 detik: +10% Damage, +20% Max HP, +20% Defense, +25% Lifesteal (stack dgn Iron Will).'}
   }
 };
 
@@ -354,6 +354,7 @@ class GameApp{
     this.initPlayer();
     this.initStations();
     this.initInput();
+    this.initPlayerSkillRow();
     this.updateHUDStatic();
 
     document.getElementById('hub-btn').addEventListener('click', ()=> this.enterLobby());
@@ -1484,6 +1485,50 @@ class GameApp{
     el.addEventListener('mouseleave', ()=>{ tt.style.display='none'; });
   }
 
+  // ---------------- SKILL COOLDOWN ROW (in the HP/player frame) ----------------
+  initPlayerSkillRow(){
+    const row = document.getElementById('player-skill-row');
+    row.innerHTML = '';
+    const c = this.cdata;
+    const defs = [
+      {slot:'skill1', def:c.skill1},
+      {slot:'skill2', def:c.skill2},
+      {slot:'skill3', def:c.skill3},
+      {slot:'ultimate', def:c.ultimate}
+    ];
+    defs.forEach(d=>{
+      const el = document.createElement('div');
+      el.className = 'ps-slot'+(d.slot==='ultimate'?' ult':'');
+      el.id = 'ps-'+d.slot;
+      el.innerHTML = `<div class="ic">${d.def.icon}</div><div class="cdov"></div><div class="cdtx"></div>`;
+      row.appendChild(el);
+    });
+  }
+  updatePlayerSkillRow(){
+    const p = this.player;
+    ['skill1','skill2','skill3','ultimate'].forEach(slot=>{
+      const el = document.getElementById('ps-'+slot);
+      if(!el) return;
+      const ov = el.querySelector('.cdov');
+      const tx = el.querySelector('.cdtx');
+      if(p.level < UNLOCK_LEVEL[slot]){
+        el.classList.add('locked');
+        ov.style.height='100%';
+        tx.textContent = UNLOCK_LEVEL[slot];
+      } else {
+        el.classList.remove('locked');
+        const total = this.getEffCooldown(this.cdata[slot].cooldown);
+        const remaining = p.cooldowns[slot];
+        if(remaining>0){
+          ov.style.height = Math.min(100,(remaining/total)*100)+'%';
+          tx.textContent = remaining>1 ? Math.ceil(remaining) : '';
+        } else {
+          ov.style.height='0%'; tx.textContent='';
+        }
+      }
+    });
+  }
+
   // ---------------- VISUAL FX ----------------
   spawnFX(fx, fromPos, toPos){
     if(!fx) return;
@@ -2224,6 +2269,7 @@ class GameApp{
     document.getElementById('gold-amt').textContent = p.gold;
     document.getElementById('gems-amt').textContent = p.gems;
     this.updateBuffRow();
+    this.updatePlayerSkillRow();
 
     const ef = document.getElementById('enemy-frame');
     const target = this.getNearestEnemy(18);

@@ -153,7 +153,7 @@ const SKILL_UPGRADE_COST = {
 const CLASS_ESSENCE = {Mage:'Magic Essence', Archer:'Arrow Emblem', Assassin:'Shadow Core', Fighter:'War Medal'};
 // Skills unlock as the player levels up (Lv1 has none), and each further
 // skill-level upgrade needs its own player-level gate: unlock + (skillLevel-1).
-const UNLOCK_LEVEL = {skill1:2, skill2:5, skill3:10, ultimate:16};
+const UNLOCK_LEVEL = {skill1:2, skill2:4, skill3:7, ultimate:10};
 function skillUpgradeLevelReq(slot, targetSkillLevel){
   return UNLOCK_LEVEL[slot] + (targetSkillLevel-1);
 }

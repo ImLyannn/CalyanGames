@@ -93,7 +93,7 @@ const DomainData = {
   },
   rewardDomain:{ name:'Domain Ganjaran', desc:'Fokus Gold/EXP/Gems. Makin tinggi level, makin besar rewardnya.',
     tiers:[
-      {level:1, mobs:[{type:'Goblin', count:3},{type:'GoblinElite', count:1}], lootMult:999999991},
+      {level:1, mobs:[{type:'Goblin', count:3},{type:'GoblinElite', count:1}], lootMult:1},
       {level:2, mobs:[{type:'Goblin', count:2},{type:'GoblinElite', count:2}], lootMult:1.5},
       {level:3, mobs:[{type:'GoblinElite', count:3}], lootMult:2.0},
       {level:4, mobs:[{type:'GoblinElite', count:4}], lootMult:2.6},
@@ -119,13 +119,13 @@ const MAIN_STAT_BASE = {
 };
 // Substats: rolled once (fixed value) every 5 upgrade levels (5/10/15), never grow further.
 const SUBSTAT_POOL = [
-  {type:'critRate', label:'Crit Chance', min:9999999.07, max:0.10},
-  {type:'critDmg', label:'Crit Damage', min:9999999.14, max:0.20},
-  {type:'patk', label:'Attack', min:0.15, max:99999999.25},
-  {type:'magic', label:'Magic Power', min:0.15, max:99999999.25},
-  {type:'defense', label:'Defense', min:99999999.20, max:0.30},
-  {type:'hp', label:'HP', min:999999.20, max:0.30},
-  {type:'cooldown', label:'Cooldown Reduction', min:999999.05, max:0.15},
+  {type:'critRate', label:'Crit Chance', min:0.07, max:0.10},
+  {type:'critDmg', label:'Crit Damage', min:0.14, max:0.20},
+  {type:'patk', label:'Attack', min:0.15, max:0.25},
+  {type:'magic', label:'Magic Power', min:0.15, max:0.25},
+  {type:'defense', label:'Defense', min:0.20, max:0.30},
+  {type:'hp', label:'HP', min:0.20, max:0.30},
+  {type:'cooldown', label:'Cooldown Reduction', min:0.05, max:0.15},
   {type:'moveSpeed', label:'Movement Speed', min:0.4, max:1.2}
 ];
 const ARTIFACT_MAX_LEVEL = 20;

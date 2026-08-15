@@ -8,11 +8,11 @@ const CharacterData = {
     key:'Mage', icon:'🧙', role:'Burst / Crowd Control', color:0x8a5cff,
     hp:500, mana:350, patk:20, magic:45, pdef:20, mdef:30, aspd:1.0, critRate:0.0, critDmg:1.5, moveSpeed:5.0,
     growth:{hp:30, mana:25, patk:2, magic:7, pdef:2, mdef:3},
-    basic:{name:'Arcane Bolt', icon:'✨', mult:1.0, isMagic:true, aoe:true, aoeRadius:7.2, fx:{type:'bolt', color:0xb98aff}},
+    basic:{name:'Arcane Bolt', icon:'✨', mult:1.0, isMagic:true, aoe:true, aoeRadius:2.6, range:9, fx:{type:'bolt', color:0xb98aff}},
     passive:{name:'Mana Flow', icon:'🔷', desc:'Setiap 4 Basic Attack, kembalikan 8 Mana.'},
-    skill1:{name:'Frozen Spike', icon:'❄️', mult:1.6, isMagic:true, manaCost:25, cooldown:6, aoe:true, aoeRadius:4.5, effect:{type:'stun', duration:1.0}, fx:{type:'ice', color:0xbfe8ff}, desc:'Damage area + root musuh 1 detik.'},
-    skill2:{name:'Fire Blast', icon:'🔥', mult:1.5, isMagic:true, manaCost:35, cooldown:12, aoe:true, aoeRadius:5.2, effect:{type:'dot', dps:50, duration:3}, fx:{type:'fire', color:0xff7a3f}, desc:'Ledakan area + Burn 3 detik.'},
-    skill3:{name:'Temporal Shift', icon:'⏳', mult:0, isMagic:true, manaCost:35, cooldown:22, selfBuff:{type:'shield', pct:0.10, duration:4}, resetSkills:['skill1','skill2'], fx:{type:'shield', color:0x7fe0d0}, desc:'Shield 10% Max HP 4 detik + reset cooldown Skill 1 & 2.'},
+    skill1:{name:'Frozen Spike', icon:'❄️', mult:1.8, isMagic:true, manaCost:25, cooldown:6, aoe:true, aoeRadius:4.5, effect:{type:'stun', duration:1.0}, fx:{type:'ice', color:0xbfe8ff}, desc:'Damage area + root musuh 1 detik.'},
+    skill2:{name:'Fire Blast', icon:'🔥', mult:1.6, isMagic:true, manaCost:35, cooldown:12, aoe:true, aoeRadius:5.2, effect:{type:'burnStack', dps:60, duration:3, maxStacks:3}, fx:{type:'fire', color:0xff7a3f}, desc:'Ledakan area + Burn 60 DPS/3 detik, bisa ditumpuk hingga 3x (tiap tumpukan 3 detik dihitung sendiri-sendiri, jadi total DPS menurun bertahap saat tumpukan lama habis).'},
+    skill3:{name:'Temporal Shift', icon:'⏳', mult:2.6, isMagic:true, manaCost:35, cooldown:22, range:6, resetSkills:['skill1','skill2'], fx:{type:'shield', color:0x7fe0d0}, desc:'Damage + reset cooldown Skill 1 & 2.'},
     ultimate:{name:'Dimensional Tornado', icon:'🌪️', mult:4.8, isMagic:true, manaCost:90, cooldown:46, aoe:true, aoeRadius:5.8, effect:{type:'stun', duration:1.5}, resetSkills:['skill3'], fx:{type:'tornado', color:0x8a5cff}, desc:'Damage besar area + Stun 1.5 detik + reset cooldown Skill 3.'}
   },
   Archer: {
@@ -53,7 +53,10 @@ const CharacterData = {
 const EnemyData = {
   Goblin:{ name:'Goblin', hp:300, patk:30, pdef:9, breakHits:5, detectionRadius:10, attackRange:1.7, moveSpeed:3.7, expReward:48, goldReward:16, scale:1.0, color:0x4a7c3f },
   GoblinElite:{ name:'Goblin Elite', hp:650, patk:50, pdef:16, breakHits:10, detectionRadius:12, attackRange:1.8, moveSpeed:4.1, expReward:118, goldReward:44, scale:1.25, color:0x4a7c3f, isElite:true },
-  GoblinKing:{ name:'Goblin King', hp:40000, patk:220, pdef:27, breakHits:25, detectionRadius:40, attackRange:2.3, moveSpeed:3.4, expReward:1800, goldReward:560, scale:2.2, color:0x2f5c2f, isBoss:true }
+  GoblinKing:{ name:'Goblin King', hp:40000, patk:220, pdef:27, breakHits:25, detectionRadius:40, attackRange:2.3, moveSpeed:3.4, expReward:1800, goldReward:560, scale:2.2, color:0x2f5c2f, isBoss:true },
+  DummyGoblin:{ name:'Dummy Goblin', hp:1500, patk:30, pdef:9, breakHits:5, detectionRadius:0, attackRange:1.7, moveSpeed:0, expReward:0, goldReward:0, scale:1.0, color:0x8a8a8a, isDummy:true },
+  DummyGoblinElite:{ name:'Dummy Goblin Elite', hp:3250, patk:50, pdef:16, breakHits:10, detectionRadius:0, attackRange:1.8, moveSpeed:0, expReward:0, goldReward:0, scale:1.25, color:0x6b6b8a, isElite:true, isDummy:true },
+  DummyGoblinKing:{ name:'Dummy Goblin King', hp:80000, patk:220, pdef:27, breakHits:25, detectionRadius:0, attackRange:2.3, moveSpeed:0, expReward:0, goldReward:0, scale:2.2, color:0x4a4a5c, isBoss:true, isDummy:true }
 };
 
 const DungeonData = {
@@ -681,7 +684,8 @@ class GameApp{
       {key:'artifactDomain', name:'Artifact Hunter', icon:'🔮', pos:new THREE.Vector3(-24,0,-14), color:0xd68ab9},
       {key:'materialDomain', name:'Material Trader', icon:'⚒️', pos:new THREE.Vector3(22,0,18), color:0x8ab98a},
       {key:'rewardDomain', name:'Treasure Keeper', icon:'💰', pos:new THREE.Vector3(-20,0,18), color:0xf2c14e},
-      {key:'shop', name:'Merchant', icon:'🛒', pos:new THREE.Vector3(6,0,-2), color:0x7fc9e0}
+      {key:'shop', name:'Merchant', icon:'🛒', pos:new THREE.Vector3(6,0,-2), color:0x7fc9e0},
+      {key:'dummy', name:'Training Dummy', icon:'🎯', pos:new THREE.Vector3(-4,0,-22), color:0xff9a6b}
     ];
     this.stationLabelEls = [];
     const labelContainer = document.getElementById('station-labels');
@@ -767,6 +771,7 @@ class GameApp{
     document.getElementById('stage-overlay').style.display='none';
     document.getElementById('station-panel').style.display='none';
     document.getElementById('hud').style.display='block';
+    document.getElementById('spawn-dummy-btn').style.display='none';
     document.body.classList.add('lobby-mode');
     this.player.mesh.position.set(0,0,10);
     this.camYaw = 0; this.camPitch=0.32; this.camDist=8;
@@ -793,6 +798,7 @@ class GameApp{
         this.wireFarmDomainPanel(key);
       }
       else if(key==='shop'){ title.textContent='🛒 Merchant'; body.innerHTML=this.renderShopHTML(); this.wireShopPanel(); }
+      else if(key==='dummy'){ title.textContent='🎯 Training Dummy'; body.innerHTML=this.renderDummyHTML(); this.wireDummyPanel(); }
       document.getElementById('station-panel').style.display='flex';
     }catch(err){
       // never leave the player stuck: show the error and let them close out instead of freezing
@@ -1172,6 +1178,90 @@ class GameApp{
     });
   }
 
+  renderDummyHTML(){
+    return `<div class="domain-card">
+      <div class="dn">Training Dummy</div>
+      <div class="dd">Dummy tidak menyerang balik dan tidak memberi reward — khusus untuk latihan damage/skill.</div>
+      <div class="stage-row" data-dummy="goblin4">
+        <div class="stage-num">4x</div>
+        <div class="stage-info"><div class="stage-title">Dummy Goblin</div><div class="stage-mobs">HP x5 dari Goblin biasa</div></div>
+        <div class="stage-status">▶️</div>
+      </div>
+      <div class="stage-row" data-dummy="elite4">
+        <div class="stage-num">4x</div>
+        <div class="stage-info"><div class="stage-title">Dummy Goblin Elite</div><div class="stage-mobs">HP x5 dari Goblin Elite</div></div>
+        <div class="stage-status">▶️</div>
+      </div>
+      <div class="stage-row boss-row" data-dummy="boss1">
+        <div class="stage-num">👑</div>
+        <div class="stage-info"><div class="stage-title">Dummy Goblin King</div><div class="stage-mobs">HP x2 dari Goblin King</div></div>
+        <div class="stage-status">▶️</div>
+      </div>
+      <div class="stage-row" data-dummy="custom">
+        <div class="stage-num">⚙️</div>
+        <div class="stage-info"><div class="stage-title">Custom Mode</div><div class="stage-mobs">Muncul tombol 🎯 di HUD — tekan utk spawn 1 Dummy Goblin + 1 Dummy Elite + 1 Dummy Boss di posisimu saat itu. Tombol hilang saat kembali ke Lobby.</div></div>
+        <div class="stage-status">▶️</div>
+      </div>
+    </div>`;
+  }
+  wireDummyPanel(){
+    document.querySelectorAll('#station-panel-body .stage-row[data-dummy]').forEach(el=>{
+      el.addEventListener('click', ()=> this.enterDummyMode(el.dataset.dummy));
+    });
+  }
+
+  enterDummyMode(type){
+    this.beginRunCommon();
+    this.currentRun = {kind:'dummy', subtype:type};
+    document.getElementById('stage-banner').style.display='block';
+    document.getElementById('stage-banner-title').textContent = 'Training Dummy';
+    const center = new THREE.Vector3(0,0,-6);
+    if(type==='goblin4'){
+      this.spawnWave([{type:'DummyGoblin', count:4}], center);
+      document.getElementById('stage-banner-sub').textContent = `Musuh tersisa: ${this.enemies.length}`;
+    } else if(type==='elite4'){
+      this.spawnWave([{type:'DummyGoblinElite', count:4}], center);
+      document.getElementById('stage-banner-sub').textContent = `Musuh tersisa: ${this.enemies.length}`;
+    } else if(type==='boss1'){
+      this.spawnEnemy('DummyGoblinKing', center.clone());
+      document.getElementById('stage-banner-sub').textContent = 'Hancurkan Dummy Boss!';
+    } else if(type==='custom'){
+      document.getElementById('stage-banner-sub').textContent = 'Tekan tombol 🎯 utk spawn dummy di posisimu';
+      document.getElementById('spawn-dummy-btn').style.display='flex';
+    }
+    this.stageActive = true;
+  }
+
+  spawnCustomDummyTrio(){
+    const p = this.player;
+    const base = p.mesh.position.clone();
+    this.spawnEnemy('DummyGoblin', base.clone().add(new THREE.Vector3(-1.6,0,0)));
+    this.spawnEnemy('DummyGoblinElite', base.clone().add(new THREE.Vector3(1.6,0,0)));
+    this.spawnEnemy('DummyGoblinKing', base.clone().add(new THREE.Vector3(0,0,1.9)));
+    this.toast('Dummy trio muncul di posisimu!');
+    document.getElementById('stage-banner-sub').textContent = `Musuh tersisa: ${this.enemies.filter(e=>e.state!=='dead').length}`;
+  }
+
+  onDummyClear(){
+    this.stageActive = false;
+    const ov = document.getElementById('stage-overlay');
+    ov.classList.remove('defeat');
+    document.getElementById('ov-rating').textContent = '🎯';
+    document.getElementById('ov-title').textContent = 'Dummy Training Selesai';
+    document.getElementById('ov-sub').textContent = 'Semua dummy hancur. Latihan tidak memberi reward.';
+    const btns = document.getElementById('ov-buttons');
+    btns.innerHTML='';
+    const againBtn = document.createElement('div');
+    againBtn.className='gold-btn'; againBtn.textContent='Ulangi';
+    againBtn.addEventListener('click', ()=>{ ov.style.display='none'; this.enterDummyMode(this.currentRun.subtype); this.stageActive=true; });
+    btns.appendChild(againBtn);
+    const lobbyBtn = document.createElement('div');
+    lobbyBtn.className='ghost-btn'; lobbyBtn.textContent='Kembali ke Lobby';
+    lobbyBtn.addEventListener('click', ()=> this.enterLobby());
+    btns.appendChild(lobbyBtn);
+    ov.style.display='flex';
+  }
+
   renderShopHTML(){
     const p = this.player;
     const essence = CLASS_ESSENCE[this.classKey];
@@ -1256,6 +1346,7 @@ class GameApp{
       state:'idle', attackTimer:0, breakTimer:0,
       hitCooldown:0, stunTimer:0, slowTimer:0, slowValue:0,
       dotTimer:0, dotDps:0, dotIsMagic:false, dotTick:0,
+      burnStacks:[], burnTick:0,
       isBoss:!!d.isBoss, isElite:!!d.isElite, phase:1
     };
     this.enemies.push(inst);
@@ -1270,6 +1361,7 @@ class GameApp{
     this.stageActive = true;
     this.setEnvironmentMode('dungeon');
     document.getElementById('stage-overlay').style.display='none';
+    document.getElementById('spawn-dummy-btn').style.display='none';
     this.clearEnemies();
     const p = this.player;
     p.hp = p.hpMax; p.mana = p.manaMax;
@@ -1435,6 +1527,10 @@ class GameApp{
       if(this.inLobby && !this.panelOpen && this._nearStationKey) this.openStationPanel(this._nearStationKey);
     });
 
+    document.getElementById('spawn-dummy-btn').addEventListener('click', ()=>{
+      if(this.stageActive && this.currentRun && this.currentRun.kind==='dummy' && this.currentRun.subtype==='custom') this.spawnCustomDummyTrio();
+    });
+
     // Joystick tracked by its own dedicated touch identifier too.
     const zone = document.getElementById('joystick-zone');
     const knob = document.getElementById('joystick-knob');
@@ -1530,7 +1626,7 @@ class GameApp{
   }
 
   // ---------------- VISUAL FX ----------------
-  spawnFX(fx, fromPos, toPos){
+  spawnFX(fx, fromPos, toPos, customLife){
     if(!fx) return;
     const color = fx.color;
     const fromP = fromPos.clone();
@@ -1538,11 +1634,17 @@ class GameApp{
     let mesh, life, kind, scaleFrom=1, scaleTo=1, spin=false, baseOpacity=0.85;
 
     switch(fx.type){
-      case 'bolt':
-        mesh = new THREE.Mesh(new THREE.SphereGeometry(0.15,8,8), new THREE.MeshBasicMaterial({color, transparent:true, opacity:0.9}));
-        mesh.position.copy(fromP);
-        life=0.18; kind='travel'; baseOpacity=0.9;
+      case 'bolt': {
+        const grp = new THREE.Group();
+        const ball = new THREE.Mesh(new THREE.SphereGeometry(0.22,10,10), new THREE.MeshBasicMaterial({color, transparent:true, opacity:0.9}));
+        grp.add(ball);
+        const glow = new THREE.PointLight(color, 0.8, 4);
+        grp.add(glow);
+        grp.position.copy(fromP);
+        mesh = grp;
+        life = (customLife!==undefined ? customLife : 0.18); kind='travel'; baseOpacity=0.9;
         break;
+      }
       case 'arrow':
         mesh = new THREE.Mesh(new THREE.BoxGeometry(0.07,0.07,0.55), new THREE.MeshBasicMaterial({color, transparent:true, opacity:0.9}));
         mesh.position.copy(fromP);
@@ -1685,6 +1787,19 @@ class GameApp{
     if(effect.type==='stun'){ e.stunTimer = Math.max(e.stunTimer, effect.duration); }
     else if(effect.type==='slow'){ e.slowTimer = Math.max(e.slowTimer, effect.duration); e.slowValue = Math.min(0.7, effect.value); }
     else if(effect.type==='dot'){ e.dotTimer = Math.max(e.dotTimer, effect.duration); e.dotDps = effect.dps; e.dotIsMagic = !!effect.isMagic; }
+    else if(effect.type==='burnStack'){ this.applyBurnStack(e, effect); }
+  }
+
+  // Mage Fire Blast: each cast adds its own independently-timed burn stack
+  // (up to maxStacks). Total burn DPS is the sum of all active stacks, so it
+  // steps up per cast (60 -> 120 -> 180) and steps back down as each stack's
+  // own 3s timer runs out, rather than one shared duration/DPS value.
+  applyBurnStack(e, effect){
+    if(!e.burnStacks) e.burnStacks = [];
+    const max = effect.maxStacks || 3;
+    if(e.burnStacks.length < max){
+      e.burnStacks.push({dps:effect.dps, timeLeft:effect.duration});
+    }
   }
 
   applySelfBuff(buff){
@@ -1841,12 +1956,17 @@ class GameApp{
     const domainKey = this.currentRun ? this.currentRun.dungeonKey : null;
     const kind = this.currentRun ? this.currentRun.kind : 'story';
     const tier = this.currentRun ? (this.currentRun.tier||1) : 1;
+    const isDummy = !!target.data.isDummy;
 
-    p.gold += target.data.goldReward;
-    this.gainExp(target.data.expReward);
+    if(!isDummy){
+      p.gold += target.data.goldReward;
+      this.gainExp(target.data.expReward);
+    }
     let extraMsg = '';
 
-    if(kind==='farm' && domainKey==='materialDomain'){
+    if(isDummy){
+      // Training dummies give no rewards
+    } else if(kind==='farm' && domainKey==='materialDomain'){
       const lootMult = DomainData.materialDomain.tiers.find(t=>t.level===tier).lootMult;
       const essence = CLASS_ESSENCE[this.classKey];
       p.materials['Skill Book'] = (p.materials['Skill Book']||0)+Math.max(1,Math.round(1*lootMult));
@@ -1868,17 +1988,26 @@ class GameApp{
       if(!target.isBoss && Math.random()<0.4) p.materials['Goblin Tooth'] = (p.materials['Goblin Tooth']||0)+1;
     }
 
-    this.toast(`${target.data.name} dikalahkan! +${target.data.goldReward} Gold, +${target.data.expReward} EXP${extraMsg}`);
-    if(target.isBoss) this.toast('+1 Boss Soul');
+    if(isDummy){
+      this.toast(`${target.data.name} hancur (latihan, tanpa reward)`);
+    } else {
+      this.toast(`${target.data.name} dikalahkan! +${target.data.goldReward} Gold, +${target.data.expReward} EXP${extraMsg}`);
+      if(target.isBoss) this.toast('+1 Boss Soul');
+    }
     if(target.typeKey==='Goblin') this.questProgress('killGoblin',1);
 
     if(!this.stageActive) return;
     const aliveLeft = this.enemies.filter(e=>e.state!=='dead').length;
-    document.getElementById('stage-banner-sub').textContent = target.isBoss ? 'Kalahkan Goblin King!' : `Musuh tersisa: ${aliveLeft}`;
+    document.getElementById('stage-banner-sub').textContent = target.isBoss ? (isDummy?'Hancurkan Dummy Boss!':'Kalahkan Goblin King!') : `Musuh tersisa: ${aliveLeft}`;
 
     if(aliveLeft===0){
-      const hadBoss = this.enemies.some(e=>e.isBoss);
-      this.onStageClear(hadBoss);
+      if(kind==='dummy'){
+        if(this.currentRun.subtype!=='custom') this.onDummyClear();
+        // custom mode: no auto-clear here — keep the run open so the player can keep spawning dummies
+      } else {
+        const hadBoss = this.enemies.some(e=>e.isBoss);
+        this.onStageClear(hadBoss);
+      }
     }
   }
 
@@ -1961,6 +2090,7 @@ class GameApp{
     retryBtn.addEventListener('click', ()=>{
       ov.style.display='none';
       if(this.currentRun.kind==='story') this.loadStage(this.currentStageId);
+      else if(this.currentRun.kind==='dummy') this.enterDummyMode(this.currentRun.subtype);
       else this.runFarmDomain(this.currentRun.dungeonKey, this.currentRun.tier);
       this.stageActive=true;
     });
@@ -2006,7 +2136,42 @@ class GameApp{
     if(this.classKey==='Archer') p.attackLock = 0.35;
     else if(this.classKey==='Mage') p.attackLock = 0.2;
     else if(this.classKey==='Fighter') p.attackLock = 0.3;
-    this.applySkillDamage(this.cdata.basic, true, null);
+    if(this.classKey==='Mage'){ this.performArcaneBoltAttack(); }
+    else{ this.applySkillDamage(this.cdata.basic, true, null); }
+  }
+
+  // Mage basic attack: throws a real traveling magic ball at the nearest enemy —
+  // the AOE explosion only triggers where the ball actually lands, not centered
+  // instantly on the player (which is what made the old version feel like it hit
+  // everything on screen for free).
+  performArcaneBoltAttack(){
+    const p = this.player;
+    const skillDef = this.cdata.basic;
+    const range = skillDef.range || 9;
+    const target = this.getNearestEnemy(range);
+    if(!target) return;
+
+    const fromPos = p.mesh.position.clone().setY(1.1);
+    const toPos = target.mesh.position.clone().setY(1.0);
+    const dist = fromPos.distanceTo(toPos);
+    const travelSpeed = 14;
+    const travelTime = Math.max(0.12, Math.min(0.6, dist/travelSpeed));
+
+    this.spawnFX(skillDef.fx, fromPos, toPos, travelTime);
+
+    setTimeout(()=>{
+      // explosion at the impact point — not wherever the player is standing by then
+      this.spawnFX({type:'shockwave', color:0xffb26b}, toPos.clone(), toPos.clone());
+      this.spawnFX({type:'fire', color:0xff9a4f}, toPos.clone(), toPos.clone());
+      const radius = skillDef.aoeRadius || 2.6;
+      const hitTargets = this.enemies.filter(e=> e.state!=='dead' && toPos.distanceTo(e.mesh.position.clone().setY(1.0)) <= radius);
+      hitTargets.forEach(t=> this.dealDamage(t, skillDef));
+      if(hitTargets.length){
+        p.combo++; p.comboTimer = 2.2;
+        this.basicHitCount++;
+        if(this.basicHitCount%4===0){ p.mana = Math.min(p.manaMax, p.mana+8); this.toast('Mana Flow: +8 Mana'); }
+      }
+    }, travelTime*1000);
   }
 
   getEffCooldown(baseCooldown){
@@ -2129,6 +2294,21 @@ class GameApp{
         e.hp = Math.max(0, e.hp - tickDmg);
         this.spawnDamageNumber(e.mesh.position.clone().setY(1.3), tickDmg, e.dotIsMagic?'magic':'');
         if(e.hp<=0 && e.state!=='dead'){ this.killEnemy(e); return; }
+      }
+    }
+    if(e.burnStacks && e.burnStacks.length){
+      e.burnStacks.forEach(s=> s.timeLeft -= dt);
+      e.burnStacks = e.burnStacks.filter(s=> s.timeLeft>0);
+      e.burnTick -= dt;
+      if(e.burnTick<=0){
+        e.burnTick = 0.5;
+        const totalDps = e.burnStacks.reduce((a,s)=>a+s.dps,0);
+        if(totalDps>0){
+          const tickDmg = Math.round(totalDps*0.5);
+          e.hp = Math.max(0, e.hp - tickDmg);
+          this.spawnDamageNumber(e.mesh.position.clone().setY(1.3), tickDmg, 'magic');
+          if(e.hp<=0 && e.state!=='dead'){ this.killEnemy(e); return; }
+        }
       }
     }
     if(e.slowTimer>0) e.slowTimer -= dt; else e.slowValue=0;
@@ -2278,6 +2458,7 @@ class GameApp{
     if(e.stunTimer>0) chips.push(`<div class="status-chip stun">STUN</div>`);
     if(e.slowTimer>0) chips.push(`<div class="status-chip slow">SLOW</div>`);
     if(e.dotTimer>0) chips.push(`<div class="status-chip dot">DOT</div>`);
+    if(e.burnStacks && e.burnStacks.length) chips.push(`<div class="status-chip dot">BURN x${e.burnStacks.length}</div>`);
     document.getElementById('enemy-status-row').innerHTML = chips.join('');
   }
 

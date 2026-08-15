@@ -1961,7 +1961,7 @@ class GameApp{
     const archerDoubleShot = isBasic && this.classKey==='Archer' && p.buffs.critBonusTimer>0 && !effSkill.aoe && !effSkill.maxTargets;
     if(archerDoubleShot && targets.length){
       const t = targets[0];
-      const halfSkill = Object.assign({}, effSkill, { mult: effSkill.mult*0.5 });
+      const halfSkill = Object.assign({}, effSkill, { mult: effSkill.mult*1 });
       this.dealDamage(t, halfSkill);
       this.dealDamage(t, halfSkill);
     } else {

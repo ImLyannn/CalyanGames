@@ -10,10 +10,10 @@ const CharacterData = {
     growth:{hp:30, mana:25, patk:2, magic:7, pdef:2, mdef:3},
     basic:{name:'Arcane Bolt', icon:'✨', mult:1.0, isMagic:true, aoe:true, aoeRadius:2.6, range:9, fx:{type:'bolt', color:0xb98aff}},
     passive:{name:'Mana Flow', icon:'🔷', desc:'Setiap 4 Basic Attack, kembalikan 8 Mana.'},
-    skill1:{name:'Frozen Spike', icon:'❄️', mult:1.8, isMagic:true, manaCost:25, cooldown:6, aoe:true, aoeRadius:4.5, effect:{type:'stun', duration:1.0}, fx:{type:'ice', color:0xbfe8ff}, desc:'Damage area + root musuh 1 detik.'},
-    skill2:{name:'Fire Blast', icon:'🔥', mult:1.6, isMagic:true, manaCost:35, cooldown:12, aoe:true, aoeRadius:5.2, effect:{type:'burnStack', dps:60, duration:3, maxStacks:3}, fx:{type:'fire', color:0xff7a3f}, desc:'Ledakan area + Burn 60 DPS/3 detik, bisa ditumpuk hingga 3x (tiap tumpukan 3 detik dihitung sendiri-sendiri, jadi total DPS menurun bertahap saat tumpukan lama habis).'},
+    skill1:{name:'Frozen Spike', icon:'❄️', mult:1.8, isMagic:true, manaCost:25, cooldown:6, groundTargetAoe:true, range:8, aoeRadius:4.5, effect:{type:'stun', duration:1.0}, fx:{type:'ice', color:0xbfe8ff}, desc:'Lingkaran es meledak di tubuh musuh terdekat, damage area di sekitarnya + root 1 detik.'},
+    skill2:{name:'Fire Blast', icon:'🔥', mult:1.6, isMagic:true, manaCost:35, cooldown:12, aoe:true, aoeRadius:5.2, effect:{type:'burnStack', dps:60, duration:3, maxStacks:3}, fx:{type:'fire', color:0xff7a3f}, casterFx:{type:'areaRing', color:0xff7a3f, radius:5.2, life:0.9, opacity:0.85, scaleFrom:0.35, scaleTo:1.0}, desc:'Area api besar muncul di tubuh Mage, membakar semua musuh dalam radius. Burn 60 DPS/3 detik, bisa ditumpuk hingga 3x (tiap tumpukan 3 detik dihitung sendiri-sendiri, jadi total DPS menurun bertahap saat tumpukan lama habis).'},
     skill3:{name:'Temporal Shift', icon:'⏳', mult:2.6, isMagic:true, manaCost:35, cooldown:22, range:6, resetSkills:['skill1','skill2'], fx:{type:'shield', color:0x7fe0d0}, desc:'Damage + reset cooldown Skill 1 & 2.'},
-    ultimate:{name:'Dimensional Tornado', icon:'🌪️', mult:4.8, isMagic:true, manaCost:90, cooldown:46, aoe:true, aoeRadius:5.8, effect:{type:'stun', duration:1.5}, resetSkills:['skill3'], fx:{type:'tornado', color:0x8a5cff}, desc:'Damage besar area + Stun 1.5 detik + reset cooldown Skill 3.'}
+    ultimate:{name:'Dimensional Tornado', icon:'🌪️', mult:4.8, isMagic:true, manaCost:90, cooldown:46, groundTargetAoe:true, aoeRadius:5.8, effect:{type:'stun', duration:1.5}, resetSkills:['skill3'], fx:{type:'ice', color:0xbfe8ff}, fx:{type:'tornado', color:0x8a5cff}, desc:'Damage besar area + Stun 1.5 detik + reset cooldown Skill 3.'}
   },
   Archer: {
     key:'Archer', icon:'🏹', role:'Sustained DPS / Critical', color:0x4fd68c,
@@ -23,8 +23,8 @@ const CharacterData = {
     passive:{name:'Hawk Eye', icon:'🦅', desc:'+8% Crit Rate & menembak 2 panah sekaligus (damage tetap sama) selama 3 detik setelah pakai skill.'},
     skill1:{name:'Blade Arrow', icon:'🏹', mult:1.9, isMagic:false, manaCost:28, cooldown:4, range:7.5, defShred:0.3, fx:{type:'arrow', color:0xfff07a}, desc:'Damage tinggi, abaikan 30% Defense.'},
     skill2:{name:'Multi Shot', icon:'🎯', mult:1.35, isMagic:false, manaCost:18, cooldown:5, range:7, maxTargets:3, fx:{type:'arrow', color:0x8fe8b0}, desc:'Tembak 3 anak panah ke hingga 3 musuh terdekat dalam radius (1 anak panah per musuh).'},
-    skill3:{name:'Explosive Trap', icon:'💣', mult:1.7, isMagic:false, manaCost:24, cooldown:12, aoe:true, aoeRadius:5, effect:{type:'slow', value:0.4, duration:2}, fx:{type:'shockwave', color:0xffb84f}, desc:'AoE + Slow 40% selama 2 detik.'},
-    ultimate:{name:'Rain of Arrows', icon:'🌧️', mult:3.4, isMagic:false, manaCost:85, cooldown:42, aoe:true, aoeRadius:5.8, selfBuff:{type:'archerBoost', atkPct:0.25, critRatePct:0.20, critDmgPct:0.40, duration:12}, fx:{type:'shockwave', color:0x4fd68c}, desc:'Hujan panah damage besar ke area + Marksman Focus 12 detik: +25% Attack, +20% Crit Chance, +40% Crit Damage.'}
+    skill3:{name:'Explosive Trap', icon:'💣', mult:1.7, isMagic:false, manaCost:24, cooldown:12, thrownBomb:true, range:9, projectileSpeed:11, aoeRadius:2.4, effect:{type:'slow', value:0.4, duration:2}, fx:{type:'bomb', color:0x5a4632}, impactFx:{type:'shockwave', color:0xffb84f}, impactFx2:{type:'fire', color:0xffcf7a}, desc:'Bom dilempar ke musuh terdekat, meledak di titik jatuhnya (bukan di badan Archer) + Slow 40% selama 2 detik.'},
+    ultimate:{name:'Rain of Arrows', icon:'🌧️', mult:3.4, isMagic:false, manaCost:85, cooldown:42, rainDrop:true, aoeRadius:5.8, selfBuff:{type:'archerBoost', atkPct:0.25, critRatePct:0.20, critDmgPct:0.40, duration:12}, fx:{type:'shockwave', color:0x4fd68c}, desc:'Hujan panah — 1 anak panah + ledakan jatuh per musuh dalam radius, + Marksman Focus 12 detik: +25% Attack, +20% Crit Chance, +40% Crit Damage.'}
   },
   Assassin: {
     key:'Assassin', icon:'⚔️', role:'Burst Physical / Mobility', color:0xe0475a,
@@ -1701,6 +1701,58 @@ class GameApp{
         life=0.6; kind='burst'; scaleFrom=0.5; scaleTo=1.6; spin=true; baseOpacity=0.7;
         break;
       }
+      case 'bomb': {
+        // Thrown grenade projectile (Archer's Explosive Trap) — a tumbling
+        // ball that travels to the target and is expected to detonate on arrival.
+        const grp = new THREE.Group();
+        const ball = new THREE.Mesh(new THREE.SphereGeometry(0.2,10,10), new THREE.MeshBasicMaterial({color, transparent:true, opacity:0.95}));
+        grp.add(ball);
+        const spark = new THREE.Mesh(new THREE.SphereGeometry(0.06,6,6), new THREE.MeshBasicMaterial({color:0xffd27a, transparent:true, opacity:0.95}));
+        spark.position.y=0.22;
+        grp.add(spark);
+        const glow = new THREE.PointLight(color, 0.6, 3);
+        grp.add(glow);
+        grp.position.copy(fromP);
+        mesh = grp;
+        life = (customLife!==undefined ? customLife : 0.18); kind='travel'; baseOpacity=0.95; spin=true;
+        break;
+      }
+      case 'arrowDrop': {
+        // A single arrow falling from the sky onto a fixed ground point
+        // (Archer's Rain of Arrows) — one of these is spawned per enemy.
+        const grp = new THREE.Group();
+        const shaft = new THREE.Mesh(new THREE.CylinderGeometry(0.03,0.03,0.55,6), new THREE.MeshBasicMaterial({color, transparent:true, opacity:0.95}));
+        grp.add(shaft);
+        const head = new THREE.Mesh(new THREE.ConeGeometry(0.06,0.16,6), new THREE.MeshBasicMaterial({color:0xbfbfbf, transparent:true, opacity:0.95}));
+        head.position.y=-0.35;
+        grp.add(head);
+        grp.position.copy(fromP);
+        mesh = grp;
+        life = (customLife!==undefined ? customLife : 0.3); kind='travel'; baseOpacity=0.95;
+        break;
+      }
+      case 'areaRing': {
+        // Ground-anchored AOE footprint — a flat disk + rim ring sized to the
+        // skill's actual aoeRadius, so the affected zone is visible at a
+        // glance. Position always comes from `toP` (caller passes the same
+        // anchor point for both from/to). Reads optional overrides off the
+        // fx object itself: radius, life, opacity, scaleFrom, scaleTo.
+        const r = fx.radius || 4;
+        const grp = new THREE.Group();
+        const disk = new THREE.Mesh(new THREE.CircleGeometry(r,36), new THREE.MeshBasicMaterial({color, transparent:true, opacity:0.25, side:THREE.DoubleSide}));
+        disk.rotation.x=-Math.PI/2; disk.position.y=0.04;
+        const ring = new THREE.Mesh(new THREE.RingGeometry(Math.max(0.15,r-0.2), r, 40), new THREE.MeshBasicMaterial({color, transparent:true, opacity:0.9, side:THREE.DoubleSide}));
+        ring.rotation.x=-Math.PI/2; ring.position.y=0.07;
+        grp.add(disk, ring);
+        grp.position.copy(toP); grp.position.y=0;
+        mesh = grp;
+        life = fx.life!==undefined ? fx.life : 0.55;
+        kind='burst';
+        scaleFrom = fx.scaleFrom!==undefined ? fx.scaleFrom : 0.45;
+        scaleTo = fx.scaleTo!==undefined ? fx.scaleTo : 1.0;
+        baseOpacity = fx.opacity!==undefined ? fx.opacity : 0.9;
+        break;
+      }
       default: return;
     }
     this.scene.add(mesh);
@@ -1917,10 +1969,20 @@ class GameApp{
     }
     this.applySelfBuff(effSkill.selfBuff);
 
+    if(effSkill.casterFx){
+      // Big ground-zone visual rooted at the caster's own feet, sized to the
+      // real aoeRadius — makes it obvious the AOE is centered on the caster.
+      this.spawnFX(effSkill.casterFx, p.mesh.position.clone(), p.mesh.position.clone());
+    }
     if(effSkill.fx){
       if(effSkill.aoe){
-        this.spawnFX(effSkill.fx, p.mesh.position.clone(), targets[0].mesh.position.clone());
-        if(archerDoubleShot) this.spawnFX(effSkill.fx, p.mesh.position.clone().add(new THREE.Vector3(0.25,0,0)), targets[0].mesh.position.clone());
+        if(effSkill.casterFx){
+          // Show every enemy actually burning, not just one at random.
+          targets.forEach(t=> this.spawnFX(effSkill.fx, t.mesh.position.clone().setY(1.0), t.mesh.position.clone().setY(1.0)));
+        } else {
+          this.spawnFX(effSkill.fx, p.mesh.position.clone(), targets[0].mesh.position.clone());
+          if(archerDoubleShot) this.spawnFX(effSkill.fx, p.mesh.position.clone().add(new THREE.Vector3(0.25,0,0)), targets[0].mesh.position.clone());
+        }
       } else if(effSkill.maxTargets){
         targets.forEach(t=> this.spawnFX(effSkill.fx, p.mesh.position.clone().setY(1.1), t.mesh.position.clone().setY(1.1)));
       } else {
@@ -2185,6 +2247,9 @@ class GameApp{
     p.mana -= s.manaCost; p.cooldowns[slot] = this.getEffCooldown(s.cooldown);
     if(s.blinkStrike){ this.performBlinkStrike(s); }
     else if(s.dashAttack){ this.performDashAttack(s); }
+    else if(s.groundTargetAoe){ this.performGroundTargetAoe(s, slot); }
+    else if(s.thrownBomb){ this.performThrownBomb(s, slot); }
+    else if(s.rainDrop){ this.performRainOfArrows(s, slot); }
     else{ this.applySkillDamage(s, false, slot); }
   }
 
@@ -2227,6 +2292,93 @@ class GameApp{
       p.combo++; p.comboTimer=2.2;
     }
     this.toast(`${skillDef.name}!`);
+  }
+
+  // Ground-targeted AOE (Mage's Frozen Spike): picks the nearest enemy as the
+  // impact point and rings/damages everyone around THAT point, instead of
+  // blasting whatever happens to be near the caster.
+  performGroundTargetAoe(skillDef, slot){
+    const p = this.player;
+    const lvl = p.skillLevels[slot];
+    const effSkill = Object.assign({}, skillDef, { mult: skillDef.mult*(1+(lvl-1)*0.08) });
+    if(effSkill.resetSkills){ effSkill.resetSkills.forEach(sk=> p.cooldowns[sk]=0); }
+    const range = effSkill.range || 8;
+    const anchor = this.getNearestEnemy(range);
+    if(!anchor) return;
+    const anchorPos = anchor.mesh.position.clone();
+    const radius = effSkill.aoeRadius || 4;
+    const targets = this.enemies.filter(e=> e.state!=='dead' && anchorPos.distanceTo(e.mesh.position) <= radius);
+    if(targets.length===0) return;
+    targets.forEach(t=> this.dealDamage(t, effSkill));
+    this.applySelfBuff(effSkill.selfBuff);
+    this.spawnFX({type:'areaRing', color: effSkill.fx ? effSkill.fx.color : 0xffffff, radius}, anchorPos.clone(), anchorPos.clone());
+    if(effSkill.fx) targets.forEach(t=> this.spawnFX(effSkill.fx, t.mesh.position.clone().setY(1.0), t.mesh.position.clone().setY(1.0)));
+    p.combo++; p.comboTimer = 2.2;
+    this.toast(`${effSkill.name}!`);
+  }
+
+  // Thrown bomb (Archer's Explosive Trap): the bomb travels to the nearest
+  // enemy and only explodes — dealing AOE damage and applying its effect —
+  // once it actually lands there, instead of detonating around the archer.
+  performThrownBomb(skillDef, slot){
+    const p = this.player;
+    const lvl = p.skillLevels[slot];
+    const effSkill = Object.assign({}, skillDef, { mult: skillDef.mult*(1+(lvl-1)*0.08) });
+    if(effSkill.resetSkills){ effSkill.resetSkills.forEach(sk=> p.cooldowns[sk]=0); }
+    const range = effSkill.range || 9;
+    const target = this.getNearestEnemy(range);
+    if(!target) return;
+    const fromPos = p.mesh.position.clone().setY(1.1);
+    const toPos = target.mesh.position.clone().setY(1.0);
+    const dist = fromPos.distanceTo(toPos);
+    const travelSpeed = effSkill.projectileSpeed || 11;
+    const travelTime = Math.max(0.15, Math.min(0.65, dist/travelSpeed));
+    this.spawnFX(effSkill.fx, fromPos, toPos, travelTime);
+    setTimeout(()=>{
+      if(!this.stageActive) return;
+      if(effSkill.impactFx) this.spawnFX(effSkill.impactFx, toPos.clone(), toPos.clone());
+      if(effSkill.impactFx2) this.spawnFX(effSkill.impactFx2, toPos.clone(), toPos.clone());
+      const radius = effSkill.aoeRadius || 4;
+      const hitTargets = this.enemies.filter(e=> e.state!=='dead' && toPos.distanceTo(e.mesh.position.clone().setY(1.0)) <= radius);
+      hitTargets.forEach(t=> this.dealDamage(t, effSkill));
+      if(hitTargets.length){
+        p.combo++; p.comboTimer = 2.2;
+        if(this.classKey==='Archer'){ p.buffs.critBonus=0.08; p.buffs.critBonusTimer=3; }
+      }
+    }, travelTime*1000);
+    this.toast(`${effSkill.name}!`);
+  }
+
+  // Rain of Arrows (Archer ultimate): one arrow falls from the sky per enemy
+  // currently in range, each landing with its own small explosion — instead
+  // of a single shockwave appearing at one random target's feet.
+  performRainOfArrows(skillDef, slot){
+    const p = this.player;
+    const lvl = p.skillLevels[slot];
+    const effSkill = Object.assign({}, skillDef, { mult: skillDef.mult*(1+(lvl-1)*0.08) });
+    if(effSkill.resetSkills){ effSkill.resetSkills.forEach(sk=> p.cooldowns[sk]=0); }
+    const radius = effSkill.aoeRadius || 5.8;
+    const targets = this.enemies.filter(e=> e.state!=='dead' && p.mesh.position.distanceTo(e.mesh.position) <= radius);
+    this.applySelfBuff(effSkill.selfBuff);
+    this.toast(`${effSkill.name}!`);
+    if(targets.length===0) return;
+    p.combo++; p.comboTimer = 2.2;
+    if(this.classKey==='Archer'){ p.buffs.critBonus=0.08; p.buffs.critBonusTimer=3; }
+    const fallTime = 0.3;
+    const shockwaveColor = effSkill.fx ? effSkill.fx.color : 0x4fd68c;
+    targets.forEach((t,i)=>{
+      setTimeout(()=>{
+        if(!this.stageActive) return;
+        const groundPos = t.mesh.position.clone().setY(0.05);
+        const skyPos = groundPos.clone().setY(6.5);
+        this.spawnFX({type:'arrowDrop', color:0xffe9a8}, skyPos, groundPos, fallTime);
+        setTimeout(()=>{
+          if(!this.stageActive) return;
+          this.spawnFX({type:'shockwave', color:shockwaveColor}, groundPos.clone(), groundPos.clone());
+          if(t.state!=='dead') this.dealDamage(t, effSkill);
+        }, fallTime*1000);
+      }, i*90);
+    });
   }
 
   // Assassin ultimate: blink to the nearest enemy several times in a row,

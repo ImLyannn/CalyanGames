@@ -20,9 +20,9 @@ const CharacterData = {
     hp:580, mana:180, patk:45, magic:0, pdef:20, mdef:20, aspd:1.5, critRate:0.15, critDmg:1.5, moveSpeed:5.4,
     growth:{hp:35, mana:10, patk:6, pdef:2, mdef:2},
     basic:{name:'Quick Shot', icon:'🏹', mult:1.05, isMagic:false, range:7.5, fx:{type:'arrow', color:0x4fd68c}},
-    passive:{name:'Hawk Eye', icon:'🦅', desc:'+8% Crit Rate & Basic Attack ganda selama 3 detik setelah pakai skill.'},
+    passive:{name:'Hawk Eye', icon:'🦅', desc:'+8% Crit Rate & menembak 2 panah sekaligus (damage tetap sama) selama 3 detik setelah pakai skill.'},
     skill1:{name:'Blade Arrow', icon:'🏹', mult:1.9, isMagic:false, manaCost:28, cooldown:4, range:7.5, defShred:0.3, fx:{type:'arrow', color:0xfff07a}, desc:'Damage tinggi, abaikan 30% Defense.'},
-    skill2:{name:'Multi Shot', icon:'🎯', mult:1.35, isMagic:false, manaCost:18, cooldown:5, range:7, multiHits:3, fx:{type:'arrow', color:0x8fe8b0}, desc:'Tembak hingga 3 anak panah ke musuh terdekat dalam radius.'},
+    skill2:{name:'Multi Shot', icon:'🎯', mult:1.35, isMagic:false, manaCost:18, cooldown:5, range:7, maxTargets:3, fx:{type:'arrow', color:0x8fe8b0}, desc:'Tembak 3 anak panah ke hingga 3 musuh terdekat dalam radius (1 anak panah per musuh).'},
     skill3:{name:'Explosive Trap', icon:'💣', mult:1.7, isMagic:false, manaCost:24, cooldown:12, aoe:true, aoeRadius:5, effect:{type:'slow', value:0.4, duration:2}, fx:{type:'shockwave', color:0xffb84f}, desc:'AoE + Slow 40% selama 2 detik.'},
     ultimate:{name:'Rain of Arrows', icon:'🌧️', mult:3.4, isMagic:false, manaCost:85, cooldown:42, aoe:true, aoeRadius:5.8, selfBuff:{type:'archerBoost', atkPct:0.25, critRatePct:0.20, critDmgPct:0.40, duration:12}, fx:{type:'shockwave', color:0x4fd68c}, desc:'Hujan panah damage besar ke area + Marksman Focus 12 detik: +25% Attack, +20% Crit Chance, +40% Crit Damage.'}
   },
@@ -1766,6 +1766,14 @@ class GameApp{
     if(effSkill.aoe){
       const radius = effSkill.aoeRadius || 4.2;
       targets = this.enemies.filter(e=> e.state!=='dead' && p.mesh.position.distanceTo(e.mesh.position) <= radius);
+    } else if(effSkill.maxTargets){
+      // Multi Shot: up to N *different* nearest enemies within range, one arrow (one hit) each —
+      // not repeated hits on a single target.
+      const range = effSkill.range || 7;
+      targets = this.enemies
+        .filter(e=> e.state!=='dead' && p.mesh.position.distanceTo(e.mesh.position) <= range)
+        .sort((a,b)=> p.mesh.position.distanceTo(a.mesh.position) - p.mesh.position.distanceTo(b.mesh.position))
+        .slice(0, effSkill.maxTargets);
     } else {
       const range = effSkill.range || (effSkill.dash ? 6.5 : 2.3);
       const t = this.getNearestEnemy(range);
@@ -1780,19 +1788,19 @@ class GameApp{
     }
     if(targets.length===0) return;
 
-    if(effSkill.multiHits && !effSkill.aoe){
-      const t = targets[0];
-      for(let i=0;i<effSkill.multiHits;i++){ this.dealDamage(t, effSkill); }
-    } else {
-      targets.forEach(t=> this.dealDamage(t, effSkill));
-    }
+    targets.forEach(t=> this.dealDamage(t, effSkill));
     this.applySelfBuff(effSkill.selfBuff);
 
     if(effSkill.fx){
+      const archerDoubleShot = isBasic && this.classKey==='Archer' && p.buffs.critBonusTimer>0;
       if(effSkill.aoe){
         this.spawnFX(effSkill.fx, p.mesh.position.clone(), targets[0].mesh.position.clone());
+        if(archerDoubleShot) this.spawnFX(effSkill.fx, p.mesh.position.clone().add(new THREE.Vector3(0.25,0,0)), targets[0].mesh.position.clone());
+      } else if(effSkill.maxTargets){
+        targets.forEach(t=> this.spawnFX(effSkill.fx, p.mesh.position.clone().setY(1.1), t.mesh.position.clone().setY(1.1)));
       } else {
         this.spawnFX(effSkill.fx, p.mesh.position.clone().setY(1.1), targets[0].mesh.position.clone().setY(1.1));
+        if(archerDoubleShot) this.spawnFX(effSkill.fx, p.mesh.position.clone().setY(1.35), targets[0].mesh.position.clone().setY(1.35));
       }
     }
 
@@ -1989,11 +1997,6 @@ class GameApp{
     else if(this.classKey==='Mage') p.attackLock = 0.2;
     else if(this.classKey==='Fighter') p.attackLock = 0.3;
     this.applySkillDamage(this.cdata.basic, true, null);
-    // Hawk Eye passive: while active (after using a skill), Archer's basic
-    // attack fires twice in a single swing.
-    if(this.classKey==='Archer' && p.buffs.critBonusTimer>0){
-      this.applySkillDamage(this.cdata.basic, true, null);
-    }
   }
 
   getEffCooldown(baseCooldown){

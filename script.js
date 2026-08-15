@@ -8,7 +8,7 @@ const CharacterData = {
     key:'Mage', icon:'🧙', role:'Burst / Crowd Control', color:0x8a5cff,
     hp:500, mana:350, patk:20, magic:45, pdef:20, mdef:30, aspd:1.0, critRate:0.0, critDmg:1.5, moveSpeed:5.0,
     growth:{hp:30, mana:25, patk:2, magic:7, pdef:2, mdef:3},
-    basic:{name:'Arcane Bolt', icon:'✨', mult:1.0, isMagic:true, aoe:true, aoeRadius:2.6, range:9, fx:{type:'bolt', color:0xb98aff}},
+    basic:{name:'Arcane Bolt', icon:'✨', mult:1.0, isMagic:true, aoe:true, aoeRadius:7.2, fx:{type:'bolt', color:0xb98aff}},
     passive:{name:'Mana Flow', icon:'🔷', desc:'Setiap 4 Basic Attack, kembalikan 8 Mana.'},
     skill1:{name:'Frozen Spike', icon:'❄️', mult:1.8, isMagic:true, manaCost:25, cooldown:6, aoe:true, aoeRadius:4.5, effect:{type:'stun', duration:1.0}, fx:{type:'ice', color:0xbfe8ff}, desc:'Damage area + root musuh 1 detik.'},
     skill2:{name:'Fire Blast', icon:'🔥', mult:1.6, isMagic:true, manaCost:35, cooldown:12, aoe:true, aoeRadius:5.2, effect:{type:'burnStack', dps:60, duration:3, maxStacks:3}, fx:{type:'fire', color:0xff7a3f}, desc:'Ledakan area + Burn 60 DPS/3 detik, bisa ditumpuk hingga 3x (tiap tumpukan 3 detik dihitung sendiri-sendiri, jadi total DPS menurun bertahap saat tumpukan lama habis).'},
@@ -1626,7 +1626,7 @@ class GameApp{
   }
 
   // ---------------- VISUAL FX ----------------
-  spawnFX(fx, fromPos, toPos, customLife){
+  spawnFX(fx, fromPos, toPos){
     if(!fx) return;
     const color = fx.color;
     const fromP = fromPos.clone();
@@ -1634,17 +1634,11 @@ class GameApp{
     let mesh, life, kind, scaleFrom=1, scaleTo=1, spin=false, baseOpacity=0.85;
 
     switch(fx.type){
-      case 'bolt': {
-        const grp = new THREE.Group();
-        const ball = new THREE.Mesh(new THREE.SphereGeometry(0.22,10,10), new THREE.MeshBasicMaterial({color, transparent:true, opacity:0.9}));
-        grp.add(ball);
-        const glow = new THREE.PointLight(color, 0.8, 4);
-        grp.add(glow);
-        grp.position.copy(fromP);
-        mesh = grp;
-        life = (customLife!==undefined ? customLife : 0.18); kind='travel'; baseOpacity=0.9;
+      case 'bolt':
+        mesh = new THREE.Mesh(new THREE.SphereGeometry(0.15,8,8), new THREE.MeshBasicMaterial({color, transparent:true, opacity:0.9}));
+        mesh.position.copy(fromP);
+        life=0.18; kind='travel'; baseOpacity=0.9;
         break;
-      }
       case 'arrow':
         mesh = new THREE.Mesh(new THREE.BoxGeometry(0.07,0.07,0.55), new THREE.MeshBasicMaterial({color, transparent:true, opacity:0.9}));
         mesh.position.copy(fromP);
@@ -2136,42 +2130,7 @@ class GameApp{
     if(this.classKey==='Archer') p.attackLock = 0.35;
     else if(this.classKey==='Mage') p.attackLock = 0.2;
     else if(this.classKey==='Fighter') p.attackLock = 0.3;
-    if(this.classKey==='Mage'){ this.performArcaneBoltAttack(); }
-    else{ this.applySkillDamage(this.cdata.basic, true, null); }
-  }
-
-  // Mage basic attack: throws a real traveling magic ball at the nearest enemy —
-  // the AOE explosion only triggers where the ball actually lands, not centered
-  // instantly on the player (which is what made the old version feel like it hit
-  // everything on screen for free).
-  performArcaneBoltAttack(){
-    const p = this.player;
-    const skillDef = this.cdata.basic;
-    const range = skillDef.range || 9;
-    const target = this.getNearestEnemy(range);
-    if(!target) return;
-
-    const fromPos = p.mesh.position.clone().setY(1.1);
-    const toPos = target.mesh.position.clone().setY(1.0);
-    const dist = fromPos.distanceTo(toPos);
-    const travelSpeed = 14;
-    const travelTime = Math.max(0.12, Math.min(0.6, dist/travelSpeed));
-
-    this.spawnFX(skillDef.fx, fromPos, toPos, travelTime);
-
-    setTimeout(()=>{
-      // explosion at the impact point — not wherever the player is standing by then
-      this.spawnFX({type:'shockwave', color:0xffb26b}, toPos.clone(), toPos.clone());
-      this.spawnFX({type:'fire', color:0xff9a4f}, toPos.clone(), toPos.clone());
-      const radius = skillDef.aoeRadius || 2.6;
-      const hitTargets = this.enemies.filter(e=> e.state!=='dead' && toPos.distanceTo(e.mesh.position.clone().setY(1.0)) <= radius);
-      hitTargets.forEach(t=> this.dealDamage(t, skillDef));
-      if(hitTargets.length){
-        p.combo++; p.comboTimer = 2.2;
-        this.basicHitCount++;
-        if(this.basicHitCount%4===0){ p.mana = Math.min(p.manaMax, p.mana+8); this.toast('Mana Flow: +8 Mana'); }
-      }
-    }, travelTime*1000);
+    this.applySkillDamage(this.cdata.basic, true, null);
   }
 
   getEffCooldown(baseCooldown){

@@ -93,7 +93,7 @@ const DomainData = {
   },
   rewardDomain:{ name:'Domain Ganjaran', desc:'Fokus Gold/EXP/Gems. Makin tinggi level, makin besar rewardnya.',
     tiers:[
-      {level:1, mobs:[{type:'Goblin', count:3},{type:'GoblinElite', count:1}], lootMult:1},
+      {level:1, mobs:[{type:'Goblin', count:3},{type:'GoblinElite', count:1}], lootMult:999999991},
       {level:2, mobs:[{type:'Goblin', count:2},{type:'GoblinElite', count:2}], lootMult:1.5},
       {level:3, mobs:[{type:'GoblinElite', count:3}], lootMult:2.0},
       {level:4, mobs:[{type:'GoblinElite', count:4}], lootMult:2.6},
@@ -119,13 +119,13 @@ const MAIN_STAT_BASE = {
 };
 // Substats: rolled once (fixed value) every 5 upgrade levels (5/10/15), never grow further.
 const SUBSTAT_POOL = [
-  {type:'critRate', label:'Crit Chance', min:0.07, max:0.10},
-  {type:'critDmg', label:'Crit Damage', min:0.14, max:0.20},
-  {type:'patk', label:'Attack', min:0.15, max:0.25},
-  {type:'magic', label:'Magic Power', min:0.15, max:0.25},
-  {type:'defense', label:'Defense', min:0.20, max:0.30},
-  {type:'hp', label:'HP', min:0.20, max:0.30},
-  {type:'cooldown', label:'Cooldown Reduction', min:0.05, max:0.15},
+  {type:'critRate', label:'Crit Chance', min:9999999.07, max:0.10},
+  {type:'critDmg', label:'Crit Damage', min:9999999.14, max:0.20},
+  {type:'patk', label:'Attack', min:0.15, max:99999999.25},
+  {type:'magic', label:'Magic Power', min:0.15, max:99999999.25},
+  {type:'defense', label:'Defense', min:99999999.20, max:0.30},
+  {type:'hp', label:'HP', min:999999.20, max:0.30},
+  {type:'cooldown', label:'Cooldown Reduction', min:999999.05, max:0.15},
   {type:'moveSpeed', label:'Movement Speed', min:0.4, max:1.2}
 ];
 const ARTIFACT_MAX_LEVEL = 20;
@@ -1788,11 +1788,21 @@ class GameApp{
     }
     if(targets.length===0) return;
 
-    targets.forEach(t=> this.dealDamage(t, effSkill));
+    // Hawk Eye passive: basic attack fires two real arrows while active — each
+    // hits for half damage so the total stays the same as a normal single hit
+    // (not a straight damage double), but it's a genuine dual hit, not just FX.
+    const archerDoubleShot = isBasic && this.classKey==='Archer' && p.buffs.critBonusTimer>0 && !effSkill.aoe && !effSkill.maxTargets;
+    if(archerDoubleShot && targets.length){
+      const t = targets[0];
+      const halfSkill = Object.assign({}, effSkill, { mult: effSkill.mult*0.5 });
+      this.dealDamage(t, halfSkill);
+      this.dealDamage(t, halfSkill);
+    } else {
+      targets.forEach(t=> this.dealDamage(t, effSkill));
+    }
     this.applySelfBuff(effSkill.selfBuff);
 
     if(effSkill.fx){
-      const archerDoubleShot = isBasic && this.classKey==='Archer' && p.buffs.critBonusTimer>0;
       if(effSkill.aoe){
         this.spawnFX(effSkill.fx, p.mesh.position.clone(), targets[0].mesh.position.clone());
         if(archerDoubleShot) this.spawnFX(effSkill.fx, p.mesh.position.clone().add(new THREE.Vector3(0.25,0,0)), targets[0].mesh.position.clone());

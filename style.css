@@ -1,4 +1,5 @@
 
+  
   :root{
     --bg-deep:#100c1c;
     --bg-panel:rgba(18,14,32,0.86);
@@ -153,6 +154,7 @@
   .status-chip.stun{color:#f2d34c;}
   .status-chip.slow{color:#4fb8e0;}
   .status-chip.dot{color:#ff7a5c;}
+  .status-chip.shred{color:#ff8c4a;}
   #break-banner{position:absolute; top:150px; left:50%; transform:translateX(-50%); font-family:'Cinzel',serif; font-size:20px; color:#ff5c5c; text-shadow:0 0 14px rgba(255,92,92,0.8); letter-spacing:0.1em; opacity:0; transition:opacity .2s ease;}
 
   #combo-counter{position:absolute; top:90px; right:24px; text-align:right; font-family:'Cinzel',serif; opacity:0; transition:opacity .15s ease;}

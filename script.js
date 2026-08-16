@@ -1,4 +1,5 @@
-/* =====================================================================
+
+  /* =====================================================================
    PROJECT ECLIPSE — PROTOTYPE
    ===================================================================== */
 
@@ -46,6 +47,28 @@ const CharacterData = {
     skill2:{name:'Guardian Smash', icon:'💢', mult:1.8, isMagic:false, manaCost:28, cooldown:6, aoe:true, fx:{type:'shockwave', color:0xff8a3f}, desc:'Hantaman area damage besar.'},
     skill3:{name:'Iron Will', icon:'🩸', mult:0, isMagic:false, manaCost:18, cooldown:24, selfBuff:{type:'ironwill', defMult:1.3, lifesteal:0.15, duration:7}, fx:{type:'shield', color:0xe8b64c}, desc:'+30% Defense & 15% Lifesteal, 7 detik (self-buff, tidak transferable).'},
     ultimate:{name:'Earth Sunder', icon:'🌋', mult:4.2, isMagic:false, manaCost:75, cooldown:54, aoe:true, effect:{type:'stun', duration:1.5}, selfBuff:{type:'titan', atkPct:0.1, hpPct:0.2, defPct:0.2, lifesteal:0.25, duration:12}, fx:{type:'shockwave', color:0xb5651d}, desc:'Damage besar area + Knockdown 1.5 detik. Berubah raksasa 1.5x selama 12 detik: +10% Damage, +20% Max HP, +20% Defense, +25% Lifesteal (self-buff, tidak transferable, stack dgn Iron Will).'}
+  },
+  Tactician: {
+    key:'Tactician', icon:'🎖️', role:'Physical Buffer / Support', color:0xd4a84f,
+    hp:620, mana:220, patk:32, magic:0, pdef:28, mdef:28, aspd:1.1, critRate:0.05, critDmg:1.5, moveSpeed:5.0,
+    growth:{hp:36, mana:14, patk:4, pdef:3, mdef:3},
+    basic:{name:'Command Strike', icon:'⚔️', mult:1.0, isMagic:false, range:4.5, fx:{type:'slash', color:0xd4a84f}},
+    passive:{name:'Battle Formation', icon:'📯', desc:'Setiap kali Tactician memberikan buff kepada character lain, target mendapatkan +5% Attack selama 5 detik. Efek tidak dapat ditumpuk, tetapi durasi dapat diperbarui.'},
+    skill1:{name:'War Command', icon:'📣', mult:0, isMagic:false, manaCost:25, cooldown:8, targetAlly:true, selfBuff:{type:'physicalAttack', atkPct:0.20, duration:8}, fx:{type:'buff', color:0xffd76a}, desc:'Memberikan +20% Attack kepada character lain selama 8 detik.'},
+    skill2:{name:'Armor Break', icon:'🗡️', mult:1.3, isMagic:false, manaCost:22, cooldown:10, aoe:true, aoeRadius:4.5, effect:{type:'defShred', value:0.20, duration:5}, fx:{type:'slash', color:0xff8c4a}, desc:'Damage area + mengurangi Defense musuh 20% selama 5 detik.'},
+    skill3:{name:'Battle Focus', icon:'🎯', mult:0, isMagic:false, manaCost:35, cooldown:18, targetAlly:true, selfBuff:{type:'physicalBoost', atkPct:0.10, critRatePct:0.10, critDmgPct:0.15, duration:8}, fx:{type:'buff', color:0xffc857}, desc:'Memberikan +10% Attack, +10% Crit Rate, dan +15% Crit Damage selama 8 detik.'},
+    ultimate:{name:'Grand Strategy', icon:'🏳️', mult:2.8, isMagic:false, manaCost:75, cooldown:45, aoe:true, aoeRadius:5.5, targetAlly:true, selfBuff:{type:'commander', atkPct:0.15, critRatePct:0.15, penetrationPct:0.15, duration:12}, fx:{type:'banner', color:0xd4a84f}, desc:'Damage area + memberikan +15% Attack, +15% Crit Rate, dan +15% Physical Penetration selama 12 detik.'}
+  },
+  Arcanist: {
+    key:'Arcanist', icon:'🔮', role:'Magic Buffer / Support', color:0x9b6cff,
+    hp:580, mana:300, patk:15, magic:35, pdef:22, mdef:35, aspd:1.0, critRate:0.05, critDmg:1.5, moveSpeed:5.0,
+    growth:{hp:32, mana:20, patk:2, magic:5, pdef:2, mdef:3},
+    basic:{name:'Arcane Bolt', icon:'✨', mult:1.0, isMagic:true, range:6.5, fx:{type:'bolt', color:0xb98aff}},
+    passive:{name:'Arcane Resonance', icon:'✨', desc:'Setiap kali Arcanist memberikan buff kepada character lain, target mendapatkan +5% Magic Damage selama 5 detik. Efek tidak dapat ditumpuk, tetapi durasi dapat diperbarui.'},
+    skill1:{name:'Arcane Blessing', icon:'💠', mult:0, isMagic:true, manaCost:25, cooldown:8, targetAlly:true, selfBuff:{type:'magicAttack', magicPct:0.20, duration:8}, fx:{type:'buff', color:0x9b6cff}, desc:'Memberikan +20% Magic Damage kepada character lain selama 8 detik.'},
+    skill2:{name:'Mystic Rupture', icon:'💥', mult:1.3, isMagic:true, manaCost:22, cooldown:10, aoe:true, aoeRadius:4.5, effect:{type:'magicShred', value:0.20, duration:5}, fx:{type:'magic', color:0xc58cff}, desc:'Damage area + mengurangi Magic Defense musuh 20% selama 5 detik.'},
+    skill3:{name:'Arcane Focus', icon:'🌌', mult:0, isMagic:true, manaCost:35, cooldown:18, targetAlly:true, selfBuff:{type:'magicBoost', magicPct:0.10, critRatePct:0.10, critDmgPct:0.15, duration:8}, fx:{type:'buff', color:0x7fe0d0}, desc:'Memberikan +10% Magic Damage, +10% Crit Rate, dan +15% Crit Damage selama 8 detik.'},
+    ultimate:{name:'Mystic Dominion', icon:'🌀', mult:2.8, isMagic:true, manaCost:75, cooldown:45, aoe:true, aoeRadius:5.5, targetAlly:true, selfBuff:{type:'mystic', magicPct:0.15, critRatePct:0.15, penetrationPct:0.15, duration:12}, fx:{type:'magic', color:0x9b6cff}, desc:'Damage area + memberikan +15% Magic Damage, +15% Crit Rate, dan +15% Magic Penetration selama 12 detik.'}
   }
 };
 
@@ -152,7 +175,7 @@ const SKILL_UPGRADE_COST = {
   5:{gold:2500, book:4, ess:8}, 6:{gold:4000, book:5, ess:10}, 7:{gold:6500, book:6, ess:12},
   8:{gold:9500, book:8, ess:15}, 9:{gold:14000, book:10, ess:18}, 10:{gold:20000, book:12, ess:25}
 };
-const CLASS_ESSENCE = {Mage:'Magic Essence', Archer:'Arrow Emblem', Assassin:'Shadow Core', Fighter:'War Medal'};
+const CLASS_ESSENCE = {Mage:'Magic Essence', Archer:'Arrow Emblem', Assassin:'Shadow Core', Fighter:'War Medal', Tactician:'Command Insignia', Arcanist:'Mystic Rune'};
 // Skills unlock as the player levels up (Lv1 has none), and each further
 // skill-level upgrade needs its own player-level gate: unlock + (skillLevel-1).
 const UNLOCK_LEVEL = {skill1:2, skill2:4, skill3:7, ultimate:10};
@@ -645,9 +668,16 @@ class GameApp{
       // Personal buffs — these belong to this character only and are NEVER
       // transferred to the other character on swap (ironwill/titan/archerBoost
       // all come from a skill's `selfBuff`, which by definition is personal).
+      // supportAtk/Magic/CritRate/CritDmg/Penetration + supportTimer are the
+      // buff a Tactician/Arcanist skill grants to their ALLY (not the caster) —
+      // still personal to whoever is holding it, just applied by someone else.
+      // formation/resonance are the small automatic passive bonus that comes
+      // along for the ride whenever that ally-buff is cast.
       buffs:{ shield:0, hasteMult:1, hasteTimer:0, defMult:1, defTimer:0, lifestealPct:0, lifestealTimer:0,
         titanTimer:0, titanAtkPct:0, titanHpPct:0, titanDefPct:0, titanLifesteal:0, titanBonusHp:0,
-        archerBoostTimer:0, archerBoostAtkPct:0, archerBoostCritRate:0, archerBoostCritDmg:0 },
+        archerBoostTimer:0, archerBoostAtkPct:0, archerBoostCritRate:0, archerBoostCritDmg:0,
+        supportTimer:0, supportAtkPct:0, supportMagicPct:0, supportCritRate:0, supportCritDmg:0, supportPenetration:0,
+        formationTimer:0, formationAtkPct:0, resonanceTimer:0, resonanceMagicPct:0 },
       bulwarkCd:0, attackLock:0, regenTimer:0
     };
   }
@@ -1474,6 +1504,7 @@ class GameApp{
       hitCooldown:0, stunTimer:0, slowTimer:0, slowValue:0,
       dotTimer:0, dotDps:0, dotIsMagic:false, dotTick:0,
       burnStacks:[], burnTick:0,
+      defShredTimer:0, defShredValue:0,
       isBoss:!!d.isBoss, isElite:!!d.isElite, phase:1
     };
     this.enemies.push(inst);
@@ -1791,6 +1822,11 @@ class GameApp{
         mesh.position.copy(toP); mesh.position.y=1.0;
         life=0.4; kind='burst'; scaleFrom=0.4; scaleTo=1.7; baseOpacity=0.75;
         break;
+      case 'magic':
+        mesh = new THREE.Mesh(new THREE.SphereGeometry(0.55,12,12), new THREE.MeshBasicMaterial({color, transparent:true, opacity:0.78}));
+        mesh.position.copy(toP); mesh.position.y=1.0;
+        life=0.42; kind='burst'; scaleFrom=0.4; scaleTo=1.6; spin=true; baseOpacity=0.78;
+        break;
       case 'shield':
         mesh = new THREE.Mesh(new THREE.TorusGeometry(0.55,0.05,8,20), new THREE.MeshBasicMaterial({color, transparent:true, opacity:0.8}));
         mesh.position.copy(fromP); mesh.position.y=1.0; mesh.rotation.x=Math.PI/2;
@@ -1882,6 +1918,35 @@ class GameApp{
         scaleTo = fx.scaleTo!==undefined ? fx.scaleTo : 1.0;
         baseOpacity = fx.opacity!==undefined ? fx.opacity : 0.9;
         break;}
+      case 'buff': {
+        // A rising ring of light on whoever just received a support buff —
+        // used for Tactician/Arcanist ally-target skills.
+        const grp = new THREE.Group();
+        const ring = new THREE.Mesh(new THREE.TorusGeometry(0.5,0.06,8,20), new THREE.MeshBasicMaterial({color, transparent:true, opacity:0.85}));
+        ring.rotation.x=Math.PI/2;
+        grp.add(ring);
+        const ring2 = new THREE.Mesh(new THREE.TorusGeometry(0.3,0.04,8,20), new THREE.MeshBasicMaterial({color, transparent:true, opacity:0.7}));
+        ring2.rotation.x=Math.PI/2; ring2.position.y=0.8;
+        grp.add(ring2);
+        grp.position.copy(toP); grp.position.y += 0.1;
+        mesh = grp;
+        life=0.6; kind='burst'; scaleFrom=0.3; scaleTo=1.3; spin=true; baseOpacity=0.85;
+        break;
+      }
+      case 'banner': {
+        // Expanding tri-ring "command banner" pulse for ultimate-tier support
+        // skills (Grand Strategy / Mystic Dominion).
+        const grp = new THREE.Group();
+        for(let i=0;i<3;i++){
+          const ring = new THREE.Mesh(new THREE.RingGeometry(0.3+i*0.25,0.38+i*0.25,24), new THREE.MeshBasicMaterial({color, transparent:true, opacity:0.7, side:THREE.DoubleSide}));
+          ring.rotation.x=-Math.PI/2;
+          grp.add(ring);
+        }
+        grp.position.copy(toP); grp.position.y=0.08;
+        mesh = grp;
+        life=0.55; kind='burst'; scaleFrom=0.5; scaleTo=1.8; baseOpacity=0.7;
+        break;
+      }
       default: return;
     }
     this.scene.add(mesh);
@@ -1969,6 +2034,7 @@ class GameApp{
     else if(effect.type==='slow'){ e.slowTimer = Math.max(e.slowTimer, effect.duration); e.slowValue = Math.min(0.7, effect.value); }
     else if(effect.type==='dot'){ e.dotTimer = Math.max(e.dotTimer, effect.duration); e.dotDps = effect.dps; e.dotIsMagic = !!effect.isMagic; }
     else if(effect.type==='burnStack'){ this.applyBurnStack(e, effect); }
+    else if(effect.type==='defShred' || effect.type==='magicShred'){ e.defShredTimer = Math.max(e.defShredTimer, effect.duration); e.defShredValue = Math.max(e.defShredValue, effect.value); }
   }
 
   // Mage Fire Blast: each cast adds its own independently-timed burn stack
@@ -1984,26 +2050,69 @@ class GameApp{
   }
 
   applySelfBuff(buff){
+    this.applyBuffToChar(this.player, buff);
+  }
+
+  // Applies a buff to any character in the team — used both for self-buffs
+  // (ch === this.player) and for support skills that target the *other*
+  // character (ch === this.standby, see castAllyBuff below). Titan's bonus
+  // HP is added/removed on whichever character actually holds the buff.
+  applyBuffToChar(ch, buff){
     if(!buff) return;
-    // Self-buffs always apply to the caster only (this.player at the moment
-    // of casting) and are never copied to the other team member on swap.
-    const p = this.player, b = p.buffs;
-    if(buff.type==='shield'){ b.shield = p.hpMax * buff.pct; this.toast('Shield aktif!'); }
-    else if(buff.type==='haste'){ b.hasteMult = buff.mult; b.hasteTimer = buff.duration; p.iFrame = Math.max(p.iFrame, buff.iframe||0); }
+    const b = ch.buffs;
+    const who = ch===this.player ? '' : ` (${CharacterData[ch.classKey].key})`;
+    if(buff.type==='shield'){ b.shield = ch.hpMax * buff.pct; this.toast('Shield aktif'+who+'!'); }
+    else if(buff.type==='haste'){ b.hasteMult = buff.mult; b.hasteTimer = buff.duration; ch.iFrame = Math.max(ch.iFrame, buff.iframe||0); }
     else if(buff.type==='ironwill'){ b.defMult = buff.defMult; b.defTimer = buff.duration; b.lifestealPct = buff.lifesteal; b.lifestealTimer = buff.duration; }
     else if(buff.type==='titan'){
-      const bonusHp = Math.round(p.hpMax * buff.hpPct);
-      p.hpMax += bonusHp; p.hp += bonusHp;
+      const bonusHp = Math.round(ch.hpMax * buff.hpPct);
+      ch.hpMax += bonusHp; ch.hp += bonusHp;
       b.titanBonusHp = bonusHp;
       b.titanTimer = buff.duration;
       b.titanAtkPct = buff.atkPct; b.titanHpPct = buff.hpPct; b.titanDefPct = buff.defPct; b.titanLifesteal = buff.lifesteal;
-      this.toast('Titan Form aktif!');
+      this.toast('Titan Form aktif'+who+'!');
     }
     else if(buff.type==='archerBoost'){
       b.archerBoostTimer = buff.duration;
       b.archerBoostAtkPct = buff.atkPct; b.archerBoostCritRate = buff.critRatePct; b.archerBoostCritDmg = buff.critDmgPct;
-      this.toast('Marksman Focus aktif!');
+      this.toast('Marksman Focus aktif'+who+'!');
     }
+    else if(buff.type==='physicalAttack'){
+      b.supportTimer = buff.duration; b.supportAtkPct = buff.atkPct; b.supportMagicPct=0; b.supportCritRate=0; b.supportCritDmg=0; b.supportPenetration=0;
+      this.toast('War Command aktif'+who+'!');
+    }
+    else if(buff.type==='physicalBoost'){
+      b.supportTimer = buff.duration; b.supportAtkPct = buff.atkPct; b.supportCritRate = buff.critRatePct; b.supportCritDmg = buff.critDmgPct; b.supportMagicPct=0; b.supportPenetration=0;
+      this.toast('Battle Focus aktif'+who+'!');
+    }
+    else if(buff.type==='commander'){
+      b.supportTimer = buff.duration; b.supportAtkPct = buff.atkPct; b.supportCritRate = buff.critRatePct; b.supportPenetration = buff.penetrationPct; b.supportMagicPct=0; b.supportCritDmg=0;
+      this.toast('Grand Strategy aktif'+who+'!');
+    }
+    else if(buff.type==='magicAttack'){
+      b.supportTimer = buff.duration; b.supportMagicPct = buff.magicPct; b.supportAtkPct=0; b.supportCritRate=0; b.supportCritDmg=0; b.supportPenetration=0;
+      this.toast('Arcane Blessing aktif'+who+'!');
+    }
+    else if(buff.type==='magicBoost'){
+      b.supportTimer = buff.duration; b.supportMagicPct = buff.magicPct; b.supportCritRate = buff.critRatePct; b.supportCritDmg = buff.critDmgPct; b.supportAtkPct=0; b.supportPenetration=0;
+      this.toast('Arcane Focus aktif'+who+'!');
+    }
+    else if(buff.type==='mystic'){
+      b.supportTimer = buff.duration; b.supportMagicPct = buff.magicPct; b.supportCritRate = buff.critRatePct; b.supportPenetration = buff.penetrationPct; b.supportAtkPct=0; b.supportCritDmg=0;
+      this.toast('Mystic Dominion aktif'+who+'!');
+    }
+  }
+
+  // War Command / Arcane Blessing (and their upgraded/ultimate versions) are
+  // support skills that buff the OTHER team member, not the caster. Casting
+  // one also triggers the caster's passive — Battle Formation / Arcane
+  // Resonance — a small refreshable +5% bonus stacked on top for 5 seconds.
+  castAllyBuff(buff){
+    const target = this.standby;
+    if(!target) return;
+    this.applyBuffToChar(target, buff);
+    if(this.classKey==='Tactician'){ target.buffs.formationTimer = 5; target.buffs.formationAtkPct = 0.05; }
+    else if(this.classKey==='Arcanist'){ target.buffs.resonanceTimer = 5; target.buffs.resonanceMagicPct = 0.05; }
   }
 
   dealDamage(target, skillDef){
@@ -2012,19 +2121,28 @@ class GameApp{
     let atkBonusPct = this.getSharedStat('atkPct');
     if(b.titanTimer>0) atkBonusPct += b.titanAtkPct;
     if(b.archerBoostTimer>0) atkBonusPct += b.archerBoostAtkPct;
+    if(skillDef.isMagic){
+      if(b.supportTimer>0) atkBonusPct += (b.supportMagicPct||0);
+      if(b.resonanceTimer>0) atkBonusPct += (b.resonanceMagicPct||0);
+    } else {
+      if(b.supportTimer>0) atkBonusPct += (b.supportAtkPct||0);
+      if(b.formationTimer>0) atkBonusPct += (b.formationAtkPct||0);
+    }
     atk *= (1+atkBonusPct);
 
-    const effCrit = p.critRate + this.getSharedStat('critRate') + (b.archerBoostTimer>0 ? b.archerBoostCritRate : 0);
+    const effCrit = p.critRate + this.getSharedStat('critRate') + (b.archerBoostTimer>0 ? b.archerBoostCritRate : 0) + (b.supportTimer>0 ? (b.supportCritRate||0) : 0);
     const isCrit = Math.random() < effCrit;
-    const effCritDmg = p.critDmg + this.getSharedStat('critDmg') + (b.archerBoostTimer>0 ? b.archerBoostCritDmg : 0);
+    const effCritDmg = p.critDmg + this.getSharedStat('critDmg') + (b.archerBoostTimer>0 ? b.archerBoostCritDmg : 0) + (b.supportTimer>0 ? (b.supportCritDmg||0) : 0);
     let critMult = isCrit ? effCritDmg : 1;
     if(this.classKey==='Assassin' && target.hp/target.hpMax < 0.5) critMult += (isCrit?0.2:0);
 
     let dmg = atk * skillDef.mult * critMult * this.comboMultiplier();
     let effDef = target.pdef;
     if(skillDef.defShred) effDef *= (1-skillDef.defShred);
-    const sharedPen = this.getSharedStat('penetration');
-    if(sharedPen>0) effDef *= (1-Math.min(0.9,sharedPen));
+    if(target.defShredValue>0) effDef *= (1-target.defShredValue);
+    let totalPen = this.getSharedStat('penetration');
+    if(b.supportTimer>0 && b.supportPenetration) totalPen += b.supportPenetration;
+    if(totalPen>0) effDef *= (1-Math.min(0.9,totalPen));
     dmg *= (1 - defenseReduction(effDef));
     if(target.state==='break') dmg *= 1.25;
     if(skillDef.executeBonus && target.hp/target.hpMax < 0.3) dmg *= (1+skillDef.executeBonus);
@@ -2056,8 +2174,14 @@ class GameApp{
     if(effSkill.resetSkills){ effSkill.resetSkills.forEach(sk=> p.cooldowns[sk]=0); }
 
     if(effSkill.mult<=0){
-      this.applySelfBuff(effSkill.selfBuff);
-      if(effSkill.fx) this.spawnFX(effSkill.fx, p.mesh.position.clone(), p.mesh.position.clone());
+      if(effSkill.targetAlly){
+        this.castAllyBuff(effSkill.selfBuff);
+        const allyPos = this.standby.mesh.position.clone();
+        if(effSkill.fx) this.spawnFX(effSkill.fx, allyPos, allyPos);
+      } else {
+        this.applySelfBuff(effSkill.selfBuff);
+        if(effSkill.fx) this.spawnFX(effSkill.fx, p.mesh.position.clone(), p.mesh.position.clone());
+      }
       this.toast(`${effSkill.name}!`);
       return;
     }
@@ -2102,7 +2226,14 @@ class GameApp{
     } else {
       targets.forEach(t=> this.dealDamage(t, effSkill));
     }
-    this.applySelfBuff(effSkill.selfBuff);
+
+    if(effSkill.targetAlly){
+      this.castAllyBuff(effSkill.selfBuff);
+      const allyPos = this.standby.mesh.position.clone();
+      this.spawnFX({type:'buff', color: effSkill.fx ? effSkill.fx.color : 0xffd76a}, allyPos, allyPos);
+    } else {
+      this.applySelfBuff(effSkill.selfBuff);
+    }
 
     if(effSkill.casterFx){
       // Big ground-zone visual rooted at the caster's own feet, sized to the
@@ -2335,6 +2466,8 @@ class GameApp{
     if(this.classKey==='Archer') p.attackLock = 0.35;
     else if(this.classKey==='Mage') p.attackLock = 0.2;
     else if(this.classKey==='Fighter') p.attackLock = 0.3;
+    else if(this.classKey==='Tactician') p.attackLock = 0.25;
+    else if(this.classKey==='Arcanist') p.attackLock = 0.25;
     if(this.classKey==='Mage'){ this.performArcaneBoltAttack(); }
     else{ this.applySkillDamage(this.cdata.basic, true, null); }
   }
@@ -2601,6 +2734,7 @@ class GameApp{
       }
     }
     if(e.slowTimer>0) e.slowTimer -= dt; else e.slowValue=0;
+    if(e.defShredTimer>0){ e.defShredTimer -= dt; if(e.defShredTimer<=0) e.defShredValue=0; }
 
     if(e.state==='break'){
       e.breakTimer -= dt;
@@ -2739,6 +2873,9 @@ class GameApp{
     if(p.buffs.critBonusTimer>0) icons.push('🎯');
     if(p.buffs.titanTimer>0) icons.push('🗿');
     if(p.buffs.archerBoostTimer>0) icons.push('🏹');
+    if(p.buffs.supportTimer>0) icons.push(p.buffs.supportMagicPct>0 ? '🔮' : '🎖️');
+    if(p.buffs.formationTimer>0) icons.push('📯');
+    if(p.buffs.resonanceTimer>0) icons.push('✨');
     // Shared/transferable buffs — shown regardless of who cast them, since
     // they belong to the team, not the character.
     this.sharedBuffs.forEach(b=> icons.push(b.icon));
@@ -2751,6 +2888,7 @@ class GameApp{
     if(e.slowTimer>0) chips.push(`<div class="status-chip slow">SLOW</div>`);
     if(e.dotTimer>0) chips.push(`<div class="status-chip dot">DOT</div>`);
     if(e.burnStacks && e.burnStacks.length) chips.push(`<div class="status-chip dot">BURN x${e.burnStacks.length}</div>`);
+    if(e.defShredTimer>0) chips.push(`<div class="status-chip shred">DEF-</div>`);
     document.getElementById('enemy-status-row').innerHTML = chips.join('');
   }
 
@@ -2842,6 +2980,12 @@ class GameApp{
       b.archerBoostTimer -= dt;
       if(b.archerBoostTimer<=0){ b.archerBoostAtkPct=0; b.archerBoostCritRate=0; b.archerBoostCritDmg=0; }
     }
+    if(b.supportTimer>0){
+      b.supportTimer -= dt;
+      if(b.supportTimer<=0){ b.supportAtkPct=0; b.supportMagicPct=0; b.supportCritRate=0; b.supportCritDmg=0; b.supportPenetration=0; }
+    }
+    if(b.formationTimer>0){ b.formationTimer -= dt; if(b.formationTimer<=0) b.formationAtkPct=0; }
+    if(b.resonanceTimer>0){ b.resonanceTimer -= dt; if(b.resonanceTimer<=0) b.resonanceMagicPct=0; }
     const titanScale = b.titanTimer>0 ? 1.5 : 1.0;
     ch.mesh.scale.lerp(new THREE.Vector3(titanScale,titanScale,titanScale), Math.min(1, dt*3));
   }

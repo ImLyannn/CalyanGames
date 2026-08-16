@@ -1,4 +1,3 @@
-
 /* =====================================================================
    PROJECT ECLIPSE — PROTOTYPE
    ===================================================================== */
@@ -20,7 +19,7 @@ const CharacterData = {
     hp:580, mana:180, patk:45, magic:0, pdef:20, mdef:20, aspd:1.5, critRate:0.15, critDmg:1.5, moveSpeed:5.4,
     growth:{hp:35, mana:10, patk:6, pdef:2, mdef:2},
     basic:{name:'Quick Shot', icon:'🏹', mult:1.05, isMagic:false, range:7.5, fx:{type:'arrow', color:0x4fd68c}},
-    passive:{name:'Hawk Eye', icon:'🦅', desc:'+8% Crit Rate & menembak 2 panah sekaligus (damage tetap sama) selama 3 detik setelah pakai skill.'},
+    passive:{name:'Hawk Eye', icon:'🦅', desc:'+8% Crit Rate & menembak 2 panah sekaligus (damage tetap sama) selama 3 detik setelah pakai skill. Crit Rate ini bersifat transferable — bisa dipakai karakter lain lewat swap.'},
     skill1:{name:'Blade Arrow', icon:'🏹', mult:1.9, isMagic:false, manaCost:28, cooldown:4, range:7.5, defShred:0.3, fx:{type:'arrow', color:0xfff07a}, desc:'Damage tinggi, abaikan 30% Defense.'},
     skill2:{name:'Multi Shot', icon:'🎯', mult:1.35, isMagic:false, manaCost:18, cooldown:5, range:7, maxTargets:3, fx:{type:'arrow', color:0x8fe8b0}, desc:'Tembak 3 anak panah ke hingga 3 musuh terdekat dalam radius (1 anak panah per musuh).'},
     skill3:{name:'Explosive Trap', icon:'💣', mult:1.7, isMagic:false, manaCost:24, cooldown:12, thrownBomb:true, range:9, projectileSpeed:11, aoeRadius:2.4, effect:{type:'slow', value:0.4, duration:2}, fx:{type:'bomb', color:0x5a4632}, impactFx:{type:'shockwave', color:0xffb84f}, impactFx2:{type:'fire', color:0xffcf7a}, desc:'Bom dilempar ke musuh terdekat, meledak di titik jatuhnya (bukan di badan Archer) + Slow 40% selama 2 detik.'},
@@ -45,8 +44,8 @@ const CharacterData = {
     passive:{name:'Bulwark', icon:'🧱', desc:'Shield 15% Max HP otomatis saat HP < 30% (CD 30 detik).'},
     skill1:{name:'Shield Bash', icon:'🛡️', mult:1.4, isMagic:false, manaCost:15, cooldown:4, aoe:true, aoeRadius:3.0, effect:{type:'stun', duration:1.0}, fx:{type:'shockwave', color:0xf2d34c}, desc:'Damage area + Stun 1 detik.'},
     skill2:{name:'Guardian Smash', icon:'💢', mult:1.8, isMagic:false, manaCost:28, cooldown:6, aoe:true, fx:{type:'shockwave', color:0xff8a3f}, desc:'Hantaman area damage besar.'},
-    skill3:{name:'Iron Will', icon:'🩸', mult:0, isMagic:false, manaCost:18, cooldown:24, selfBuff:{type:'ironwill', defMult:1.3, lifesteal:0.15, duration:7}, fx:{type:'shield', color:0xe8b64c}, desc:'+30% Defense & 15% Lifesteal, 7 detik.'},
-    ultimate:{name:'Earth Sunder', icon:'🌋', mult:4.2, isMagic:false, manaCost:75, cooldown:54, aoe:true, effect:{type:'stun', duration:1.5}, selfBuff:{type:'titan', atkPct:0.1, hpPct:0.2, defPct:0.2, lifesteal:0.25, duration:12}, fx:{type:'shockwave', color:0xb5651d}, desc:'Damage besar area + Knockdown 1.5 detik. Berubah raksasa 1.5x selama 12 detik: +10% Damage, +20% Max HP, +20% Defense, +25% Lifesteal (stack dgn Iron Will).'}
+    skill3:{name:'Iron Will', icon:'🩸', mult:0, isMagic:false, manaCost:18, cooldown:24, selfBuff:{type:'ironwill', defMult:1.3, lifesteal:0.15, duration:7}, fx:{type:'shield', color:0xe8b64c}, desc:'+30% Defense & 15% Lifesteal, 7 detik (self-buff, tidak transferable).'},
+    ultimate:{name:'Earth Sunder', icon:'🌋', mult:4.2, isMagic:false, manaCost:75, cooldown:54, aoe:true, effect:{type:'stun', duration:1.5}, selfBuff:{type:'titan', atkPct:0.1, hpPct:0.2, defPct:0.2, lifesteal:0.25, duration:12}, fx:{type:'shockwave', color:0xb5651d}, desc:'Damage besar area + Knockdown 1.5 detik. Berubah raksasa 1.5x selama 12 detik: +10% Damage, +20% Max HP, +20% Defense, +25% Lifesteal (self-buff, tidak transferable, stack dgn Iron Will).'}
   }
 };
 
@@ -263,8 +262,29 @@ document.getElementById('reset-progress-btn').addEventListener('click', async ()
 });
 
 // =======================================================================
-// CLASS SELECT SCREEN
+// CLASS SELECT SCREEN — pick 2 characters for the team
 // =======================================================================
+let selectedTeam = [];
+
+function refreshTeamSelectUI(){
+  document.getElementById('slot1-name').textContent = selectedTeam[0] ? CharacterData[selectedTeam[0]].key : '-';
+  document.getElementById('slot2-name').textContent = selectedTeam[1] ? CharacterData[selectedTeam[1]].key : '-';
+  document.getElementById('start-team-btn').style.display = selectedTeam.length===2 ? 'inline-block' : 'none';
+  document.querySelectorAll('.class-card').forEach(card=>{
+    const key = card.dataset.class;
+    const idx = selectedTeam.indexOf(key);
+    let badge = card.querySelector('.slot-badge');
+    if(idx>=0){
+      if(!badge){ badge = document.createElement('div'); badge.className='slot-badge'; card.appendChild(badge); }
+      badge.textContent = 'Slot '+(idx+1);
+      card.classList.add('team-selected');
+    } else {
+      if(badge) badge.remove();
+      card.classList.remove('team-selected');
+    }
+  });
+}
+
 const cardsWrap = document.getElementById('class-cards');
 Object.values(CharacterData).forEach(c=>{
   const div = document.createElement('div');
@@ -285,8 +305,17 @@ Object.values(CharacterData).forEach(c=>{
       <div><b>F</b>${c.ultimate.name}</div>
     </div>
   `;
-  div.addEventListener('click', ()=> startGame(c.key));
+  div.addEventListener('click', ()=>{
+    const idx = selectedTeam.indexOf(c.key);
+    if(idx>=0){ selectedTeam.splice(idx,1); }
+    else if(selectedTeam.length<2){ selectedTeam.push(c.key); }
+    else { selectedTeam = [selectedTeam[1], c.key]; }
+    refreshTeamSelectUI();
+  });
   cardsWrap.appendChild(div);
+});
+document.getElementById('start-team-btn').addEventListener('click', ()=>{
+  if(selectedTeam.length===2) startGame([...selectedTeam]);
 });
 
 // mark cards that already have a save so the player can see progress exists
@@ -308,15 +337,21 @@ Object.values(CharacterData).forEach(c=>{
 })();
 
 let Game = null;
-async function startGame(classKey){
+async function startGame(classKeys){
   document.getElementById('class-select').style.display='none';
-  Game = new GameApp(classKey);
+  Game = new GameApp(classKeys);
   try{
     const sharedRaw = await storageGet('save_shared');
-    const classRaw = await storageGet('save_class_'+classKey);
-    if(sharedRaw || classRaw){
-      Game.applySaveData(sharedRaw?JSON.parse(sharedRaw):null, classRaw?JSON.parse(classRaw):null);
+    if(sharedRaw) Game.applySharedSaveData(JSON.parse(sharedRaw));
+    for(const ch of Game.team){
+      const classRaw = await storageGet('save_class_'+ch.classKey);
+      if(classRaw) Game.applyClassSaveData(ch, JSON.parse(classRaw));
     }
+    Game.recalcAllStats();
+    Game.team.forEach(ch=>{ ch.hp = ch.hpMax; ch.mana = ch.manaMax; });
+    Game.updateHUDStatic();
+    Game.initPlayerSkillRow();
+    Game.toast('Save dimuat!');
   }catch(e){ console.error('load failed', e); }
   Game.enterLobby();
 }
@@ -328,9 +363,9 @@ document.getElementById('save-btn').addEventListener('click', ()=> { if(Game){ G
 // GAME APP
 // =======================================================================
 class GameApp{
-  constructor(classKey){
-    this.classKey = classKey;
-    this.cdata = CharacterData[classKey];
+  constructor(classKeys){
+    this.classKeys = classKeys;
+    this.activeIndex = 0;
     this.clock = new THREE.Clock();
     this.keys = {};
     this.mouse = {down:false, lastX:0, lastY:0};
@@ -353,11 +388,27 @@ class GameApp{
       {id:'q3', desc:'Dapatkan 1 Artifact', type:'getArtifact', target:1, progress:0, reward:{gold:300}, claimed:false}
     ];
 
+    // Shared account-wide wallet — carries over no matter which characters are on the team.
+    this.gold = 0; this.gems = 0; this.materials = {};
+    this.artifacts = [];
+    this.equippedArtifacts = {Crown:null, Bracelet:null, Ring:null, Necklace:null, Core:null};
+    this.autoDelete = {Common:false, Uncommon:false, Rare:false, Epic:false, Legendary:false};
+    this.setBonusRarity = null;
+    this.equipmentBonus = {hpPct:0, atkPct:0, magicPct:0, defPct:0, critRateAdd:0, critDmgAdd:0, cdrPct:0, moveSpeedFlat:0};
+
+    // Transferable "shared" buffs — team-wide, not tied to whichever character cast them.
+    // These persist and keep ticking through a swap and can be used by either character.
+    this.sharedBuffs = [];
+    this.globalSwapCd = 0;
+
     this.initScene();
-    this.initPlayer();
+    this.initTeam();
+    this.recalcAllStats();
+    this.team.forEach(ch=>{ ch.hp = ch.hpMax; ch.mana = ch.manaMax; });
     this.initStations();
     this.initInput();
     this.initPlayerSkillRow();
+    this.initSwapUI();
     this.updateHUDStatic();
 
     document.getElementById('hub-btn').addEventListener('click', ()=> this.enterLobby());
@@ -367,6 +418,14 @@ class GameApp{
     document.getElementById('inventory-btn').addEventListener('click', ()=>{ if(this.inLobby && !this.panelOpen) this.openStationPanel('inventory'); });
     document.getElementById('stats-btn').addEventListener('click', ()=>{ if(this.inLobby && !this.panelOpen) this.openStationPanel('stats'); });
   }
+
+  // The "active character" is whichever team slot is currently in the fight —
+  // everything below reads/writes through these so most of the combat code
+  // didn't need to change: it just always acts on "the current fighter".
+  get player(){ return this.team[this.activeIndex]; }
+  get classKey(){ return this.team[this.activeIndex].classKey; }
+  get cdata(){ return CharacterData[this.classKey]; }
+  get standby(){ return this.team[1-this.activeIndex]; }
 
   // ---------------- SCENE / WORLD ----------------
   initScene(){
@@ -551,9 +610,13 @@ class GameApp{
     return rock;
   }
 
-  // ---------------- PLAYER ----------------
-  initPlayer(){
-    const c = this.cdata;
+  // ---------------- TEAM (2 characters, 1 active + 1 standby) ----------------
+  initTeam(){
+    this.team = this.classKeys.map((key, idx)=> this.createCharacterState(key, idx));
+  }
+
+  createCharacterState(classKey, idx){
+    const c = CharacterData[classKey];
     const g = new THREE.Group();
     const body = new THREE.Mesh(new THREE.CylinderGeometry(0.34,0.4,1.15,10), new THREE.MeshStandardMaterial({color:c.color, roughness:0.55, metalness:0.15}));
     body.position.y = 0.85;
@@ -563,10 +626,11 @@ class GameApp{
     weapon.position.set(0.45,1.0,0);
     g.add(body, head, weapon);
     g.position.set(0,0,10);
+    g.visible = (idx===0);
     this.scene.add(g);
 
-    this.player = {
-      mesh:g, facing:0,
+    return {
+      classKey, mesh:g, facing:0,
       level:1, exp:0,
       baseHpMax:c.hp, baseManaMax:c.mana, basePatk:c.patk, baseMagic:c.magic, basePdef:c.pdef, baseMdef:c.mdef,
       baseCritRate:c.critRate, baseCritDmg:c.critDmg, baseMoveSpeed:c.moveSpeed,
@@ -577,23 +641,21 @@ class GameApp{
       attackCd:0, dodgeCd:0,
       cooldowns:{skill1:0, skill2:0, skill3:0, ultimate:0},
       skillLevels:{skill1:1, skill2:1, skill3:1, ultimate:1},
-      iFrame:0, gold:0, gems:0, materials:{}, artifacts:[],
-      equippedArtifacts:{Crown:null, Bracelet:null, Ring:null, Necklace:null, Core:null},
-      autoDelete:{Common:false, Uncommon:false, Rare:false, Epic:false, Legendary:false},
-      buffs:{ shield:0, hasteMult:1, hasteTimer:0, defMult:1, defTimer:0, lifestealPct:0, lifestealTimer:0, critBonus:0, critBonusTimer:0,
+      iFrame:0,
+      // Personal buffs — these belong to this character only and are NEVER
+      // transferred to the other character on swap (ironwill/titan/archerBoost
+      // all come from a skill's `selfBuff`, which by definition is personal).
+      buffs:{ shield:0, hasteMult:1, hasteTimer:0, defMult:1, defTimer:0, lifestealPct:0, lifestealTimer:0,
         titanTimer:0, titanAtkPct:0, titanHpPct:0, titanDefPct:0, titanLifesteal:0, titanBonusHp:0,
         archerBoostTimer:0, archerBoostAtkPct:0, archerBoostCritRate:0, archerBoostCritDmg:0 },
-      bulwarkCd:0, attackLock:0
+      bulwarkCd:0, attackLock:0, regenTimer:0
     };
-    this.recalcStats();
-    this.player.hp = this.player.hpMax;
-    this.player.mana = this.player.manaMax;
   }
 
-  recalcStats(){
-    const p = this.player;
+  // ---------------- STAT RECALC (equipment is shared across the whole team) ----------------
+  recalcEquipmentBonus(){
     let hpPct=0, atkPct=0, magicPct=0, defPct=0, critRateAdd=0, critDmgAdd=0, cdrPct=0, moveSpeedFlat=0;
-    const equipped = Object.values(p.equippedArtifacts);
+    const equipped = Object.values(this.equippedArtifacts);
     const addStat = (type, val)=>{
       if(type==='hp') hpPct+=val;
       else if(type==='patk') atkPct+=val;
@@ -609,69 +671,142 @@ class GameApp{
       addStat(a.mainStatType, artifactMainStatValue(a));
       a.subStats.forEach(s=> addStat(s.type, s.value));
     });
-    p.setBonusRarity = null;
+    this.setBonusRarity = null;
     if(equipped.every(a=>a)){
       const rarities = new Set(equipped.map(a=>a.rarity));
       if(rarities.size===1){
-        p.setBonusRarity = equipped[0].rarity;
-        const bonus = SET_BONUS_BY_RARITY[p.setBonusRarity]||0;
+        this.setBonusRarity = equipped[0].rarity;
+        const bonus = SET_BONUS_BY_RARITY[this.setBonusRarity]||0;
         hpPct+=bonus; atkPct+=bonus; magicPct+=bonus; defPct+=bonus;
       }
     }
-    p.hpMax = Math.round(p.baseHpMax*(1+hpPct));
-    p.manaMax = p.baseManaMax;
-    p.patk = Math.round(p.basePatk*(1+atkPct));
-    p.magic = Math.round(p.baseMagic*(1+magicPct));
-    p.pdef = Math.round(p.basePdef*(1+defPct));
-    p.mdef = p.baseMdef;
-    p.critRate = p.baseCritRate + critRateAdd;
-    p.critDmg = p.baseCritDmg + critDmgAdd;
-    p.cdr = Math.min(0.5, cdrPct);
-    p.moveSpeed = p.baseMoveSpeed + moveSpeedFlat;
-    p.hp = Math.min(p.hp, p.hpMax);
-    p.mana = Math.min(p.mana, p.manaMax);
+    this.equipmentBonus = {hpPct, atkPct, magicPct, defPct, critRateAdd, critDmgAdd, cdrPct, moveSpeedFlat};
+  }
+  recalcStatsFor(ch){
+    const eq = this.equipmentBonus;
+    ch.hpMax = Math.round(ch.baseHpMax*(1+eq.hpPct));
+    ch.manaMax = ch.baseManaMax;
+    ch.patk = Math.round(ch.basePatk*(1+eq.atkPct));
+    ch.magic = Math.round(ch.baseMagic*(1+eq.magicPct));
+    ch.pdef = Math.round(ch.basePdef*(1+eq.defPct));
+    ch.mdef = ch.baseMdef;
+    ch.critRate = ch.baseCritRate + eq.critRateAdd;
+    ch.critDmg = ch.baseCritDmg + eq.critDmgAdd;
+    ch.cdr = Math.min(0.5, eq.cdrPct);
+    ch.moveSpeed = ch.baseMoveSpeed + eq.moveSpeedFlat;
+    ch.hp = Math.min(ch.hp, ch.hpMax);
+    ch.mana = Math.min(ch.mana, ch.manaMax);
+  }
+  recalcAllStats(){
+    this.recalcEquipmentBonus();
+    this.team.forEach(ch=> this.recalcStatsFor(ch));
+  }
+
+  // ---------------- CHARACTER SWAP ----------------
+  initSwapUI(){
+    const row = document.getElementById('team-swap-row');
+    row.innerHTML = '';
+    row.style.pointerEvents = 'all';
+    this.team.forEach((ch,idx)=>{
+      const el = document.createElement('div');
+      el.className = 'swap-slot';
+      el.id = 'swap-slot-'+idx;
+      el.innerHTML = `<div class="ic">${CharacterData[ch.classKey].icon}</div><div class="cdov"></div><div class="cdtx"></div><div class="mini-hp"><i></i></div>`;
+      el.addEventListener('click', ()=>{ if(idx!==this.activeIndex) this.swapCharacter(); });
+      row.appendChild(el);
+    });
+  }
+  updateSwapRow(){
+    this.team.forEach((ch,idx)=>{
+      const el = document.getElementById('swap-slot-'+idx);
+      if(!el) return;
+      el.classList.toggle('active-char', idx===this.activeIndex);
+      const ov = el.querySelector('.cdov'), tx = el.querySelector('.cdtx');
+      const cd = this.globalSwapCd||0;
+      if(idx!==this.activeIndex && cd>0){
+        ov.style.height = Math.min(100,(cd/2.5)*100)+'%';
+        tx.textContent = cd>1 ? Math.ceil(cd) : '';
+      } else { ov.style.height='0%'; tx.textContent=''; }
+      const hpBar = el.querySelector('.mini-hp i');
+      if(hpBar) hpBar.style.width = Math.max(0,(ch.hp/ch.hpMax*100))+'%';
+    });
+  }
+  swapCharacter(){
+    if(!this.team || this.team.length<2) return;
+    if(!this.stageActive && !this.inLobby) return;
+    if(this.panelOpen) return;
+    if(this.globalSwapCd>0){ this.toast(`Swap belum siap (${this.globalSwapCd.toFixed(1)}s)`); return; }
+    const oldChar = this.player;
+    const oldPos = oldChar.mesh.position.clone();
+    const oldFacing = oldChar.facing;
+    oldChar.mesh.visible = false;
+    this.activeIndex = 1 - this.activeIndex;
+    const newChar = this.player;
+    newChar.mesh.position.copy(oldPos);
+    newChar.facing = oldFacing;
+    newChar.mesh.rotation.y = oldFacing;
+    newChar.mesh.visible = true;
+    newChar.attackLock = Math.max(newChar.attackLock||0, 0.15);
+    this.globalSwapCd = 2.5;
+    this.updateHUDStatic();
+    this.initPlayerSkillRow();
+    this.toast(`Swap ke ${CharacterData[newChar.classKey].key}! Buff transferable tetap terbawa.`);
+  }
+
+  // ---------------- SHARED (TRANSFERABLE) BUFFS ----------------
+  // These live at the team level, not on a character — so they keep ticking
+  // and stay active across a swap, and whichever character is active can use
+  // them. Only stat-type effects go here (crit rate, atk%, crit dmg, def%,
+  // lifesteal%, penetration%); true self-buffs stay on ch.buffs instead.
+  addSharedBuff(name, icon, stats, duration){
+    const existing = this.sharedBuffs.find(b=>b.name===name);
+    if(existing){ existing.timeLeft = duration; existing.totalDuration = duration; existing.stats = stats; }
+    else this.sharedBuffs.push({name, icon, stats, timeLeft:duration, totalDuration:duration});
+  }
+  hasSharedBuff(name){ return this.sharedBuffs.some(b=>b.name===name); }
+  getSharedStat(key){
+    return this.sharedBuffs.reduce((sum,b)=> sum + (b.stats[key]||0), 0);
+  }
+  tickSharedBuffs(dt){
+    this.sharedBuffs.forEach(b=> b.timeLeft -= dt);
+    this.sharedBuffs = this.sharedBuffs.filter(b=> b.timeLeft>0);
   }
 
   // ---------------- SAVE / LOAD ----------------
   saveGame(){
-    const p = this.player;
-    // shared wallet — carries over no matter which class you play
     const shared = {
-      gold:p.gold, gems:p.gems, materials:p.materials, artifacts:p.artifacts, equippedArtifacts:p.equippedArtifacts, autoDelete:p.autoDelete,
+      gold:this.gold, gems:this.gems, materials:this.materials, artifacts:this.artifacts,
+      equippedArtifacts:this.equippedArtifacts, autoDelete:this.autoDelete,
       dungeonProgress:this.dungeonProgress, domainProgress:this.domainProgress, quests:this.quests
     };
-    // per-class save — only level, exp, and skill levels reset when you switch class
-    const classData = {
-      level:p.level, exp:p.exp, skillLevels:p.skillLevels,
-      baseHpMax:p.baseHpMax, baseManaMax:p.baseManaMax, basePatk:p.basePatk, baseMagic:p.baseMagic, basePdef:p.basePdef, baseMdef:p.baseMdef
-    };
     storageSet('save_shared', JSON.stringify(shared));
-    storageSet('save_class_'+this.classKey, JSON.stringify(classData));
+    this.team.forEach(ch=>{
+      const classData = {
+        level:ch.level, exp:ch.exp, skillLevels:ch.skillLevels,
+        baseHpMax:ch.baseHpMax, baseManaMax:ch.baseManaMax, basePatk:ch.basePatk, baseMagic:ch.baseMagic, basePdef:ch.basePdef, baseMdef:ch.baseMdef
+      };
+      storageSet('save_class_'+ch.classKey, JSON.stringify(classData));
+    });
   }
-  applySaveData(shared, classData){
-    const p = this.player;
-    if(shared){
-      p.gold = shared.gold||0; p.gems = shared.gems||0;
-      p.materials = shared.materials||{};
-      p.artifacts = (shared.artifacts||[]).map(normalizeArtifact);
-      p.equippedArtifacts = shared.equippedArtifacts||{Crown:null,Bracelet:null,Ring:null,Necklace:null,Core:null};
-      p.autoDelete = shared.autoDelete||{Common:false,Uncommon:false,Rare:false,Epic:false,Legendary:false};
-      Object.keys(p.equippedArtifacts).forEach(slot=> normalizeArtifact(p.equippedArtifacts[slot]));
-      this.dungeonProgress = shared.dungeonProgress||this.dungeonProgress;
-      this.domainProgress = shared.domainProgress||this.domainProgress;
-      this.quests = shared.quests||this.quests;
-    }
-    if(classData){
-      p.level = classData.level||1; p.exp = classData.exp||0;
-      p.skillLevels = classData.skillLevels||{skill1:1,skill2:1,skill3:1,ultimate:1};
-      p.baseHpMax = classData.baseHpMax||p.baseHpMax; p.baseManaMax = classData.baseManaMax||p.baseManaMax;
-      p.basePatk = classData.basePatk||p.basePatk; p.baseMagic = classData.baseMagic||p.baseMagic;
-      p.basePdef = classData.basePdef||p.basePdef; p.baseMdef = classData.baseMdef||p.baseMdef;
-    }
-    this.recalcStats();
-    p.hp = p.hpMax; p.mana = p.manaMax;
-    this.updateHUDStatic();
-    this.toast('Save dimuat!');
+  applySharedSaveData(shared){
+    if(!shared) return;
+    this.gold = shared.gold||0; this.gems = shared.gems||0;
+    this.materials = shared.materials||{};
+    this.artifacts = (shared.artifacts||[]).map(normalizeArtifact);
+    this.equippedArtifacts = shared.equippedArtifacts||{Crown:null,Bracelet:null,Ring:null,Necklace:null,Core:null};
+    this.autoDelete = shared.autoDelete||{Common:false,Uncommon:false,Rare:false,Epic:false,Legendary:false};
+    Object.keys(this.equippedArtifacts).forEach(slot=> normalizeArtifact(this.equippedArtifacts[slot]));
+    this.dungeonProgress = shared.dungeonProgress||this.dungeonProgress;
+    this.domainProgress = shared.domainProgress||this.domainProgress;
+    this.quests = shared.quests||this.quests;
+  }
+  applyClassSaveData(ch, classData){
+    if(!classData) return;
+    ch.level = classData.level||1; ch.exp = classData.exp||0;
+    ch.skillLevels = classData.skillLevels||{skill1:1,skill2:1,skill3:1,ultimate:1};
+    ch.baseHpMax = classData.baseHpMax||ch.baseHpMax; ch.baseManaMax = classData.baseManaMax||ch.baseManaMax;
+    ch.basePatk = classData.basePatk||ch.basePatk; ch.baseMagic = classData.baseMagic||ch.baseMagic;
+    ch.basePdef = classData.basePdef||ch.basePdef; ch.baseMdef = classData.baseMdef||ch.baseMdef;
   }
 
   // ---------------- LOBBY STATIONS (NPC-styled, spread across the village) ----------------
@@ -763,11 +898,13 @@ class GameApp{
     this.currentRun = null;
     this.clearEnemies();
     this.setEnvironmentMode('lobby');
-    const p = this.player;
-    if(p.buffs.titanTimer>0){ p.hpMax -= (p.buffs.titanBonusHp||0); p.hp = Math.min(p.hp, p.hpMax); }
-    p.buffs.titanTimer=0; p.buffs.titanBonusHp=0; p.buffs.titanAtkPct=0; p.buffs.titanHpPct=0; p.buffs.titanDefPct=0; p.buffs.titanLifesteal=0;
-    p.buffs.archerBoostTimer=0; p.buffs.archerBoostAtkPct=0; p.buffs.archerBoostCritRate=0; p.buffs.archerBoostCritDmg=0;
-    p.mesh.scale.set(1,1,1);
+    this.team.forEach(ch=>{
+      if(ch.buffs.titanTimer>0){ ch.hpMax -= (ch.buffs.titanBonusHp||0); ch.hp = Math.min(ch.hp, ch.hpMax); }
+      ch.buffs.titanTimer=0; ch.buffs.titanBonusHp=0; ch.buffs.titanAtkPct=0; ch.buffs.titanHpPct=0; ch.buffs.titanDefPct=0; ch.buffs.titanLifesteal=0;
+      ch.buffs.archerBoostTimer=0; ch.buffs.archerBoostAtkPct=0; ch.buffs.archerBoostCritRate=0; ch.buffs.archerBoostCritDmg=0;
+      ch.mesh.scale.set(1,1,1);
+    });
+    this.sharedBuffs = [];
     document.getElementById('stage-overlay').style.display='none';
     document.getElementById('station-panel').style.display='none';
     document.getElementById('hud').style.display='block';
@@ -814,16 +951,15 @@ class GameApp{
   }
 
   renderInventoryHTML(){
-    const p = this.player;
-    const matRows = Object.keys(p.materials).length
-      ? Object.entries(p.materials).map(([n,q])=>`<div class="panel-row"><span class="prl">${n}</span><span class="prr">${q}</span></div>`).join('')
+    const matRows = Object.keys(this.materials).length
+      ? Object.entries(this.materials).map(([n,q])=>`<div class="panel-row"><span class="prl">${n}</span><span class="prr">${q}</span></div>`).join('')
       : `<div class="panel-row"><span class="prl">Belum ada material. Coba Material Domain!</span></div>`;
-    const artRows = p.artifacts.length
-      ? p.artifacts.map(a=>`<div class="panel-row"><span class="prl" style="color:${RARITY_COLOR[a.rarity]}">${a.name} (Lv.${a.level})</span><span class="prr">${formatStatValue(a.mainStatType, artifactMainStatValue(a))} ${a.mainStatLabel}</span></div>`).join('')
+    const artRows = this.artifacts.length
+      ? this.artifacts.map(a=>`<div class="panel-row"><span class="prl" style="color:${RARITY_COLOR[a.rarity]}">${a.name} (Lv.${a.level})</span><span class="prr">${formatStatValue(a.mainStatType, artifactMainStatValue(a))} ${a.mainStatLabel}</span></div>`).join('')
       : `<div class="panel-row"><span class="prl">Belum ada artifact belum di-equip. Coba Artifact Domain!</span></div>`;
     return `
-      <div class="panel-row"><span class="prl">🪙 Gold</span><span class="prr">${p.gold}</span></div>
-      <div class="panel-row"><span class="prl">💎 Gems</span><span class="prr">${p.gems}</span></div>
+      <div class="panel-row"><span class="prl">🪙 Gold</span><span class="prr">${this.gold}</span></div>
+      <div class="panel-row"><span class="prl">💎 Gems</span><span class="prr">${this.gems}</span></div>
       <div class="panel-h">Material</div>${matRows}
       <div class="panel-h">Artifact (belum dipakai)</div>${artRows}
     `;
@@ -832,6 +968,7 @@ class GameApp{
   renderStatsHTML(){
     const p = this.player, c = this.cdata;
     const statRows = `
+      <div class="panel-row"><span class="prl">Karakter Aktif</span><span class="prr">${c.key}</span></div>
       <div class="panel-row"><span class="prl">HP</span><span class="prr">${Math.round(p.hp)} / ${p.hpMax}</span></div>
       <div class="panel-row"><span class="prl">Mana</span><span class="prr">${Math.round(p.mana)} / ${p.manaMax}</span></div>
       <div class="panel-row"><span class="prl">Physical Attack</span><span class="prr">${p.patk}</span></div>
@@ -868,24 +1005,23 @@ class GameApp{
   }
 
   renderArtifactHTML(){
-    const p = this.player;
     const slotsHtml = ARTIFACT_SLOTS.map(slot=>{
-      const a = p.equippedArtifacts[slot];
+      const a = this.equippedArtifacts[slot];
       const style = a ? `style="color:${RARITY_COLOR[a.rarity]}"` : '';
       return `<div class="art-slot ${a?'filled':''}" ${style} data-slot="${slot}">${a? a.rarity+'<br>Lv.'+a.level : slot}</div>`;
     }).join('');
 
-    const equippedList = Object.values(p.equippedArtifacts).filter(a=>a);
+    const equippedList = Object.values(this.equippedArtifacts).filter(a=>a);
     const equippedRows = equippedList.length ? equippedList.map(a=>this.renderArtifactCard(a, true)).join('')
       : `<div class="panel-row"><span class="prl">Belum ada artifact terpasang</span></div>`;
 
     const filter = this.artifactFilter || (this.artifactFilter={statType:'all', rarity:'all'});
-    const filteredPool = p.artifacts.filter(a=>
+    const filteredPool = this.artifacts.filter(a=>
       (filter.statType==='all' || a.mainStatType===filter.statType) &&
       (filter.rarity==='all' || a.rarity===filter.rarity)
     );
     const poolHtml = filteredPool.length ? filteredPool.map(a=>this.renderArtifactCard(a, false)).join('')
-      : `<div class="panel-row"><span class="prl">${p.artifacts.length? 'Gak ada artifact yang cocok filter ini.' : 'Belum ada artifact. Coba Artifact Domain!'}</span></div>`;
+      : `<div class="panel-row"><span class="prl">${this.artifacts.length? 'Gak ada artifact yang cocok filter ini.' : 'Belum ada artifact. Coba Artifact Domain!'}</span></div>`;
     const statOptions = ['all',...Object.keys(MAIN_STAT_BASE)].map(t=>`<option value="${t}" ${filter.statType===t?'selected':''}>${t==='all'?'Semua Stat':STAT_LABELS[t]}</option>`).join('');
     const rarityFilterOptions = ['all','Common','Uncommon','Rare','Epic','Legendary'].map(r=>`<option value="${r}" ${filter.rarity===r?'selected':''}>${r==='all'?'Semua Rarity':r}</option>`).join('');
     const filterRow = `<div style="display:flex; gap:8px; margin-bottom:10px;">
@@ -894,30 +1030,30 @@ class GameApp{
     </div>`;
 
     const autoDeleteRows = ['Common','Uncommon','Rare','Epic','Legendary'].map(r=>{
-      const on = p.autoDelete[r];
+      const on = this.autoDelete[r];
       return `<div class="panel-row"><span class="prl" style="color:${RARITY_COLOR[r]}">Auto-Hapus ${r}</span><span class="mini-btn" data-autodel="${r}" style="${on?'background:#7fe08a;color:#173a17;':''}">${on?'ON':'OFF'}</span></div>`;
     }).join('');
 
     const setRows = Object.entries(SET_BONUS_BY_RARITY).map(([r,pct])=>
       `<div class="panel-row"><span class="prl" style="color:${RARITY_COLOR[r]}">Full Set ${r}</span><span class="prr">+${Math.round(pct*100)}% All Stats</span></div>`
     ).join('');
-    const setStatus = p.setBonusRarity
-      ? `<div class="panel-row"><span class="prl">🎁 Set Bonus Aktif</span><span class="prr" style="color:${RARITY_COLOR[p.setBonusRarity]}">${p.setBonusRarity} +${Math.round(SET_BONUS_BY_RARITY[p.setBonusRarity]*100)}%</span></div>`
+    const setStatus = this.setBonusRarity
+      ? `<div class="panel-row"><span class="prl">🎁 Set Bonus Aktif</span><span class="prr" style="color:${RARITY_COLOR[this.setBonusRarity]}">${this.setBonusRarity} +${Math.round(SET_BONUS_BY_RARITY[this.setBonusRarity]*100)}%</span></div>`
       : `<div class="panel-row"><span class="prl">🎁 Set Bonus</span><span class="prr">Belum aktif</span></div>`;
 
     return `<div class="artifact-slots">${slotsHtml}</div>
-      <div class="panel-row"><span class="prl">✨ Magical Dust</span><span class="prr">${p.materials['Magical Dust']||0}</span></div>
+      <div class="panel-row"><span class="prl">✨ Magical Dust</span><span class="prr">${this.materials['Magical Dust']||0}</span></div>
       ${setStatus}
       <div class="panel-h">Tabel Full Set Bonus (isi 5 slot rarity sama)</div>${setRows}
       <div class="panel-h">Auto-Hapus (artifact baru dgn rarity ini langsung jadi Magical Dust)</div>${autoDeleteRows}
-      <div class="panel-h">Artifact Terpasang</div>${equippedRows}
+      <div class="panel-h">Artifact Terpasang (berlaku utk seluruh tim)</div>${equippedRows}
       <div class="panel-h">Koleksi Artifact (klik nama utk equip)</div>${filterRow}${poolHtml}`;
   }
 
   renderArtifactCard(a, isEquipped){
     const maxed = a.level>=ARTIFACT_MAX_LEVEL;
     const cost = maxed ? null : (a.level+2);
-    const dust = this.player.materials['Magical Dust']||0;
+    const dust = this.materials['Magical Dust']||0;
     const canUpgrade = !maxed && dust>=cost;
     const subRows = a.subStats.length
       ? a.subStats.map(s=>`<div style="font-size:9.5px; color:var(--text-dim);">↳ ${s.label} ${formatStatValue(s.type,s.value)}</div>`).join('')
@@ -939,13 +1075,13 @@ class GameApp{
   wireArtifactPanel(){
     document.querySelectorAll('#station-panel-body [data-equip]').forEach(el=>{
       el.addEventListener('click', ()=>{
-        const art = this.player.artifacts.find(a=>a.id===el.dataset.equip);
+        const art = this.artifacts.find(a=>a.id===el.dataset.equip);
         if(art){ this.equipArtifact(art); this.openStationPanel('artifact'); }
       });
     });
     document.querySelectorAll('#station-panel-body [data-unequip]').forEach(el=>{
       el.addEventListener('click', ()=>{
-        const art = Object.values(this.player.equippedArtifacts).find(a=>a && a.id===el.dataset.unequip);
+        const art = Object.values(this.equippedArtifacts).find(a=>a && a.id===el.dataset.unequip);
         if(art){ this.unequipArtifact(art.slot); this.openStationPanel('artifact'); }
       });
     });
@@ -964,36 +1100,33 @@ class GameApp{
     if(filterRarity) filterRarity.addEventListener('change', e=>{ this.artifactFilter.rarity = e.target.value; this.openStationPanel('artifact'); });
   }
   equipArtifact(art){
-    const p = this.player;
-    const old = p.equippedArtifacts[art.slot];
-    if(old) p.artifacts.push(old);
-    p.equippedArtifacts[art.slot] = art;
-    p.artifacts = p.artifacts.filter(a=>a.id!==art.id);
-    this.recalcStats();
+    const old = this.equippedArtifacts[art.slot];
+    if(old) this.artifacts.push(old);
+    this.equippedArtifacts[art.slot] = art;
+    this.artifacts = this.artifacts.filter(a=>a.id!==art.id);
+    this.recalcAllStats();
     this.toast(`${art.name} dipasang!`);
     this.saveGame();
   }
   unequipArtifact(slot){
-    const p = this.player;
-    const a = p.equippedArtifacts[slot];
+    const a = this.equippedArtifacts[slot];
     if(!a) return;
-    p.artifacts.push(a);
-    p.equippedArtifacts[slot] = null;
-    this.recalcStats();
+    this.artifacts.push(a);
+    this.equippedArtifacts[slot] = null;
+    this.recalcAllStats();
     this.saveGame();
   }
   findArtifactById(id){
-    const equipped = Object.values(this.player.equippedArtifacts).find(a=>a && a.id===id);
+    const equipped = Object.values(this.equippedArtifacts).find(a=>a && a.id===id);
     if(equipped) return equipped;
-    return this.player.artifacts.find(a=>a.id===id);
+    return this.artifacts.find(a=>a.id===id);
   }
   upgradeArtifact(id){
-    const p = this.player;
     const art = this.findArtifactById(id);
     if(!art || art.level>=ARTIFACT_MAX_LEVEL) return;
     const cost = art.level+2;
-    if((p.materials['Magical Dust']||0) < cost){ this.toast('Magical Dust tidak cukup'); return; }
-    p.materials['Magical Dust'] -= cost;
+    if((this.materials['Magical Dust']||0) < cost){ this.toast('Magical Dust tidak cukup'); return; }
+    this.materials['Magical Dust'] -= cost;
     art.level++;
     if(art.level%5===0){
       const usedTypes = new Set([art.mainStatType, ...art.subStats.map(s=>s.type)]);
@@ -1006,18 +1139,17 @@ class GameApp{
       }
     }
     this.toast(`${art.name} naik ke Lv.${art.level}!`);
-    this.recalcStats();
+    this.recalcAllStats();
     this.openStationPanel('artifact');
     this.saveGame();
   }
   deleteArtifact(id){
-    const p = this.player;
-    const idx = p.artifacts.findIndex(a=>a.id===id);
+    const idx = this.artifacts.findIndex(a=>a.id===id);
     if(idx<0) return;
-    const art = p.artifacts[idx];
+    const art = this.artifacts[idx];
     const dust = (DUST_BASE_BY_RARITY[art.rarity]||3) + (art.level-1)*3;
-    p.materials['Magical Dust'] = (p.materials['Magical Dust']||0) + dust;
-    p.artifacts.splice(idx,1);
+    this.materials['Magical Dust'] = (this.materials['Magical Dust']||0) + dust;
+    this.artifacts.splice(idx,1);
     this.toast(`Artifact dihancurkan: +${dust} Magical Dust`);
     this.openStationPanel('artifact');
     this.saveGame();
@@ -1026,19 +1158,17 @@ class GameApp{
   // Central entry point for any newly-acquired artifact (domain drop, shop purchase).
   // Respects the player's per-rarity Auto-Hapus toggles.
   grantArtifact(art){
-    const p = this.player;
-    if(p.autoDelete[art.rarity]){
+    if(this.autoDelete[art.rarity]){
       const dust = (DUST_BASE_BY_RARITY[art.rarity]||3) + (art.level-1)*3;
-      p.materials['Magical Dust'] = (p.materials['Magical Dust']||0) + dust;
+      this.materials['Magical Dust'] = (this.materials['Magical Dust']||0) + dust;
       this.toast(`Auto-Hapus ${art.rarity}: ${art.name} → +${dust} Magical Dust`);
     } else {
-      p.artifacts.push(art);
+      this.artifacts.push(art);
       this.toast(`Artifact didapat: ${art.name}!`);
     }
   }
   toggleAutoDelete(rarity){
-    const p = this.player;
-    p.autoDelete[rarity] = !p.autoDelete[rarity];
+    this.autoDelete[rarity] = !this.autoDelete[rarity];
     this.saveGame();
     this.openStationPanel('artifact');
   }
@@ -1047,7 +1177,7 @@ class GameApp{
     const p = this.player, c = this.cdata;
     const essence = CLASS_ESSENCE[this.classKey];
     const slots = ['skill1','skill2','skill3','ultimate'];
-    return slots.map(slot=>{
+    return `<div class="panel-row"><span class="prl">Upgrade skill untuk</span><span class="prr">${c.key} (karakter aktif)</span></div>` + slots.map(slot=>{
       const s = c[slot];
       if(p.level < UNLOCK_LEVEL[slot]){
         return `
@@ -1062,7 +1192,7 @@ class GameApp{
       const next = maxed ? null : SKILL_UPGRADE_COST[lvl+1];
       const reqLevel = maxed ? null : skillUpgradeLevelReq(slot, lvl+1);
       const levelOk = maxed || p.level>=reqLevel;
-      const canAfford = !maxed && levelOk && p.gold>=next.gold && (p.materials['Skill Book']||0)>=next.book && (p.materials[essence]||0)>=next.ess;
+      const canAfford = !maxed && levelOk && this.gold>=next.gold && (this.materials['Skill Book']||0)>=next.book && (this.materials[essence]||0)>=next.ess;
       const costLine = maxed ? 'Skill sudah maksimal' : `Biaya: ${next.gold} Gold, ${next.book} Skill Book, ${next.ess} ${essence}${levelOk?'':' — Perlu Level '+reqLevel}`;
       return `
         <div class="panel-row" style="flex-direction:column; align-items:stretch;">
@@ -1087,9 +1217,9 @@ class GameApp{
     if(p.level < reqLevel){ this.toast(`Perlu Level ${reqLevel} untuk upgrade ini`); return; }
     const cost = SKILL_UPGRADE_COST[lvl+1];
     const essence = CLASS_ESSENCE[this.classKey];
-    const haveBook = p.materials['Skill Book']||0, haveEss = p.materials[essence]||0;
-    if(p.gold<cost.gold || haveBook<cost.book || haveEss<cost.ess){ this.toast('Gold/Material tidak cukup'); return; }
-    p.gold -= cost.gold; p.materials['Skill Book'] -= cost.book; p.materials[essence] -= cost.ess;
+    const haveBook = this.materials['Skill Book']||0, haveEss = this.materials[essence]||0;
+    if(this.gold<cost.gold || haveBook<cost.book || haveEss<cost.ess){ this.toast('Gold/Material tidak cukup'); return; }
+    this.gold -= cost.gold; this.materials['Skill Book'] -= cost.book; this.materials[essence] -= cost.ess;
     p.skillLevels[slot]++;
     this.toast(`${this.cdata[slot].name} naik ke Level ${p.skillLevels[slot]}!`);
     this.openStationPanel('skill');
@@ -1118,10 +1248,9 @@ class GameApp{
   claimQuest(id){
     const q = this.quests.find(q=>q.id===id);
     if(!q || q.claimed || q.progress<q.target) return;
-    const p = this.player;
-    if(q.reward.gold) p.gold += q.reward.gold;
+    if(q.reward.gold) this.gold += q.reward.gold;
     if(q.reward.exp) this.gainExp(q.reward.exp);
-    if(q.reward.gems) p.gems += q.reward.gems;
+    if(q.reward.gems) this.gems += q.reward.gems;
     q.claimed = true;
     this.toast('Reward diklaim!');
     this.openStationPanel('quest');
@@ -1263,7 +1392,6 @@ class GameApp{
   }
 
   renderShopHTML(){
-    const p = this.player;
     const essence = CLASS_ESSENCE[this.classKey];
     const goldItems = [
       {id:'buy_book', name:'📘 Skill Book x3', cost:300},
@@ -1277,8 +1405,8 @@ class GameApp{
       {id:'buy_art_epic', name:'Artifact Epic', cost:6, rarity:'Epic'},
       {id:'buy_art_legendary', name:'Artifact Legendary', cost:10, rarity:'Legendary'}
     ];
-    const goldRows = goldItems.map(it=>`<div class="panel-row"><span class="prl">${it.name}</span><span class="mini-btn ${p.gold>=it.cost?'':'disabled'}" data-buy="${it.id}">${it.cost} 🪙</span></div>`).join('');
-    const gemRows = gemItems.map(it=>`<div class="panel-row"><span class="prl" style="color:${RARITY_COLOR[it.rarity]}">${it.name}</span><span class="mini-btn ${p.gems>=it.cost?'':'disabled'}" data-buy="${it.id}">${it.cost} 💎</span></div>`).join('');
+    const goldRows = goldItems.map(it=>`<div class="panel-row"><span class="prl">${it.name}</span><span class="mini-btn ${this.gold>=it.cost?'':'disabled'}" data-buy="${it.id}">${it.cost} 🪙</span></div>`).join('');
+    const gemRows = gemItems.map(it=>`<div class="panel-row"><span class="prl" style="color:${RARITY_COLOR[it.rarity]}">${it.name}</span><span class="mini-btn ${this.gems>=it.cost?'':'disabled'}" data-buy="${it.id}">${it.cost} 💎</span></div>`).join('');
     return `<div class="panel-h">Beli dengan Gold</div>${goldRows}<div class="panel-h">Tukar Gems — Artifact Langsung</div>${gemRows}`;
   }
   wireShopPanel(){
@@ -1287,12 +1415,11 @@ class GameApp{
     });
   }
   buyShopItem(id){
-    const p = this.player;
     const essence = CLASS_ESSENCE[this.classKey];
     const table = {
-      buy_book:{cost:300, currency:'gold', fn:()=>{ p.materials['Skill Book']=(p.materials['Skill Book']||0)+3; this.toast('+3 Skill Book'); }},
-      buy_essence:{cost:400, currency:'gold', fn:()=>{ p.materials[essence]=(p.materials[essence]||0)+2; this.toast('+2 '+essence); }},
-      buy_iron:{cost:100, currency:'gold', fn:()=>{ p.materials['Iron Ore']=(p.materials['Iron Ore']||0)+5; this.toast('+5 Iron Ore'); }},
+      buy_book:{cost:300, currency:'gold', fn:()=>{ this.materials['Skill Book']=(this.materials['Skill Book']||0)+3; this.toast('+3 Skill Book'); }},
+      buy_essence:{cost:400, currency:'gold', fn:()=>{ this.materials[essence]=(this.materials[essence]||0)+2; this.toast('+2 '+essence); }},
+      buy_iron:{cost:100, currency:'gold', fn:()=>{ this.materials['Iron Ore']=(this.materials['Iron Ore']||0)+5; this.toast('+5 Iron Ore'); }},
       buy_art_common:{cost:1, currency:'gems', fn:()=> this.buyArtifact('Common')},
       buy_art_uncommon:{cost:2, currency:'gems', fn:()=> this.buyArtifact('Uncommon')},
       buy_art_rare:{cost:4, currency:'gems', fn:()=> this.buyArtifact('Rare')},
@@ -1301,8 +1428,8 @@ class GameApp{
     };
     const entry = table[id];
     if(!entry) return;
-    if(entry.currency==='gold'){ if(p.gold<entry.cost){ this.toast('Gold tidak cukup'); return; } p.gold-=entry.cost; }
-    else { if(p.gems<entry.cost){ this.toast('Gems tidak cukup'); return; } p.gems-=entry.cost; }
+    if(entry.currency==='gold'){ if(this.gold<entry.cost){ this.toast('Gold tidak cukup'); return; } this.gold-=entry.cost; }
+    else { if(this.gems<entry.cost){ this.toast('Gems tidak cukup'); return; } this.gems-=entry.cost; }
     entry.fn();
     this.openStationPanel('shop');
     this.saveGame();
@@ -1363,14 +1490,16 @@ class GameApp{
     document.getElementById('stage-overlay').style.display='none';
     document.getElementById('spawn-dummy-btn').style.display='none';
     this.clearEnemies();
-    const p = this.player;
-    p.hp = p.hpMax; p.mana = p.manaMax;
-    p.buffs.shield=0; p.buffs.hasteTimer=0; p.buffs.defTimer=0; p.buffs.lifestealTimer=0;
-    if(p.buffs.titanTimer>0){ p.hpMax -= (p.buffs.titanBonusHp||0); p.hp = Math.min(p.hp, p.hpMax); }
-    p.buffs.titanTimer=0; p.buffs.titanBonusHp=0; p.buffs.titanAtkPct=0; p.buffs.titanHpPct=0; p.buffs.titanDefPct=0; p.buffs.titanLifesteal=0;
-    p.buffs.archerBoostTimer=0; p.buffs.archerBoostAtkPct=0; p.buffs.archerBoostCritRate=0; p.buffs.archerBoostCritDmg=0;
-    p.mesh.scale.set(1,1,1);
-    p.mesh.position.set(0,0,3);
+    this.team.forEach(ch=>{
+      ch.hp = ch.hpMax; ch.mana = ch.manaMax;
+      ch.buffs.shield=0; ch.buffs.hasteTimer=0; ch.buffs.defTimer=0; ch.buffs.lifestealTimer=0;
+      if(ch.buffs.titanTimer>0){ ch.hpMax -= (ch.buffs.titanBonusHp||0); ch.hp = Math.min(ch.hp, ch.hpMax); }
+      ch.buffs.titanTimer=0; ch.buffs.titanBonusHp=0; ch.buffs.titanAtkPct=0; ch.buffs.titanHpPct=0; ch.buffs.titanDefPct=0; ch.buffs.titanLifesteal=0;
+      ch.buffs.archerBoostTimer=0; ch.buffs.archerBoostAtkPct=0; ch.buffs.archerBoostCritRate=0; ch.buffs.archerBoostCritDmg=0;
+      ch.mesh.scale.set(1,1,1);
+    });
+    this.sharedBuffs = [];
+    this.player.mesh.position.set(0,0,3);
     this.camYaw = 0; this.camPitch=0.35; this.camDist=6.5;
     this.stageStartTime = this.clock.getElapsedTime();
     this.stageDamageTaken = 0;
@@ -1399,9 +1528,8 @@ class GameApp{
   loadStage(stageId){
     const stageDef = DungeonData.greenForest.stages.find(s=>s.id===stageId);
     this.clearEnemies();
-    const p = this.player;
-    p.hp = p.hpMax; p.mana = p.manaMax;
-    p.mesh.position.set(0,0,3);
+    this.team.forEach(ch=>{ ch.hp = ch.hpMax; ch.mana = ch.manaMax; });
+    this.player.mesh.position.set(0,0,3);
     const center = new THREE.Vector3(0,0,-6);
     const isBoss = !!stageDef.boss;
     if(isBoss){
@@ -1439,6 +1567,7 @@ class GameApp{
       this.keys[e.code]=true;
       if(e.code==='KeyE' && this.inLobby && !this.panelOpen && this._nearStationKey) this.openStationPanel(this._nearStationKey);
       if(e.code==='Space' && (this.stageActive||this.inLobby) && !this.panelOpen) this.tryDodge();
+      if(e.code==='KeyQ' && (this.stageActive||this.inLobby) && !this.panelOpen) this.swapCharacter();
       if(!this.stageActive) return;
       if(e.code==='Digit1') this.trySkill('skill1');
       if(e.code==='Digit2') this.trySkill('skill2');
@@ -1522,6 +1651,7 @@ class GameApp{
     document.getElementById('mbtn-skill3').addEventListener('touchstart', e=>{e.preventDefault(); if(this.stageActive) this.trySkill('skill3');});
     document.getElementById('mbtn-ultimate').addEventListener('touchstart', e=>{e.preventDefault(); if(this.stageActive) this.trySkill('ultimate');});
     document.getElementById('mbtn-dodge').addEventListener('touchstart', e=>{e.preventDefault(); if(this.stageActive||this.inLobby) this.tryDodge();});
+    document.getElementById('mbtn-swap').addEventListener('touchstart', e=>{e.preventDefault(); if(this.stageActive||this.inLobby) this.swapCharacter();});
 
     document.getElementById('interact-prompt').addEventListener('click', ()=>{
       if(this.inLobby && !this.panelOpen && this._nearStationKey) this.openStationPanel(this._nearStationKey);
@@ -1751,8 +1881,7 @@ class GameApp{
         scaleFrom = fx.scaleFrom!==undefined ? fx.scaleFrom : 0.45;
         scaleTo = fx.scaleTo!==undefined ? fx.scaleTo : 1.0;
         baseOpacity = fx.opacity!==undefined ? fx.opacity : 0.9;
-        break;
-      }
+        break;}
       default: return;
     }
     this.scene.add(mesh);
@@ -1856,6 +1985,8 @@ class GameApp{
 
   applySelfBuff(buff){
     if(!buff) return;
+    // Self-buffs always apply to the caster only (this.player at the moment
+    // of casting) and are never copied to the other team member on swap.
     const p = this.player, b = p.buffs;
     if(buff.type==='shield'){ b.shield = p.hpMax * buff.pct; this.toast('Shield aktif!'); }
     else if(buff.type==='haste'){ b.hasteMult = buff.mult; b.hasteTimer = buff.duration; p.iFrame = Math.max(p.iFrame, buff.iframe||0); }
@@ -1878,20 +2009,22 @@ class GameApp{
   dealDamage(target, skillDef){
     const p = this.player, b = p.buffs;
     let atk = skillDef.isMagic ? p.magic : p.patk;
-    let atkBonusPct = 0;
+    let atkBonusPct = this.getSharedStat('atkPct');
     if(b.titanTimer>0) atkBonusPct += b.titanAtkPct;
     if(b.archerBoostTimer>0) atkBonusPct += b.archerBoostAtkPct;
     atk *= (1+atkBonusPct);
 
-    const effCrit = p.critRate + (b.critBonusTimer>0 ? b.critBonus : 0) + (b.archerBoostTimer>0 ? b.archerBoostCritRate : 0);
+    const effCrit = p.critRate + this.getSharedStat('critRate') + (b.archerBoostTimer>0 ? b.archerBoostCritRate : 0);
     const isCrit = Math.random() < effCrit;
-    const effCritDmg = p.critDmg + (b.archerBoostTimer>0 ? b.archerBoostCritDmg : 0);
+    const effCritDmg = p.critDmg + this.getSharedStat('critDmg') + (b.archerBoostTimer>0 ? b.archerBoostCritDmg : 0);
     let critMult = isCrit ? effCritDmg : 1;
     if(this.classKey==='Assassin' && target.hp/target.hpMax < 0.5) critMult += (isCrit?0.2:0);
 
     let dmg = atk * skillDef.mult * critMult * this.comboMultiplier();
     let effDef = target.pdef;
     if(skillDef.defShred) effDef *= (1-skillDef.defShred);
+    const sharedPen = this.getSharedStat('penetration');
+    if(sharedPen>0) effDef *= (1-Math.min(0.9,sharedPen));
     dmg *= (1 - defenseReduction(effDef));
     if(target.state==='break') dmg *= 1.25;
     if(skillDef.executeBonus && target.hp/target.hpMax < 0.3) dmg *= (1+skillDef.executeBonus);
@@ -1907,7 +2040,7 @@ class GameApp{
     this.spawnDamageNumber(above, (isCrit? dmg+'!':dmg), isCrit?'crit':(skillDef.isMagic?'magic':''));
 
     this.applyEnemyEffect(target, skillDef.effect);
-    let lifestealPct = 0;
+    let lifestealPct = this.getSharedStat('lifestealPct');
     if(p.buffs.lifestealTimer>0) lifestealPct += p.buffs.lifestealPct;
     if(p.buffs.titanTimer>0) lifestealPct += p.buffs.titanLifesteal;
     if(lifestealPct>0){ this.healPlayer(dmg*lifestealPct, true); }
@@ -1958,10 +2091,12 @@ class GameApp{
     // Hawk Eye passive: basic attack fires two real arrows while active — each
     // hits for half damage so the total stays the same as a normal single hit
     // (not a straight damage double), but it's a genuine dual hit, not just FX.
-    const archerDoubleShot = isBasic && this.classKey==='Archer' && p.buffs.critBonusTimer>0 && !effSkill.aoe && !effSkill.maxTargets;
+    // Gated on the transferable shared buff so it also works if this Archer
+    // swapped away and back while the buff was still ticking.
+    const archerDoubleShot = isBasic && this.classKey==='Archer' && this.hasSharedBuff('hawkEye') && !effSkill.aoe && !effSkill.maxTargets;
     if(archerDoubleShot && targets.length){
       const t = targets[0];
-      const halfSkill = Object.assign({}, effSkill, { mult: effSkill.mult*1 });
+      const halfSkill = Object.assign({}, effSkill, { mult: effSkill.mult*0.5 });
       this.dealDamage(t, halfSkill);
       this.dealDamage(t, halfSkill);
     } else {
@@ -1997,7 +2132,10 @@ class GameApp{
       this.basicHitCount++;
       if(this.classKey==='Mage' && this.basicHitCount%4===0){ p.mana = Math.min(p.manaMax, p.mana+8); this.toast('Mana Flow: +8 Mana'); }
     } else {
-      if(this.classKey==='Archer'){ p.buffs.critBonus=0.08; p.buffs.critBonusTimer=3; }
+      // Hawk Eye: Archer's own skill-use grants a *transferable* crit rate buff.
+      // It lives at team level (this.sharedBuffs), so it keeps ticking and can
+      // be used by whichever character is active — including after a swap.
+      if(this.classKey==='Archer'){ this.addSharedBuff('hawkEye', '🦅', {critRate:0.08}, 3); }
       this.toast(`${effSkill.name}!`);
     }
   }
@@ -2010,7 +2148,6 @@ class GameApp{
   }
 
   killEnemy(target){
-    const p = this.player;
     target.state='dead';
     target.mesh.visible = false;
     document.getElementById('break-banner').style.opacity='0';
@@ -2021,7 +2158,7 @@ class GameApp{
     const isDummy = !!target.data.isDummy;
 
     if(!isDummy){
-      p.gold += target.data.goldReward;
+      this.gold += target.data.goldReward;
       this.gainExp(target.data.expReward);
     }
     let extraMsg = '';
@@ -2031,9 +2168,9 @@ class GameApp{
     } else if(kind==='farm' && domainKey==='materialDomain'){
       const lootMult = DomainData.materialDomain.tiers.find(t=>t.level===tier).lootMult;
       const essence = CLASS_ESSENCE[this.classKey];
-      p.materials['Skill Book'] = (p.materials['Skill Book']||0)+Math.max(1,Math.round(1*lootMult));
-      if(Math.random()<0.6) p.materials[essence] = (p.materials[essence]||0)+Math.max(1,Math.round(2*lootMult));
-      if(Math.random()<0.5) p.materials['Iron Ore'] = (p.materials['Iron Ore']||0)+Math.max(1,Math.round(3*lootMult));
+      this.materials['Skill Book'] = (this.materials['Skill Book']||0)+Math.max(1,Math.round(1*lootMult));
+      if(Math.random()<0.6) this.materials[essence] = (this.materials[essence]||0)+Math.max(1,Math.round(2*lootMult));
+      if(Math.random()<0.5) this.materials['Iron Ore'] = (this.materials['Iron Ore']||0)+Math.max(1,Math.round(3*lootMult));
       extraMsg = ' +Material';
     } else if(kind==='farm' && domainKey==='artifactDomain'){
       const chance = DomainData.artifactDomain.tiers.find(t=>t.level===tier).artifactChance;
@@ -2044,10 +2181,10 @@ class GameApp{
       }
     } else if(kind==='farm' && domainKey==='rewardDomain'){
       const lootMult = DomainData.rewardDomain.tiers.find(t=>t.level===tier).lootMult;
-      p.gold += Math.round(target.data.goldReward*0.5*lootMult);
-      if(Math.random()<0.4){ p.gems += Math.max(1,Math.round(1*lootMult)); this.toast('+'+Math.max(1,Math.round(1*lootMult))+' Gems'); }
+      this.gold += Math.round(target.data.goldReward*0.5*lootMult);
+      if(Math.random()<0.4){ this.gems += Math.max(1,Math.round(1*lootMult)); this.toast('+'+Math.max(1,Math.round(1*lootMult))+' Gems'); }
     } else {
-      if(!target.isBoss && Math.random()<0.4) p.materials['Goblin Tooth'] = (p.materials['Goblin Tooth']||0)+1;
+      if(!target.isBoss && Math.random()<0.4) this.materials['Goblin Tooth'] = (this.materials['Goblin Tooth']||0)+1;
     }
 
     if(isDummy){
@@ -2175,7 +2312,7 @@ class GameApp{
       p.baseHpMax += g.hp; p.baseManaMax += g.mana;
       p.basePatk += (g.patk||0); p.baseMagic += (g.magic||0);
       p.basePdef += g.pdef; p.baseMdef += g.mdef;
-      this.recalcStats();
+      this.recalcAllStats();
       p.hp = p.hpMax; p.mana = p.manaMax;
       this.flashLevelUp();
       req = requiredExp(p.level);
@@ -2503,7 +2640,7 @@ class GameApp{
   enemyHitPlayer(e){
     const p = this.player;
     if(p.iFrame>0) { this.spawnDamageNumber(p.mesh.position.clone().setY(1.9), 'DODGE', 'enemy'); return; }
-    let defBonusPct = 0;
+    let defBonusPct = this.getSharedStat('defPct');
     if(p.buffs.defTimer>0) defBonusPct += (p.buffs.defMult-1);
     if(p.buffs.titanTimer>0) defBonusPct += p.buffs.titanDefPct;
     const effPdef = p.pdef * (1+defBonusPct);
@@ -2602,6 +2739,9 @@ class GameApp{
     if(p.buffs.critBonusTimer>0) icons.push('🎯');
     if(p.buffs.titanTimer>0) icons.push('🗿');
     if(p.buffs.archerBoostTimer>0) icons.push('🏹');
+    // Shared/transferable buffs — shown regardless of who cast them, since
+    // they belong to the team, not the character.
+    this.sharedBuffs.forEach(b=> icons.push(b.icon));
     document.getElementById('buff-row').innerHTML = icons.map(i=>`<div class="buff-icon">${i}</div>`).join('');
   }
 
@@ -2623,10 +2763,11 @@ class GameApp{
     document.getElementById('mana-label').textContent = Math.round(p.mana)+' / '+p.manaMax;
     document.getElementById('player-level').textContent = 'Lv. '+p.level+'  ('+this.cdata.role+')';
     document.getElementById('exp-fill').style.width = (p.exp/requiredExp(p.level)*100)+'%';
-    document.getElementById('gold-amt').textContent = p.gold;
-    document.getElementById('gems-amt').textContent = p.gems;
+    document.getElementById('gold-amt').textContent = this.gold;
+    document.getElementById('gems-amt').textContent = this.gems;
     this.updateBuffRow();
     this.updatePlayerSkillRow();
+    this.updateSwapRow();
 
     const ef = document.getElementById('enemy-frame');
     const target = this.getNearestEnemy(18);
@@ -2662,40 +2803,38 @@ class GameApp{
     this.updateCooldownVisual('slot-dodge', p.dodgeCd, 2.5);
   }
 
-  update(dt){
-    const p = this.player;
-    p.attackCd = Math.max(0, p.attackCd-dt);
-    p.dodgeCd = Math.max(0, p.dodgeCd-dt);
-    p.iFrame = Math.max(0, p.iFrame-dt);
-    p.bulwarkCd = Math.max(0, p.bulwarkCd-dt);
-    p.attackLock = Math.max(0, (p.attackLock||0)-dt);
-    for(const k in p.cooldowns) p.cooldowns[k] = Math.max(0, p.cooldowns[k]-dt);
-    if(p.comboTimer>0){ p.comboTimer -= dt; if(p.comboTimer<=0) p.combo=0; }
-    if(p.mana < p.manaMax) p.mana = Math.min(p.manaMax, p.mana + (12)*dt);
+  // Advances every timer that belongs to a single character (cooldowns,
+  // personal buffs, HP/mana regen, ...). Called for BOTH team members every
+  // frame — not just the active one — so cooldowns and buff durations keep
+  // counting down normally while a character is on standby (nothing pauses
+  // or resets just because a swap happened).
+  tickCharacterTimers(dt, ch, isActive){
+    ch.attackCd = Math.max(0, ch.attackCd-dt);
+    ch.dodgeCd = Math.max(0, ch.dodgeCd-dt);
+    ch.iFrame = Math.max(0, ch.iFrame-dt);
+    ch.bulwarkCd = Math.max(0, ch.bulwarkCd-dt);
+    ch.attackLock = Math.max(0, (ch.attackLock||0)-dt);
+    for(const k in ch.cooldowns) ch.cooldowns[k] = Math.max(0, ch.cooldowns[k]-dt);
+    if(ch.comboTimer>0){ ch.comboTimer -= dt; if(ch.comboTimer<=0) ch.combo=0; }
+    if(ch.mana < ch.manaMax) ch.mana = Math.min(ch.manaMax, ch.mana + 12*dt);
 
-    // Passive regen: fast full-heal pace while safe in the Lobby, plus a small
-    // periodic regen tick that applies everywhere (Lobby and combat alike).
-    if(this.inLobby && p.hp < p.hpMax){ p.hp = Math.min(p.hpMax, p.hp + 50*dt); }
-    if(p.hp < p.hpMax){
-      p.regenTimer = (p.regenTimer||0) + dt;
-      if(p.regenTimer>=4){
-        p.regenTimer -= 4;
-        p.hp = Math.min(p.hpMax, p.hp + 20);
-      }
-    } else {
-      p.regenTimer = 0;
-    }
+    if(this.inLobby && ch.hp < ch.hpMax){ ch.hp = Math.min(ch.hpMax, ch.hp + 50*dt); }
+    if(ch.hp < ch.hpMax){
+      ch.regenTimer = (ch.regenTimer||0) + dt;
+      if(ch.regenTimer>=4){ ch.regenTimer -= 4; ch.hp = Math.min(ch.hpMax, ch.hp + 20); }
+    } else { ch.regenTimer = 0; }
 
-    const b = p.buffs;
+    // Personal buffs — NOT transferable, but their duration still counts down
+    // normally regardless of active/standby status, same as everything else.
+    const b = ch.buffs;
     if(b.hasteTimer>0){ b.hasteTimer -= dt; if(b.hasteTimer<=0) b.hasteMult=1; }
     if(b.defTimer>0){ b.defTimer -= dt; if(b.defTimer<=0){ b.defMult=1; b.lifestealPct=0; } }
     if(b.lifestealTimer>0){ b.lifestealTimer -= dt; }
-    if(b.critBonusTimer>0){ b.critBonusTimer -= dt; }
     if(b.titanTimer>0){
       b.titanTimer -= dt;
       if(b.titanTimer<=0){
-        p.hpMax -= (b.titanBonusHp||0);
-        p.hp = Math.min(p.hp, p.hpMax);
+        ch.hpMax -= (b.titanBonusHp||0);
+        ch.hp = Math.min(ch.hp, ch.hpMax);
         b.titanBonusHp=0; b.titanAtkPct=0; b.titanHpPct=0; b.titanDefPct=0; b.titanLifesteal=0;
       }
     }
@@ -2704,8 +2843,15 @@ class GameApp{
       if(b.archerBoostTimer<=0){ b.archerBoostAtkPct=0; b.archerBoostCritRate=0; b.archerBoostCritDmg=0; }
     }
     const titanScale = b.titanTimer>0 ? 1.5 : 1.0;
-    p.mesh.scale.lerp(new THREE.Vector3(titanScale,titanScale,titanScale), Math.min(1, dt*3));
+    ch.mesh.scale.lerp(new THREE.Vector3(titanScale,titanScale,titanScale), Math.min(1, dt*3));
+  }
 
+  update(dt){
+    this.team.forEach((ch,idx)=> this.tickCharacterTimers(dt, ch, idx===this.activeIndex));
+    this.tickSharedBuffs(dt);
+    this.globalSwapCd = Math.max(0, (this.globalSwapCd||0)-dt);
+
+    const p = this.player;
     this.updateDodgeAnim(dt);
     const dodging = p.dodgeAnim && p.dodgeAnim.active;
     const canMove = (this.stageActive || this.inLobby) && !this.panelOpen && !dodging && !(p.attackLock>0);

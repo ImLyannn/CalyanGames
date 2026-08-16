@@ -16,8 +16,10 @@
 
 <div id="class-select" class="fs-screen">
   <h1>Project Eclipse</h1>
-  <div class="sub">Pilih Kelas Petualangmu</div>
+  <div class="sub">Pilih 2 Karakter untuk Timmu</div>
   <div id="class-cards"></div>
+  <div id="team-slots-hint">Karakter 1: <b id="slot1-name">-</b> &nbsp;·&nbsp; Karakter 2: <b id="slot2-name">-</b></div>
+  <div id="start-team-btn" class="gold-btn">Mulai Bertualang</div>
   <div id="start-hint">Prototype build — Green Forest, Region 1</div>
   <div id="reset-progress-btn" class="ghost-btn" style="margin-top:16px; font-size:11px;">🗑️ Reset Semua Progress</div>
 </div>
@@ -40,6 +42,7 @@
     <div class="bar-track" style="margin-top:5px;"><div id="mana-fill" class="bar-fill" style="width:100%"></div><div class="bar-label" id="mana-label"></div></div>
     <div class="bar-track" id="exp-track"><div id="exp-fill" class="bar-fill" style="width:0%"></div></div>
     <div id="player-skill-row"></div>
+    <div id="team-swap-row"></div>
   </div>
   <div id="buff-row"></div>
 
@@ -91,11 +94,12 @@
     <div class="mbtn" id="mbtn-dodge">Dash</div>
     <div class="mbtn" id="mbtn-ultimate">ULT</div>
     <div class="mbtn" id="mbtn-attack">⚔️</div>
+    <div class="mbtn" id="mbtn-swap">SWAP</div>
   </div>
 
   <div id="toast-wrap"></div>
-  <div id="controls-hint">WASD gerak · Klik Kiri = Basic Attack · Klik Kanan + Drag = Putar Kamera · 1/2/3 = Skill · F = Ultimate · Space = Dash</div>
-  <div id="lobby-hint">WASD gerak · Klik Kanan + Drag = Putar Kamera · Space = Dash · Cari NPC di desa lalu tekan E / klik buat interaksi</div>
+  <div id="controls-hint">WASD gerak · Klik Kiri = Basic Attack · Klik Kanan + Drag = Putar Kamera · 1/2/3 = Skill · F = Ultimate · Space = Dash · Q = Swap Karakter</div>
+  <div id="lobby-hint">WASD gerak · Klik Kanan + Drag = Putar Kamera · Space = Dash · Q = Swap Karakter · Cari NPC di desa lalu tekan E / klik buat interaksi</div>
   <div id="interact-prompt"></div>
 </div>
 

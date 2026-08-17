@@ -2987,6 +2987,7 @@ class GameApp{
       }
     });
     this.updateCooldownVisual('slot-dodge', p.dodgeCd, 2.5);
+    this.updateMobileSkillButtons();
 
     // Live Total Damage / DPS readout for the infinite damage-test dummy —
     // keeps refreshing every frame while that run is active.
@@ -2997,6 +2998,54 @@ class GameApp{
         const total = dummy.totalDamage||0;
         const dps = total/elapsed;
         document.getElementById('stage-banner-sub').textContent = `Total Damage: ${Math.round(total).toLocaleString('id-ID')} · DPS: ${Math.round(dps).toLocaleString('id-ID')}`;
+      }
+    }
+  }
+
+  // Mobile touch-button cooldown feedback: dark curtain rising + countdown
+  // number + dimmed opacity while cooling down (mirrors the desktop
+  // skill-bar), and a soft pulsing gold glow on Ultimate specifically while
+  // it's off cooldown and ready to use.
+  updateMobileSkillButtons(){
+    const p = this.player, c = this.cdata;
+    const combatSlots = [
+      {id:'mbtn-skill1', slot:'skill1', total:this.getEffCooldown(c.skill1.cooldown)},
+      {id:'mbtn-skill2', slot:'skill2', total:this.getEffCooldown(c.skill2.cooldown)},
+      {id:'mbtn-skill3', slot:'skill3', total:this.getEffCooldown(c.skill3.cooldown)},
+      {id:'mbtn-ultimate', slot:'ultimate', total:this.getEffCooldown(c.ultimate.cooldown)}
+    ];
+    combatSlots.forEach(s=>{
+      const el = document.getElementById(s.id);
+      if(!el) return;
+      const ov = el.querySelector('.cdov'), tx = el.querySelector('.cdtx');
+      const locked = p.level < UNLOCK_LEVEL[s.slot];
+      const remaining = p.cooldowns[s.slot];
+      if(locked){
+        el.classList.add('cd-active'); el.classList.remove('ready');
+        if(ov) ov.style.height='100%';
+        if(tx) tx.textContent = UNLOCK_LEVEL[s.slot];
+      } else if(remaining>0){
+        el.classList.add('cd-active'); el.classList.remove('ready');
+        if(ov) ov.style.height = Math.min(100,(remaining/s.total)*100)+'%';
+        if(tx) tx.textContent = remaining>1 ? Math.ceil(remaining) : '';
+      } else {
+        el.classList.remove('cd-active');
+        if(ov) ov.style.height='0%';
+        if(tx) tx.textContent='';
+        if(s.id==='mbtn-ultimate') el.classList.add('ready');
+      }
+    });
+    const dashEl = document.getElementById('mbtn-dodge');
+    if(dashEl){
+      const dov = dashEl.querySelector('.cdov'), dtx = dashEl.querySelector('.cdtx');
+      if(p.dodgeCd>0){
+        dashEl.classList.add('cd-active');
+        if(dov) dov.style.height = Math.min(100,(p.dodgeCd/2.5)*100)+'%';
+        if(dtx) dtx.textContent = p.dodgeCd>1 ? Math.ceil(p.dodgeCd) : '';
+      } else {
+        dashEl.classList.remove('cd-active');
+        if(dov) dov.style.height='0%';
+        if(dtx) dtx.textContent='';
       }
     }
   }

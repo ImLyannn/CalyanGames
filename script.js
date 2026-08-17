@@ -43,10 +43,10 @@ const CharacterData = {
     growth:{hp:45, mana:8, patk:5, pdef:4, mdef:4},
     basic:{name:'Slam', icon:'🔨', mult:1.15, isMagic:false, aoe:true, aoeRadius:2.6, fx:{type:'shockwave', color:0xe8b64c}},
     passive:{name:'Bulwark', icon:'🧱', desc:'Shield 15% Max HP otomatis saat HP < 30% (CD 30 detik).'},
-    skill1:{name:'Shield Bash', icon:'🛡️', mult:1.4, isMagic:false, manaCost:15, cooldown:4, aoe:true, aoeRadius:3.0, effect:{type:'stun', duration:1.0}, fx:{type:'shockwave', color:0xf2d34c}, desc:'Damage area + Stun 1 detik.'},
-    skill2:{name:'Guardian Smash', icon:'💢', mult:1.8, isMagic:false, manaCost:28, cooldown:6, aoe:true, fx:{type:'shockwave', color:0xff8a3f}, desc:'Hantaman area damage besar.'},
+    skill1:{name:'Shield Bash', icon:'🛡️', mult:1.4, isMagic:false, manaCost:15, cooldown:4, groundTargetAoe:true, aoeRadius:3.0, effect:{type:'stun', duration:1.0}, fx:{type:'shockwave', color:0xf2d34c}, desc:'Damage area + Stun 1 detik.'},
+    skill2:{name:'Guardian Smash', icon:'💢', mult:1.8, isMagic:false, manaCost:28, cooldown:6, groundTargetAoe:true, fx:{type:'shockwave', color:0xff8a3f}, desc:'Hantaman area damage besar.'},
     skill3:{name:'Iron Will', icon:'🩸', mult:0, isMagic:false, manaCost:18, cooldown:24, selfBuff:{type:'ironwill', defMult:1.3, lifesteal:0.15, duration:7}, fx:{type:'shield', color:0xe8b64c}, desc:'+30% Defense & 15% Lifesteal, 7 detik (self-buff, tidak transferable).'},
-    ultimate:{name:'Earth Sunder', icon:'🌋', mult:4.2, isMagic:false, manaCost:75, cooldown:54, aoe:true, effect:{type:'stun', duration:1.5}, selfBuff:{type:'titan', atkPct:0.1, hpPct:0.2, defPct:0.2, lifesteal:0.25, duration:12}, fx:{type:'shockwave', color:0xb5651d}, desc:'Damage besar area + Knockdown 1.5 detik. Berubah raksasa 1.5x selama 12 detik: +10% Damage, +20% Max HP, +20% Defense, +25% Lifesteal (self-buff, tidak transferable, stack dgn Iron Will).'}
+    ultimate:{name:'Earth Sunder', icon:'🌋', mult:4.2, isMagic:false, manaCost:75, cooldown:54, groundTargetAoe:true, effect:{type:'stun', duration:1.5}, selfBuff:{type:'titan', atkPct:0.1, hpPct:0.2, defPct:0.2, lifesteal:0.25, duration:12}, fx:{type:'shockwave', color:0xb5651d}, desc:'Damage besar area + Knockdown 1.5 detik. Berubah raksasa 1.5x selama 12 detik: +10% Damage, +20% Max HP, +20% Defense, +25% Lifesteal (self-buff, tidak transferable, stack dgn Iron Will).'}
   },
   Tactician: {
     key:'Tactician', icon:'🎖️', role:'Physical Buffer / Support', color:0xd4a84f,

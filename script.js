@@ -78,7 +78,8 @@ const EnemyData = {
   GoblinKing:{ name:'Goblin King', hp:40000, patk:220, pdef:27, breakHits:25, detectionRadius:40, attackRange:2.3, moveSpeed:3.4, expReward:1800, goldReward:560, scale:2.2, color:0x2f5c2f, isBoss:true },
   DummyGoblin:{ name:'Dummy Goblin', hp:1500, patk:30, pdef:9, breakHits:5, detectionRadius:0, attackRange:1.7, moveSpeed:0, expReward:0, goldReward:0, scale:1.0, color:0x8a8a8a, isDummy:true },
   DummyGoblinElite:{ name:'Dummy Goblin Elite', hp:3250, patk:50, pdef:16, breakHits:10, detectionRadius:0, attackRange:1.8, moveSpeed:0, expReward:0, goldReward:0, scale:1.25, color:0x6b6b8a, isElite:true, isDummy:true },
-  DummyGoblinKing:{ name:'Dummy Goblin King', hp:80000, patk:220, pdef:27, breakHits:25, detectionRadius:0, attackRange:2.3, moveSpeed:0, expReward:0, goldReward:0, scale:2.2, color:0x4a4a5c, isBoss:true, isDummy:true }
+  DummyGoblinKing:{ name:'Dummy Goblin King', hp:80000, patk:220, pdef:27, breakHits:25, detectionRadius:0, attackRange:2.3, moveSpeed:0, expReward:0, goldReward:0, scale:2.2, color:0x4a4a5c, isBoss:true, isDummy:true },
+  DummyInfinite:{ name:'Dummy Uji Damage', hp:999999999, patk:0, pdef:0, breakHits:999999, detectionRadius:0, attackRange:1.7, moveSpeed:0, expReward:0, goldReward:0, scale:1.3, color:0xffcf4a, isDummy:true, isInfinite:true }
 };
 
 const DungeonData = {
@@ -939,6 +940,14 @@ class GameApp{
     document.getElementById('station-panel').style.display='none';
     document.getElementById('hud').style.display='block';
     document.getElementById('spawn-dummy-btn').style.display='none';
+    document.getElementById('reset-dpstest-btn').style.display='none';
+    // Belt-and-suspenders alongside the CSS: also clear the stage-banner text
+    // and the dummy-test timestamp directly, so a stale "Total Damage / DPS"
+    // readout (or "Musuh tersisa: X") can never linger into the lobby view.
+    document.getElementById('stage-banner').style.display='none';
+    document.getElementById('stage-banner-title').textContent='';
+    document.getElementById('stage-banner-sub').textContent='';
+    this.dpsTestStartTime = undefined;
     document.body.classList.add('lobby-mode');
     this.player.mesh.position.set(0,0,10);
     this.camYaw = 0; this.camPitch=0.32; this.camDist=8;
@@ -1356,6 +1365,11 @@ class GameApp{
         <div class="stage-info"><div class="stage-title">Dummy Goblin King</div><div class="stage-mobs">HP x2 dari Goblin King</div></div>
         <div class="stage-status">▶️</div>
       </div>
+      <div class="stage-row boss-row" data-dummy="infinite">
+        <div class="stage-num">♾️</div>
+        <div class="stage-info"><div class="stage-title">Dummy Uji Damage (HP Tak Terbatas)</div><div class="stage-mobs">Tidak pernah mati — dipakai khusus utk mengukur Total Damage &amp; DPS. Tekan 🔁 di HUD utk reset counter.</div></div>
+        <div class="stage-status">▶️</div>
+      </div>
       <div class="stage-row" data-dummy="custom">
         <div class="stage-num">⚙️</div>
         <div class="stage-info"><div class="stage-title">Custom Mode</div><div class="stage-mobs">Muncul tombol 🎯 di HUD — tekan utk spawn 1 Dummy Goblin + 1 Dummy Elite + 1 Dummy Boss di posisimu saat itu. Tombol hilang saat kembali ke Lobby.</div></div>
@@ -1384,6 +1398,12 @@ class GameApp{
     } else if(type==='boss1'){
       this.spawnEnemy('DummyGoblinKing', center.clone());
       document.getElementById('stage-banner-sub').textContent = 'Hancurkan Dummy Boss!';
+    } else if(type==='infinite'){
+      const inst = this.spawnEnemy('DummyInfinite', center.clone());
+      inst.totalDamage = 0;
+      this.dpsTestStartTime = this.clock.getElapsedTime();
+      document.getElementById('stage-banner-sub').textContent = 'Total Damage: 0 · DPS: 0';
+      document.getElementById('reset-dpstest-btn').style.display='flex';
     } else if(type==='custom'){
       document.getElementById('stage-banner-sub').textContent = 'Tekan tombol 🎯 utk spawn dummy di posisimu';
       document.getElementById('spawn-dummy-btn').style.display='flex';
@@ -1505,7 +1525,8 @@ class GameApp{
       dotTimer:0, dotDps:0, dotIsMagic:false, dotTick:0,
       burnStacks:[], burnTick:0,
       defShredTimer:0, defShredValue:0,
-      isBoss:!!d.isBoss, isElite:!!d.isElite, phase:1
+      isBoss:!!d.isBoss, isElite:!!d.isElite, phase:1,
+      totalDamage:0
     };
     this.enemies.push(inst);
     return inst;
@@ -1520,6 +1541,7 @@ class GameApp{
     this.setEnvironmentMode('dungeon');
     document.getElementById('stage-overlay').style.display='none';
     document.getElementById('spawn-dummy-btn').style.display='none';
+    document.getElementById('reset-dpstest-btn').style.display='none';
     this.clearEnemies();
     this.team.forEach(ch=>{
       ch.hp = ch.hpMax; ch.mana = ch.manaMax;
@@ -1690,6 +1712,16 @@ class GameApp{
 
     document.getElementById('spawn-dummy-btn').addEventListener('click', ()=>{
       if(this.stageActive && this.currentRun && this.currentRun.kind==='dummy' && this.currentRun.subtype==='custom') this.spawnCustomDummyTrio();
+    });
+
+    document.getElementById('reset-dpstest-btn').addEventListener('click', ()=>{
+      const dummy = this.enemies.find(e=> e.data && e.data.isInfinite);
+      if(dummy){
+        dummy.totalDamage = 0;
+        this.dpsTestStartTime = this.clock.getElapsedTime();
+        document.getElementById('stage-banner-sub').textContent = 'Total Damage: 0 · DPS: 0';
+        this.toast('Damage counter direset!');
+      }
     });
 
     // Joystick tracked by its own dedicated touch identifier too.
@@ -2148,7 +2180,13 @@ class GameApp{
     if(skillDef.executeBonus && target.hp/target.hpMax < 0.3) dmg *= (1+skillDef.executeBonus);
     dmg = Math.max(1, Math.round(dmg));
 
-    target.hp = Math.max(0, target.hp - dmg);
+    // Infinite damage-test dummy: never actually loses HP (and can't die) —
+    // instead every hit is tallied so Total Damage / DPS can be measured.
+    if(target.data.isInfinite){
+      target.totalDamage = (target.totalDamage||0) + dmg;
+    } else {
+      target.hp = Math.max(0, target.hp - dmg);
+    }
     if(target.state!=='break'){
       target.poise = Math.min(target.poiseMax, target.poise + 1);
       if(target.poise>=target.poiseMax && target.state!=='dead'){ this.triggerBreak(target); }
@@ -2163,7 +2201,7 @@ class GameApp{
     if(p.buffs.titanTimer>0) lifestealPct += p.buffs.titanLifesteal;
     if(lifestealPct>0){ this.healPlayer(dmg*lifestealPct, true); }
 
-    if(target.hp<=0 && target.state!=='dead'){ this.killEnemy(target); }
+    if(!target.data.isInfinite && target.hp<=0 && target.state!=='dead'){ this.killEnemy(target); }
   }
 
   applySkillDamage(skillDef, isBasic, slotForLevel){
@@ -2738,7 +2776,17 @@ class GameApp{
 
     if(e.state==='break'){
       e.breakTimer -= dt;
-      if(e.breakTimer<=0){ e.state='chase'; e.poise=0; document.getElementById('break-banner').style.opacity='0'; }
+      if(e.breakTimer<=0){
+        // Dummies (detectionRadius 0) must go back to idle, never chase —
+        // otherwise a dummy that gets Broken (poise filled, e.g. by an AOE
+        // skill like Tactician's Armor Break hitting it repeatedly) would
+        // unconditionally flip to 'chase' here and start attacking the
+        // player once the break timer runs out, even though it's supposed
+        // to never engage.
+        e.state = e.data.isDummy ? 'idle' : 'chase';
+        e.poise=0;
+        document.getElementById('break-banner').style.opacity='0';
+      }
       return;
     }
     if(e.stunTimer>0){ e.stunTimer -= dt; return; }
@@ -2939,6 +2987,18 @@ class GameApp{
       }
     });
     this.updateCooldownVisual('slot-dodge', p.dodgeCd, 2.5);
+
+    // Live Total Damage / DPS readout for the infinite damage-test dummy —
+    // keeps refreshing every frame while that run is active.
+    if(this.stageActive && this.currentRun && this.currentRun.kind==='dummy' && this.currentRun.subtype==='infinite'){
+      const dummy = this.enemies.find(e=> e.data && e.data.isInfinite);
+      if(dummy){
+        const elapsed = Math.max(0.001, this.clock.getElapsedTime() - (this.dpsTestStartTime!==undefined ? this.dpsTestStartTime : this.clock.getElapsedTime()));
+        const total = dummy.totalDamage||0;
+        const dps = total/elapsed;
+        document.getElementById('stage-banner-sub').textContent = `Total Damage: ${Math.round(total).toLocaleString('id-ID')} · DPS: ${Math.round(dps).toLocaleString('id-ID')}`;
+      }
+    }
   }
 
   // Advances every timer that belongs to a single character (cooldowns,

@@ -194,6 +194,24 @@
 
   #controls-hint{position:absolute; bottom:22px; left:50%; transform:translateX(-50%); font-size:10.5px; color:var(--text-dim); background:rgba(18,14,32,0.55); padding:6px 14px; border-radius:8px; letter-spacing:0.02em; text-align:center; max-width:560px;}
   #lobby-hint{display:none; position:absolute; bottom:22px; left:50%; transform:translateX(-50%); font-size:10.5px; color:var(--text-dim); background:rgba(18,14,32,0.55); padding:6px 14px; border-radius:8px; text-align:center;}
+
+  /* Combat-only HUD pieces (enemy frame, combo counter, break banner, the
+     stage banner used for both dungeon stages AND the dummy Total
+     Damage/DPS readout, controls hint, skill tooltip) must disappear the
+     moment the player is back in the Lobby — otherwise stale text (like a
+     leftover "Total Damage: X · DPS: Y" from a damage-test dummy run)
+     stays visible on screen after returning via the 🏠 button, since that
+     text is only ever updated while stageActive is true. */
+  body.lobby-mode #enemy-frame, body.lobby-mode #combo-counter, body.lobby-mode #break-banner,
+  body.lobby-mode #controls-hint, body.lobby-mode #stage-banner,
+  body.lobby-mode #skill-tooltip { display:none !important; }
+  body.lobby-mode #lobby-hint{ display:block; }
+  /* dodge/dash still works in the Lobby, so only hide the combat-only slots */
+  body.lobby-mode #slot-attack, body.lobby-mode #slot-skill1, body.lobby-mode #slot-skill2,
+  body.lobby-mode #slot-skill3, body.lobby-mode #slot-ultimate { display:none !important; }
+  body.lobby-mode #mbtn-attack, body.lobby-mode #mbtn-skill1, body.lobby-mode #mbtn-skill2,
+  body.lobby-mode #mbtn-skill3, body.lobby-mode #mbtn-ultimate { display:none !important; }
+
   @media (max-width:900px){
     #controls-hint{display:none;} #joystick-zone{display:block;} #mobile-buttons{display:grid !important;} #skill-bar{display:none;}
     /* per player feedback: keep top row compact, and push the enemy panel down
@@ -227,18 +245,35 @@
     #break-banner{top:auto; bottom:60px; font-size:14px;}
   }
 
-  body.lobby-mode #enemy-frame, body.lobby-mode #combo-counter, body.lobby-mode #break-banner,
-  body.lobby-mode #controls-hint, body.lobby-mode #stage-banner,
-  body.lobby-mode #skill-tooltip { display:none !important; }
-  body.lobby-mode #lobby-hint{ display:block; }
-  /* dodge/dash still works in the Lobby, so only hide the combat-only slots */
-  body.lobby-mode #slot-attack, body.lobby-mode #slot-skill1, body.lobby-mode #slot-skill2,
-  body.lobby-mode #slot-skill3, body.lobby-mode #slot-ultimate { display:none !important; }
-  body.lobby-mode #mbtn-attack, body.lobby-mode #mbtn-skill1, body.lobby-mode #mbtn-skill2,
-  body.lobby-mode #mbtn-skill3, body.lobby-mode #mbtn-ultimate { display:none !important; }
-
-  #mobile-buttons{position:absolute; bottom:20px; right:16px; display:none; grid-template-columns:repeat(3,50px); grid-template-rows:repeat(3,50px); gap:8px; touch-action:none;}
-  .mbtn{border-radius:50%; background:var(--bg-panel); box-shadow:var(--border-glow); display:flex; align-items:center; justify-content:center; font-size:10px; color:var(--gold-soft); pointer-events:all; text-align:center; line-height:1.1; touch-action:none;}
+  /* ===== Phone-sized class-select screen (portrait phones) =====
+     Separate, more aggressive breakpoint just for the pre-game class
+     picker: on real phone widths the 210px cards used to leave only one
+     per row with big gaps, and the header/hint text crowded the top.
+     This tightens spacing and switches to a 2-up (then 1-up on very
+     narrow phones) card grid so everything fits without horizontal
+     scrolling and stays comfortably tappable. */
+  @media (max-width:600px){
+    .fs-screen{ padding-top:22px; padding-bottom:28px; }
+    .fs-screen h1{ font-size:22px; letter-spacing:0.05em; }
+    .fs-screen .sub{ font-size:10.5px; margin-top:4px; margin-bottom:14px; letter-spacing:0.08em; }
+    #class-cards{ gap:10px; padding:0 10px; max-width:100%; }
+    .class-card{ width:calc(50% - 5px); min-width:132px; padding:12px 9px; border-radius:10px; }
+    .class-icon{ width:42px; height:42px; margin-bottom:8px; font-size:17px; }
+    .class-card h3{ font-size:12.5px; }
+    .class-card .role{ font-size:8.5px; margin-bottom:6px; letter-spacing:0.03em; }
+    .class-card .stat-row{ font-size:9px; padding:1px 0; }
+    .class-card .skill-list{ margin-top:6px; padding-top:6px; }
+    .class-card .skill-list div{ font-size:8px; padding:1.5px 0; gap:4px; }
+    .slot-badge{ font-size:7.5px; padding:2px 5px; top:5px; right:5px; }
+    .save-badge{ font-size:8.5px; padding:2px 6px; }
+    #team-slots-hint{ font-size:10px; margin-top:10px; }
+    #start-team-btn{ padding:10px 22px; font-size:12px; margin-top:10px; }
+    #start-hint{ font-size:9.5px; margin-top:14px; }
+    #reset-progress-btn{ font-size:9.5px !important; padding:8px 16px !important; margin-top:12px !important; }
+  }
+  @media (max-width:380px){
+    .class-card{ width:100%; }
+  }
 
   #level-up-fx{position:fixed; top:38%; left:50%; transform:translate(-50%,-50%); font-family:'Cinzel',serif; font-size:38px; color:var(--gold-soft); text-shadow:0 0 30px rgba(232,182,76,0.8); opacity:0; z-index:30; pointer-events:none; letter-spacing:0.1em;}
   @keyframes levelPop{0%{opacity:0; transform:translate(-50%,-50%) scale(0.6);} 20%{opacity:1; transform:translate(-50%,-50%) scale(1.08);} 75%{opacity:1;} 100%{opacity:0; transform:translate(-50%,-50%) scale(1);}}

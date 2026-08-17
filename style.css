@@ -245,6 +245,14 @@
     #break-banner{top:auto; bottom:60px; font-size:14px;}
   }
 
+  /* Mobile touch buttons (bottom-right thumb cluster): 3x3 grid, fixed
+     50x50 cells. This must stay absolutely positioned — without it the
+     buttons fall into normal document flow and stack as a plain vertical
+     list of tiny unsized text at the top-left of the screen instead of a
+     clean circular button grid pinned to the corner. */
+  #mobile-buttons{position:absolute; bottom:20px; right:16px; display:none; grid-template-columns:repeat(3,50px); grid-template-rows:repeat(3,50px); gap:8px; touch-action:none;}
+  .mbtn{border-radius:50%; background:var(--bg-panel); box-shadow:var(--border-glow); display:flex; align-items:center; justify-content:center; font-size:10px; color:var(--gold-soft); pointer-events:all; text-align:center; line-height:1.1; touch-action:none;}
+
   /* ===== Phone-sized class-select screen (portrait phones) =====
      Separate, more aggressive breakpoint just for the pre-game class
      picker: on real phone widths the 210px cards used to leave only one

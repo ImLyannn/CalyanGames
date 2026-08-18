@@ -49,15 +49,15 @@ const CharacterData = {
     ultimate:{name:'Earth Sunder', icon:'🌋', mult:4.2, isMagic:false, manaCost:75, cooldown:54, aoe:true, targetAoe:true, range:5.0, aoeRadius:4.5, effect:{type:'stun', duration:1.5}, selfBuff:{type:'titan', atkPct:0.1, hpPct:0.2, defPct:0.2, lifesteal:0.25, duration:12}, fx:{type:'shockwave', color:0xb5651d}, desc:'Damage besar area + Knockdown 1.5 detik. Berubah raksasa 1.5x selama 12 detik: +10% Damage, +20% Max HP, +20% Defense, +25% Lifesteal (self-buff, tidak transferable, stack dgn Iron Will).'}
   },
   Tactician: {
-    key:'Tactician', icon:'🎖️', role:'Physical Buffer / Support', color:0xd4a84f,
-    hp:620, mana:220, patk:32, magic:0, pdef:28, mdef:28, aspd:1.1, critRate:0.05, critDmg:1.5, moveSpeed:5.0,
-    growth:{hp:36, mana:14, patk:4, pdef:3, mdef:3},
-    basic:{name:'Command Strike', icon:'⚔️', mult:1.0, isMagic:false, range:4.5, fx:{type:'slash', color:0xd4a84f}},
+    key:'Tactician', icon:'🎖️', role:'Hybrid Bomber / Support', color:0xd4a84f,
+    hp:620, mana:220, patk:40, magic:40, pdef:28, mdef:28, aspd:1.1, critRate:0.05, critDmg:1.5, moveSpeed:5.0,
+    growth:{hp:36, mana:14, patk:5, magic:5, pdef:3, mdef:3},
+    basic:{name:'Bomb Toss', icon:'💣', mult:0.8, hybrid:true, aoe:true, aoeRadius:2.4, range:9, projectileSpeed:12, fx:{type:'bomb', color:0xd4a84f}, desc:'Melempar bola bom ke musuh terdekat — meledak di titik jatuhnya, memberikan damage Physical dan Magical secara bersamaan (mult 0.4 masing-masing).'},
     passive:{name:'Battle Formation', icon:'📯', desc:'Setiap kali Tactician memberikan buff kepada character lain, target mendapatkan +5% Attack selama 5 detik. Efek tidak dapat ditumpuk, tetapi durasi dapat diperbarui.'},
-    skill1:{name:'War Command', icon:'📣', mult:0, isMagic:false, manaCost:25, cooldown:8, targetAlly:true, selfBuff:{type:'physicalAttack', atkPct:0.20, duration:8}, fx:{type:'buff', color:0xffd76a}, desc:'Memberikan +20% Attack kepada character lain selama 8 detik.'},
-    skill2:{name:'Armor Break', icon:'🗡️', mult:1.3, isMagic:false, manaCost:22, cooldown:10, aoe:true, aoeRadius:4.5, effect:{type:'defShred', value:0.20, duration:5}, fx:{type:'slash', color:0xff8c4a}, desc:'Damage area + mengurangi Defense musuh 20% selama 5 detik.'},
-    skill3:{name:'Battle Focus', icon:'🎯', mult:0, isMagic:false, manaCost:35, cooldown:18, targetAlly:true, selfBuff:{type:'physicalBoost', atkPct:0.10, critRatePct:0.10, critDmgPct:0.15, duration:8}, fx:{type:'buff', color:0xffc857}, desc:'Memberikan +10% Attack, +10% Crit Rate, dan +15% Crit Damage selama 8 detik.'},
-    ultimate:{name:'Grand Strategy', icon:'🏳️', mult:2.8, isMagic:false, manaCost:75, cooldown:45, aoe:true, aoeRadius:5.5, targetAlly:true, selfBuff:{type:'commander', atkPct:0.15, critRatePct:0.15, penetrationPct:0.15, duration:12}, fx:{type:'banner', color:0xd4a84f}, desc:'Damage area + memberikan +15% Attack, +15% Crit Rate, dan +15% Physical Penetration selama 12 detik.'}
+    skill1:{name:'Focused Strike', icon:'🎯', mult:1.6, hybrid:true, manaCost:25, cooldown:16, range:6, targetAlly:true, selfBuff:{type:'hybridAtkShare', pct:0.15, duration:8}, fx:{type:'slash', color:0xd4a84f}, desc:'Damage Physical + Magical ke 1 musuh, dan memberikan 15% Hybrid Attack milik Tactician kepada rekan on-field selama 8 detik.'},
+    skill2:{name:'Weakpoint Strike', icon:'🗡️', mult:1.6, hybrid:true, manaCost:25, cooldown:16, range:6, targetAlly:true, selfBuff:{type:'hybridPenShare', pct:0.15, duration:8}, fx:{type:'slash', color:0xffcf6a}, desc:'Damage Physical + Magical ke 1 musuh, dan memberikan 15% Hybrid Penetration kepada rekan on-field selama 8 detik. Jika dipakai selagi efek Suppression Blast (Skill 3) masih aktif di musuh, penurunan Hybrid Defense dari Skill 3 meningkat jadi 30%.'},
+    skill3:{name:'Suppression Blast', icon:'💥', mult:1.1, hybrid:true, manaCost:32, cooldown:32, aoe:true, aoeRadius:4.5, effect:{type:'tacSuppress', slow:0.30, defShred:0.20, duration:8}, fx:{type:'shockwave', color:0xb5651d}, desc:'Damage Physical + Magical area, Slow 30%, dan menurunkan Hybrid Defense musuh 20% selama 8 detik (meningkat jadi 30% jika Skill 2 dipakai selagi efek ini masih aktif).'},
+    ultimate:{name:'Grand Strategy', icon:'🏳️', mult:2.2, hybrid:true, manaCost:80, cooldown:64, range:7, targetAlly:true, selfBuff:{type:'grandStrategyShare', atkSharePct:0.30, critRateSharePct:0.25, critDmgSharePct:0.10, duration:12}, fx:{type:'banner', color:0xd4a84f}, desc:'Memberikan kepada rekan on-field: 30% Hybrid Attack, 25% Crit Chance, dan 10% Crit Damage milik Tactician selama 12 detik.'}
   },
   Arcanist: {
     key:'Arcanist', icon:'🔮', role:'Magic Buffer / Support', color:0x9b6cff,
@@ -678,7 +678,15 @@ class GameApp{
         titanTimer:0, titanAtkPct:0, titanHpPct:0, titanDefPct:0, titanLifesteal:0, titanBonusHp:0,
         archerBoostTimer:0, archerBoostAtkPct:0, archerBoostCritRate:0, archerBoostCritDmg:0,
         supportTimer:0, supportAtkPct:0, supportMagicPct:0, supportCritRate:0, supportCritDmg:0, supportPenetration:0,
-        formationTimer:0, formationAtkPct:0, resonanceTimer:0, resonanceMagicPct:0 },
+        formationTimer:0, formationAtkPct:0, resonanceTimer:0, resonanceMagicPct:0,
+        // Tactician "stat-share" buffs — a flat amount computed from the
+        // Tactician's OWN stat at cast time (e.g. 15% of the Tactician's
+        // hybrid attack), not a percentage of the holder's own stat. Each
+        // has its own slot/timer so Skill 1, Skill 2, and the ultimate can
+        // all be active on the same ally at once instead of overwriting
+        // each other like the single shared `support*` slot above.
+        hybridAtkFlat:0, hybridAtkTimer:0, hybridPenFlat:0, hybridPenTimer:0,
+        hybridCritRateFlat:0, hybridCritRateTimer:0, hybridCritDmgFlat:0, hybridCritDmgTimer:0 },
       bulwarkCd:0, attackLock:0, regenTimer:0
     };
   }
@@ -1033,7 +1041,9 @@ class GameApp{
       }
       const effMult = s.def.mult>0 ? s.def.mult*(1+(s.level-1)*0.08) : 0;
       const atk = s.def.isMagic ? p.magic : p.patk;
-      const dmgText = effMult>0 ? Math.round(atk*effMult)+' dmg (dasar)' : 'Buff / Utility';
+      const dmgText = s.def.hybrid
+        ? (effMult>0 ? Math.round(p.patk*effMult)+' Phys + '+Math.round(p.magic*effMult)+' Magic (dasar)' : 'Buff / Utility')
+        : (effMult>0 ? Math.round(atk*effMult)+' dmg (dasar)' : 'Buff / Utility');
       const lvlText = s.isBasic ? '' : ` (Lv.${s.level})`;
       return `<div class="panel-row" style="flex-direction:column; align-items:stretch;">
         <div style="display:flex; justify-content:space-between;"><span class="prl">${s.def.icon} ${s.def.name}${lvlText}</span><span class="prr">${dmgText}</span></div>
@@ -1525,6 +1535,7 @@ class GameApp{
       dotTimer:0, dotDps:0, dotIsMagic:false, dotTick:0,
       burnStacks:[], burnTick:0,
       defShredTimer:0, defShredValue:0,
+      tacHybridDefShredTimer:0, tacHybridDefShredValue:0,
       isBoss:!!d.isBoss, isElite:!!d.isElite, phase:1,
       totalDamage:0
     };
@@ -1624,8 +1635,8 @@ class GameApp{
       if(!this.stageActive) return;
       if(e.code==='KeyE') this.trySkill('skill1');
       if(e.code==='KeyR') this.trySkill('skill2');
-      if(e.code==='KeyF') this.trySkill('skill3');
-      if(e.code==='KeyC') this.trySkill('ultimate');
+      if(e.code==='KeyT') this.trySkill('skill3');
+      if(e.code==='KeyF') this.trySkill('ultimate');
     });
     window.addEventListener('keyup', e=>{ this.keys[e.code]=false; });
 
@@ -2067,6 +2078,15 @@ class GameApp{
     else if(effect.type==='dot'){ e.dotTimer = Math.max(e.dotTimer, effect.duration); e.dotDps = effect.dps; e.dotIsMagic = !!effect.isMagic; }
     else if(effect.type==='burnStack'){ this.applyBurnStack(e, effect); }
     else if(effect.type==='defShred' || effect.type==='magicShred'){ e.defShredTimer = Math.max(e.defShredTimer, effect.duration); e.defShredValue = Math.max(e.defShredValue, effect.value); }
+    else if(effect.type==='tacSuppress'){
+      // Tactician's Suppression Blast: slow + its own dedicated Hybrid
+      // Defense shred (kept separate from the generic defShredValue field
+      // above so Weakpoint Strike's 20%->30% upgrade never fights with
+      // Armor Break/Mystic Rupture-style effects from other classes).
+      e.slowTimer = Math.max(e.slowTimer, effect.duration); e.slowValue = Math.max(e.slowValue, effect.slow);
+      e.tacHybridDefShredTimer = Math.max(e.tacHybridDefShredTimer||0, effect.duration);
+      e.tacHybridDefShredValue = Math.max(e.tacHybridDefShredValue||0, effect.defShred);
+    }
   }
 
   // Mage Fire Blast: each cast adds its own independently-timed burn stack
@@ -2133,6 +2153,32 @@ class GameApp{
       b.supportTimer = buff.duration; b.supportMagicPct = buff.magicPct; b.supportCritRate = buff.critRatePct; b.supportPenetration = buff.penetrationPct; b.supportAtkPct=0; b.supportCritDmg=0;
       this.toast('Mystic Dominion aktif'+who+'!');
     }
+    // ---- Tactician "stat-share" buffs: a FLAT bonus computed from the
+    // Tactician's own live stats at the moment of casting (this.player is
+    // still the Tactician here, since these only ever fire synchronously
+    // from within the Tactician's own skill cast) — not a percentage of
+    // the holder's own stat like the support* buffs above.
+    else if(buff.type==='hybridAtkShare'){
+      const casterHybridAtk = this.player.patk + this.player.magic;
+      b.hybridAtkFlat = Math.round(casterHybridAtk * buff.pct);
+      b.hybridAtkTimer = buff.duration;
+      this.toast('Hybrid Attack Share aktif'+who+'! (+'+b.hybridAtkFlat+')');
+    }
+    else if(buff.type==='hybridPenShare'){
+      b.hybridPenFlat = buff.pct;
+      b.hybridPenTimer = buff.duration;
+      this.toast('Hybrid Penetration aktif'+who+'!');
+    }
+    else if(buff.type==='grandStrategyShare'){
+      const casterHybridAtk = this.player.patk + this.player.magic;
+      b.hybridAtkFlat = Math.round(casterHybridAtk * buff.atkSharePct);
+      b.hybridAtkTimer = buff.duration;
+      b.hybridCritRateFlat = this.player.critRate * buff.critRateSharePct;
+      b.hybridCritRateTimer = buff.duration;
+      b.hybridCritDmgFlat = this.player.critDmg * buff.critDmgSharePct;
+      b.hybridCritDmgTimer = buff.duration;
+      this.toast('Grand Strategy aktif'+who+'!');
+    }
   }
 
   // War Command / Arcane Blessing (and their upgraded/ultimate versions) are
@@ -2147,7 +2193,23 @@ class GameApp{
     else if(this.classKey==='Arcanist'){ target.buffs.resonanceTimer = 5; target.buffs.resonanceMagicPct = 0.05; }
   }
 
+  // Tactician's hybrid:true skills deal Physical AND Magical damage at the
+  // same time — every call site just calls dealDamage() normally, and this
+  // wrapper transparently splits a hybrid hit into two real dealSingleHit
+  // calls (one isMagic:false using patk, one isMagic:true using magic, same
+  // mult each) so it works everywhere (basic attack, aoe, single-target,
+  // thrown projectiles) without touching every call site individually.
   dealDamage(target, skillDef){
+    if(skillDef.hybrid){
+      this.dealSingleHit(target, Object.assign({}, skillDef, {isMagic:false}));
+      if(target.state==='dead') return;
+      this.dealSingleHit(target, Object.assign({}, skillDef, {isMagic:true}));
+      return;
+    }
+    this.dealSingleHit(target, skillDef);
+  }
+
+  dealSingleHit(target, skillDef){
     const p = this.player, b = p.buffs;
     let atk = skillDef.isMagic ? p.magic : p.patk;
     let atkBonusPct = this.getSharedStat('atkPct');
@@ -2161,10 +2223,13 @@ class GameApp{
       if(b.formationTimer>0) atkBonusPct += (b.formationAtkPct||0);
     }
     atk *= (1+atkBonusPct);
+    // Tactician's stat-share flat bonus — a fixed number added on top,
+    // applying equally whether the holder's damage basis is patk or magic.
+    if(b.hybridAtkTimer>0) atk += b.hybridAtkFlat;
 
-    const effCrit = p.critRate + this.getSharedStat('critRate') + (b.archerBoostTimer>0 ? b.archerBoostCritRate : 0) + (b.supportTimer>0 ? (b.supportCritRate||0) : 0);
+    const effCrit = p.critRate + this.getSharedStat('critRate') + (b.archerBoostTimer>0 ? b.archerBoostCritRate : 0) + (b.supportTimer>0 ? (b.supportCritRate||0) : 0) + (b.hybridCritRateTimer>0 ? b.hybridCritRateFlat : 0);
     const isCrit = Math.random() < effCrit;
-    const effCritDmg = p.critDmg + this.getSharedStat('critDmg') + (b.archerBoostTimer>0 ? b.archerBoostCritDmg : 0) + (b.supportTimer>0 ? (b.supportCritDmg||0) : 0);
+    const effCritDmg = p.critDmg + this.getSharedStat('critDmg') + (b.archerBoostTimer>0 ? b.archerBoostCritDmg : 0) + (b.supportTimer>0 ? (b.supportCritDmg||0) : 0) + (b.hybridCritDmgTimer>0 ? b.hybridCritDmgFlat : 0);
     let critMult = isCrit ? effCritDmg : 1;
     if(this.classKey==='Assassin' && target.hp/target.hpMax < 0.5) critMult += (isCrit?0.2:0);
 
@@ -2172,8 +2237,10 @@ class GameApp{
     let effDef = target.pdef;
     if(skillDef.defShred) effDef *= (1-skillDef.defShred);
     if(target.defShredValue>0) effDef *= (1-target.defShredValue);
+    if(target.tacHybridDefShredValue>0) effDef *= (1-target.tacHybridDefShredValue);
     let totalPen = this.getSharedStat('penetration');
     if(b.supportTimer>0 && b.supportPenetration) totalPen += b.supportPenetration;
+    if(b.hybridPenTimer>0) totalPen += b.hybridPenFlat;
     if(totalPen>0) effDef *= (1-Math.min(0.9,totalPen));
     dmg *= (1 - defenseReduction(effDef));
     if(target.state==='break') dmg *= 1.25;
@@ -2526,7 +2593,40 @@ class GameApp{
     else if(this.classKey==='Tactician') p.attackLock = 0.25;
     else if(this.classKey==='Arcanist') p.attackLock = 0.25;
     if(this.classKey==='Mage'){ this.performArcaneBoltAttack(); }
+    else if(this.classKey==='Tactician'){ this.performTacticianBombAttack(); }
     else{ this.applySkillDamage(this.cdata.basic, true, null); }
+  }
+
+  // Tactician basic attack: throws a bomb that travels to the nearest enemy
+  // and only explodes — dealing hybrid Physical+Magical AOE damage — once it
+  // actually lands there (same "impact point, not caster" pattern used for
+  // Archer's Explosive Trap), instead of detonating around the Tactician.
+  performTacticianBombAttack(){
+    const p = this.player;
+    const skillDef = this.cdata.basic;
+    const range = skillDef.range || 9;
+    const target = this.getNearestEnemy(range);
+    if(!target) return;
+
+    const fromPos = p.mesh.position.clone().setY(1.1);
+    const toPos = target.mesh.position.clone().setY(1.0);
+    const dist = fromPos.distanceTo(toPos);
+    const travelSpeed = skillDef.projectileSpeed || 12;
+    const travelTime = Math.max(0.15, Math.min(0.6, dist/travelSpeed));
+
+    this.spawnFX(skillDef.fx, fromPos, toPos, travelTime);
+
+    setTimeout(()=>{
+      if(!this.stageActive) return;
+      this.spawnFX({type:'shockwave', color:0xffcf6a}, toPos.clone(), toPos.clone());
+      const radius = skillDef.aoeRadius || 2.4;
+      const hitTargets = this.enemies.filter(e=> e.state!=='dead' && toPos.distanceTo(e.mesh.position.clone().setY(1.0)) <= radius);
+      hitTargets.forEach(t=> this.dealDamage(t, skillDef));
+      if(hitTargets.length){
+        p.combo++; p.comboTimer = 2.2;
+        this.basicHitCount++;
+      }
+    }, travelTime*1000);
   }
 
   // Mage basic attack: throws a real traveling magic ball at the nearest enemy —
@@ -2578,6 +2678,12 @@ class GameApp{
     else if(s.thrownBomb){ this.performThrownBomb(s, slot); }
     else if(s.rainDrop){ this.performRainOfArrows(s, slot); }
     else{ this.applySkillDamage(s, false, slot); }
+    // Weakpoint Strike (Tactician Skill 2): if Suppression Blast's Hybrid
+    // Defense shred is still ticking on any enemy, upgrade it 20% -> 30%
+    // for the remainder of its duration.
+    if(this.classKey==='Tactician' && slot==='skill2'){
+      this.enemies.forEach(e=>{ if(e.tacHybridDefShredTimer>0) e.tacHybridDefShredValue = 0.30; });
+    }
   }
 
   // Assassin Shadow Dash: dash in the current movement-input direction
@@ -2792,6 +2898,7 @@ class GameApp{
     }
     if(e.slowTimer>0) e.slowTimer -= dt; else e.slowValue=0;
     if(e.defShredTimer>0){ e.defShredTimer -= dt; if(e.defShredTimer<=0) e.defShredValue=0; }
+    if(e.tacHybridDefShredTimer>0){ e.tacHybridDefShredTimer -= dt; if(e.tacHybridDefShredTimer<=0) e.tacHybridDefShredValue=0; }
 
     if(e.state==='break'){
       e.breakTimer -= dt;
@@ -2943,6 +3050,10 @@ class GameApp{
     if(p.buffs.supportTimer>0) icons.push(p.buffs.supportMagicPct>0 ? '🔮' : '🎖️');
     if(p.buffs.formationTimer>0) icons.push('📯');
     if(p.buffs.resonanceTimer>0) icons.push('✨');
+    if(p.buffs.hybridAtkTimer>0) icons.push('💪');
+    if(p.buffs.hybridPenTimer>0) icons.push('🔓');
+    if(p.buffs.hybridCritRateTimer>0) icons.push('🍀');
+    if(p.buffs.hybridCritDmgTimer>0) icons.push('☄️');
     // Shared/transferable buffs — shown regardless of who cast them, since
     // they belong to the team, not the character.
     this.sharedBuffs.forEach(b=> icons.push(b.icon));
@@ -2955,7 +3066,7 @@ class GameApp{
     if(e.slowTimer>0) chips.push(`<div class="status-chip slow">SLOW</div>`);
     if(e.dotTimer>0) chips.push(`<div class="status-chip dot">DOT</div>`);
     if(e.burnStacks && e.burnStacks.length) chips.push(`<div class="status-chip dot">BURN x${e.burnStacks.length}</div>`);
-    if(e.defShredTimer>0) chips.push(`<div class="status-chip shred">DEF-</div>`);
+    if(e.defShredTimer>0 || e.tacHybridDefShredTimer>0) chips.push(`<div class="status-chip shred">DEF-</div>`);
     document.getElementById('enemy-status-row').innerHTML = chips.join('');
   }
 
@@ -3114,6 +3225,10 @@ class GameApp{
     }
     if(b.formationTimer>0){ b.formationTimer -= dt; if(b.formationTimer<=0) b.formationAtkPct=0; }
     if(b.resonanceTimer>0){ b.resonanceTimer -= dt; if(b.resonanceTimer<=0) b.resonanceMagicPct=0; }
+    if(b.hybridAtkTimer>0){ b.hybridAtkTimer -= dt; if(b.hybridAtkTimer<=0) b.hybridAtkFlat=0; }
+    if(b.hybridPenTimer>0){ b.hybridPenTimer -= dt; if(b.hybridPenTimer<=0) b.hybridPenFlat=0; }
+    if(b.hybridCritRateTimer>0){ b.hybridCritRateTimer -= dt; if(b.hybridCritRateTimer<=0) b.hybridCritRateFlat=0; }
+    if(b.hybridCritDmgTimer>0){ b.hybridCritDmgTimer -= dt; if(b.hybridCritDmgTimer<=0) b.hybridCritDmgFlat=0; }
     const titanScale = b.titanTimer>0 ? 1.5 : 1.0;
     ch.mesh.scale.lerp(new THREE.Vector3(titanScale,titanScale,titanScale), Math.min(1, dt*3));
   }

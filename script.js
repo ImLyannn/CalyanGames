@@ -679,12 +679,6 @@ class GameApp{
         archerBoostTimer:0, archerBoostAtkPct:0, archerBoostCritRate:0, archerBoostCritDmg:0,
         supportTimer:0, supportAtkPct:0, supportMagicPct:0, supportCritRate:0, supportCritDmg:0, supportPenetration:0,
         formationTimer:0, formationAtkPct:0, resonanceTimer:0, resonanceMagicPct:0,
-        // Tactician "stat-share" buffs — a flat amount computed from the
-        // Tactician's OWN stat at cast time (e.g. 15% of the Tactician's
-        // hybrid attack), not a percentage of the holder's own stat. Each
-        // has its own slot/timer so Skill 1, Skill 2, and the ultimate can
-        // all be active on the same ally at once instead of overwriting
-        // each other like the single shared `support*` slot above.
         hybridAtkFlat:0, hybridAtkTimer:0, hybridPenFlat:0, hybridPenTimer:0,
         hybridCritRateFlat:0, hybridCritRateTimer:0, hybridCritDmgFlat:0, hybridCritDmgTimer:0 },
       bulwarkCd:0, attackLock:0, regenTimer:0
@@ -2078,16 +2072,7 @@ class GameApp{
     else if(effect.type==='dot'){ e.dotTimer = Math.max(e.dotTimer, effect.duration); e.dotDps = effect.dps; e.dotIsMagic = !!effect.isMagic; }
     else if(effect.type==='burnStack'){ this.applyBurnStack(e, effect); }
     else if(effect.type==='defShred' || effect.type==='magicShred'){ e.defShredTimer = Math.max(e.defShredTimer, effect.duration); e.defShredValue = Math.max(e.defShredValue, effect.value); }
-    else if(effect.type==='tacSuppress'){
-      // Tactician's Suppression Blast: slow + its own dedicated Hybrid
-      // Defense shred (kept separate from the generic defShredValue field
-      // above so Weakpoint Strike's 20%->30% upgrade never fights with
-      // Armor Break/Mystic Rupture-style effects from other classes).
-      e.slowTimer = Math.max(e.slowTimer, effect.duration); e.slowValue = Math.max(e.slowValue, effect.slow);
-      e.tacHybridDefShredTimer = Math.max(e.tacHybridDefShredTimer||0, effect.duration);
-      e.tacHybridDefShredValue = Math.max(e.tacHybridDefShredValue||0, effect.defShred);
-    }
-  }
+    else if(effect.type==='tacSuppress'){ e.slowTimer = Math.max(e.slowTimer, effect.duration); e.slowValue = Math.max(e.slowValue, effect.slow); e.tacHybridDefShredTimer = Math.max(e.tacHybridDefShredTimer||0, effect.duration); e.tacHybridDefShredValue = Math.max(e.tacHybridDefShredValue||0, effect.defShred); } }
 
   // Mage Fire Blast: each cast adds its own independently-timed burn stack
   // (up to maxStacks). Total burn DPS is the sum of all active stacks, so it
@@ -2153,11 +2138,6 @@ class GameApp{
       b.supportTimer = buff.duration; b.supportMagicPct = buff.magicPct; b.supportCritRate = buff.critRatePct; b.supportPenetration = buff.penetrationPct; b.supportAtkPct=0; b.supportCritDmg=0;
       this.toast('Mystic Dominion aktif'+who+'!');
     }
-    // ---- Tactician "stat-share" buffs: a FLAT bonus computed from the
-    // Tactician's own live stats at the moment of casting (this.player is
-    // still the Tactician here, since these only ever fire synchronously
-    // from within the Tactician's own skill cast) — not a percentage of
-    // the holder's own stat like the support* buffs above.
     else if(buff.type==='hybridAtkShare'){
       const casterHybridAtk = this.player.patk + this.player.magic;
       b.hybridAtkFlat = Math.round(casterHybridAtk * buff.pct);
@@ -2193,12 +2173,6 @@ class GameApp{
     else if(this.classKey==='Arcanist'){ target.buffs.resonanceTimer = 5; target.buffs.resonanceMagicPct = 0.05; }
   }
 
-  // Tactician's hybrid:true skills deal Physical AND Magical damage at the
-  // same time — every call site just calls dealDamage() normally, and this
-  // wrapper transparently splits a hybrid hit into two real dealSingleHit
-  // calls (one isMagic:false using patk, one isMagic:true using magic, same
-  // mult each) so it works everywhere (basic attack, aoe, single-target,
-  // thrown projectiles) without touching every call site individually.
   dealDamage(target, skillDef){
     if(skillDef.hybrid){
       this.dealSingleHit(target, Object.assign({}, skillDef, {isMagic:false}));
@@ -2678,9 +2652,6 @@ class GameApp{
     else if(s.thrownBomb){ this.performThrownBomb(s, slot); }
     else if(s.rainDrop){ this.performRainOfArrows(s, slot); }
     else{ this.applySkillDamage(s, false, slot); }
-    // Weakpoint Strike (Tactician Skill 2): if Suppression Blast's Hybrid
-    // Defense shred is still ticking on any enemy, upgrade it 20% -> 30%
-    // for the remainder of its duration.
     if(this.classKey==='Tactician' && slot==='skill2'){
       this.enemies.forEach(e=>{ if(e.tacHybridDefShredTimer>0) e.tacHybridDefShredValue = 0.30; });
     }

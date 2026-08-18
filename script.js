@@ -49,18 +49,18 @@ const CharacterData = {
     ultimate:{name:'Earth Sunder', icon:'🌋', mult:4.2, isMagic:false, manaCost:75, cooldown:54, aoe:true, targetAoe:true, range:5.0, aoeRadius:4.5, effect:{type:'stun', duration:1.5}, selfBuff:{type:'titan', atkPct:0.1, hpPct:0.2, defPct:0.2, lifesteal:0.25, duration:12}, fx:{type:'shockwave', color:0xb5651d}, desc:'Damage besar area + Knockdown 1.5 detik. Berubah raksasa 1.5x selama 12 detik: +10% Damage, +20% Max HP, +20% Defense, +25% Lifesteal (self-buff, tidak transferable, stack dgn Iron Will).'}
   },
   Tactician: {
-    key:'Tactician', icon:'🎖️', role:'Damage Buffer / Pennet', color:0xd4a84f,
-    hp:620, mana:220, patk:40, magic:40, pdef:28, mdef:28, aspd:1.1, critRate:0.05, critDmg:1.5, moveSpeed:5.0,
-    growth:{hp:36, mana:14, patk:5, magic:5, pdef:3, mdef:3},
-    basic:{name:'Bomb Toss', icon:'💣', mult:0.8, hybrid:true, aoe:true, aoeRadius:2.4, range:9, projectileSpeed:12, fx:{type:'bomb', color:0xd4a84f}, desc:'Melempar bola bom ke musuh terdekat — meledak di titik jatuhnya, memberikan damage Physical dan Magical secara bersamaan (mult 0.4 masing-masing).'},
+    key:'Tactician', icon:'🎖️', role:'Physical Buffer / Support', color:0xd4a84f,
+    hp:620, mana:220, patk:32, magic:0, pdef:28, mdef:28, aspd:1.1, critRate:0.05, critDmg:1.5, moveSpeed:5.0,
+    growth:{hp:36, mana:14, patk:4, pdef:3, mdef:3},
+    basic:{name:'Command Strike', icon:'⚔️', mult:1.0, isMagic:false, range:4.5, fx:{type:'slash', color:0xd4a84f}},
     passive:{name:'Battle Formation', icon:'📯', desc:'Setiap kali Tactician memberikan buff kepada character lain, target mendapatkan +5% Attack selama 5 detik. Efek tidak dapat ditumpuk, tetapi durasi dapat diperbarui.'},
-    skill1:{name:'Focused Strike', icon:'🎯', mult:1.6, hybrid:true, manaCost:25, cooldown:16, range:6, targetAlly:true, selfBuff:{type:'hybridAtkShare', pct:0.15, duration:8}, fx:{type:'slash', color:0xd4a84f}, desc:'Damage Physical + Magical ke 1 musuh, dan memberikan 15% Hybrid Attack milik Tactician kepada rekan on-field selama 8 detik.'},
-    skill2:{name:'Weakpoint Strike', icon:'🗡️', mult:1.6, hybrid:true, manaCost:25, cooldown:16, range:6, targetAlly:true, selfBuff:{type:'hybridPenShare', pct:0.15, duration:8}, fx:{type:'slash', color:0xffcf6a}, desc:'Damage Physical + Magical ke 1 musuh, dan memberikan 15% Hybrid Penetration kepada rekan on-field selama 8 detik. Jika dipakai selagi efek Suppression Blast (Skill 3) masih aktif di musuh, penurunan Hybrid Defense dari Skill 3 meningkat jadi 30%.'},
-    skill3:{name:'Suppression Blast', icon:'💥', mult:1.1, hybrid:true, manaCost:32, cooldown:32, aoe:true, aoeRadius:4.5, effect:{type:'tacSuppress', slow:0.30, defShred:0.20, duration:8}, fx:{type:'shockwave', color:0xb5651d}, desc:'Damage Physical + Magical area, Slow 30%, dan menurunkan Hybrid Defense musuh 20% selama 8 detik (meningkat jadi 30% jika Skill 2 dipakai selagi efek ini masih aktif).'},
-    ultimate:{name:'Grand Strategy', icon:'🏳️', mult:2.2, hybrid:true, manaCost:80, cooldown:64, range:7, targetAlly:true, selfBuff:{type:'grandStrategyShare', atkSharePct:0.30, critRateSharePct:0.25, critDmgSharePct:0.10, duration:12}, fx:{type:'banner', color:0xd4a84f}, desc:'Memberikan kepada rekan on-field: 30% Hybrid Attack, 25% Crit Chance, dan 10% Crit Damage milik Tactician selama 12 detik.'}
+    skill1:{name:'War Command', icon:'📣', mult:0, isMagic:false, manaCost:25, cooldown:8, targetAlly:true, selfBuff:{type:'physicalAttack', atkPct:0.20, duration:8}, fx:{type:'buff', color:0xffd76a}, desc:'Memberikan +20% Attack kepada character lain selama 8 detik.'},
+    skill2:{name:'Armor Break', icon:'🗡️', mult:1.3, isMagic:false, manaCost:22, cooldown:10, aoe:true, aoeRadius:4.5, effect:{type:'defShred', value:0.20, duration:5}, fx:{type:'slash', color:0xff8c4a}, desc:'Damage area + mengurangi Defense musuh 20% selama 5 detik.'},
+    skill3:{name:'Battle Focus', icon:'🎯', mult:0, isMagic:false, manaCost:35, cooldown:18, targetAlly:true, selfBuff:{type:'physicalBoost', atkPct:0.10, critRatePct:0.10, critDmgPct:0.15, duration:8}, fx:{type:'buff', color:0xffc857}, desc:'Memberikan +10% Attack, +10% Crit Rate, dan +15% Crit Damage selama 8 detik.'},
+    ultimate:{name:'Grand Strategy', icon:'🏳️', mult:2.8, isMagic:false, manaCost:75, cooldown:45, aoe:true, aoeRadius:5.5, targetAlly:true, selfBuff:{type:'commander', atkPct:0.15, critRatePct:0.15, penetrationPct:0.15, duration:12}, fx:{type:'banner', color:0xd4a84f}, desc:'Damage area + memberikan +15% Attack, +15% Crit Rate, dan +15% Physical Penetration selama 12 detik.'}
   },
   Arcanist: {
-    key:'Arcanist', icon:'🔮', role:'Cooldown Buffer / Debuffer', color:0x9b6cff,
+    key:'Arcanist', icon:'🔮', role:'Magic Buffer / Support', color:0x9b6cff,
     hp:580, mana:300, patk:15, magic:35, pdef:22, mdef:35, aspd:1.0, critRate:0.05, critDmg:1.5, moveSpeed:5.0,
     growth:{hp:32, mana:20, patk:2, magic:5, pdef:2, mdef:3},
     basic:{name:'Arcane Bolt', icon:'✨', mult:1.0, isMagic:true, range:6.5, fx:{type:'bolt', color:0xb98aff}},
@@ -69,28 +69,6 @@ const CharacterData = {
     skill2:{name:'Mystic Rupture', icon:'💥', mult:1.3, isMagic:true, manaCost:22, cooldown:10, aoe:true, aoeRadius:4.5, effect:{type:'magicShred', value:0.20, duration:5}, fx:{type:'magic', color:0xc58cff}, desc:'Damage area + mengurangi Magic Defense musuh 20% selama 5 detik.'},
     skill3:{name:'Arcane Focus', icon:'🌌', mult:0, isMagic:true, manaCost:35, cooldown:18, targetAlly:true, selfBuff:{type:'magicBoost', magicPct:0.10, critRatePct:0.10, critDmgPct:0.15, duration:8}, fx:{type:'buff', color:0x7fe0d0}, desc:'Memberikan +10% Magic Damage, +10% Crit Rate, dan +15% Crit Damage selama 8 detik.'},
     ultimate:{name:'Mystic Dominion', icon:'🌀', mult:2.8, isMagic:true, manaCost:75, cooldown:45, aoe:true, aoeRadius:5.5, targetAlly:true, selfBuff:{type:'mystic', magicPct:0.15, critRatePct:0.15, penetrationPct:0.15, duration:12}, fx:{type:'magic', color:0x9b6cff}, desc:'Damage area + memberikan +15% Magic Damage, +15% Crit Rate, dan +15% Magic Penetration selama 12 detik.'}
-  },
-  Wrestler: {
-    key:'Wrestler', icon:'🤼', role:'Melee DPS / Attack Speed', color:0xd9824b,
-    hp:700, mana:150, patk:42, magic:0, pdef:32, mdef:25, aspd:1.5, critRate:0.08, critDmg:1.5, moveSpeed:5.2,
-    growth:{hp:40, mana:10, patk:6, pdef:3, mdef:2},
-    basic:{name:'Heavy Fist', icon:'👊', mult:0.95, isMagic:false, aoe:true, aoeRadius:2.2, fx:{type:'punch', color:0xd9824b}},
-    passive:{name:'Momentum', icon:'🔥', desc:'Setiap Basic Attack yang mengenai musuh memberikan 1 stack Momentum selama 4 detik. Setiap stack memberikan +5% Attack Speed. Maksimal 4 stack. Stack diperbarui saat menyerang.'},
-    skill1:{name:'Power Slam', icon:'💥', mult:1.7, isMagic:false, manaCost:18, cooldown:5, aoe:true, aoeRadius:3.0, effect:{type:'stun', duration:0.8}, fx:{type:'shockwave', color:0xe8a15b}, desc:'Menghantam musuh dengan kuat, memberikan damage area + Stun 0.8 detik.'},
-    skill2:{name:'Rapid Combo', icon:'🥊', mult:0.55, isMagic:false, manaCost:25, cooldown:7, hits:3, aoe:true, aoeRadius:2.5, fx:{type:'punch', color:0xffb15c}, desc:'Melakukan 3 pukulan cepat, masing-masing memberikan 0.55x Attack Damage.'},
-    skill3:{name:'Adrenaline Rush', icon:'💪', mult:0, isMagic:false, manaCost:30, cooldown:18, selfBuff:{type:'adrenaline', atkPct:0.15, aspdPct:0.25, lifesteal:0.10, duration:8}, fx:{type:'buff', color:0xff6b4a}, desc:'Meningkatkan +15% Attack, +25% Attack Speed, dan +10% Lifesteal selama 8 detik.'},
-    ultimate:{name:'Final Grapple', icon:'🤼', mult:3.8, isMagic:false, manaCost:75, cooldown:38, aoe:true, aoeRadius:3.5, effect:{type:'stun', duration:1.5}, selfBuff:{type:'wrestlerRage', atkPct:0.20, aspdPct:0.30, lifesteal:0.15, duration:10}, fx:{type:'shockwave', color:0xd94f3d}, desc:'Serangan grappling besar ke area + Stun 1.5 detik. Setelahnya mendapatkan +20% Attack, +30% Attack Speed, dan +15% Lifesteal selama 10 detik.'}
-  },
-  Necromancer: {
-    key:'Necromancer', icon:'💀', role:'Magic DPS / Summoner', color:0x7b5bb5,
-    hp:540, mana:320, patk:15, magic:42, pdef:20, mdef:32, aspd:0.9, critRate:0.05, critDmg:1.5, moveSpeed:4.9,
-    growth:{hp:32, mana:24, patk:2, magic:6, pdef:2, mdef:3},
-    basic:{name:'Soul Bolt', icon:'👻', mult:1.0, isMagic:true, range:7.0, fx:{type:'bolt', color:0x9b7bd4}},
-    passive:{name:'Dark Pact', icon:'☠️', desc:'Setiap summon yang masih hidup meningkatkan Magic Damage Necromancer sebesar 4%. Maksimal 3 summon aktif.'},
-    skill1:{name:'Soul Drain', icon:'🩸', mult:1.5, isMagic:true, manaCost:22, cooldown:5, range:7.0, effect:{type:'lifesteal', value:0.15}, fx:{type:'dark', color:0x8f5ac7}, desc:'Menyerang musuh dengan energi gelap dan memulihkan 15% dari damage yang diberikan sebagai HP.'},
-    skill2:{name:'Raise Skeleton', icon:'💀', mult:0, isMagic:true, manaCost:40, cooldown:10, summon:{type:'skeleton', count:1, maxActive:3, duration:18}, fx:{type:'summon', color:0x8060a8}, desc:'Memanggil 1 Skeleton untuk membantu menyerang musuh. Maksimal 3 summon aktif.'},
-    skill3:{name:'Grave Curse', icon:'🪦', mult:1.4, isMagic:true, manaCost:35, cooldown:12, aoe:true, aoeRadius:4.5, effect:{type:'magicShred', value:0.15, duration:5}, fx:{type:'dark', color:0x665080}, desc:'Memberikan damage area + mengurangi Magic Defense musuh 15% selama 5 detik.'},
-    ultimate:{name:'Army of the Dead', icon:'☠️', mult:2.8, isMagic:true, manaCost:90, cooldown:48, aoe:true, aoeRadius:5.5, summon:{type:'skeleton', count:3, maxActive:3, duration:20}, effect:{type:'slow', value:0.3, duration:3}, fx:{type:'summon', color:0x593b78}, desc:'Memberikan damage area + Slow 30% selama 3 detik dan memanggil pasukan Skeleton hingga maksimal 3 summon aktif selama 20 detik.'}
   }
 };
 
@@ -198,7 +176,7 @@ const SKILL_UPGRADE_COST = {
   5:{gold:2500, book:4, ess:8}, 6:{gold:4000, book:5, ess:10}, 7:{gold:6500, book:6, ess:12},
   8:{gold:9500, book:8, ess:15}, 9:{gold:14000, book:10, ess:18}, 10:{gold:20000, book:12, ess:25}
 };
-const CLASS_ESSENCE = {Mage:'Magic Essence', Archer:'Arrow Emblem', Assassin:'Shadow Core', Fighter:'War Medal', Tactician:'Command Insignia', Arcanist:'Mystic Rune', Necromancer:'Bone Fragment'};
+const CLASS_ESSENCE = {Mage:'Magic Essence', Archer:'Arrow Emblem', Assassin:'Shadow Core', Fighter:'War Medal', Tactician:'Command Insignia', Arcanist:'Mystic Rune'};
 // Skills unlock as the player levels up (Lv1 has none), and each further
 // skill-level upgrade needs its own player-level gate: unlock + (skillLevel-1).
 const UNLOCK_LEVEL = {skill1:2, skill2:4, skill3:7, ultimate:10};
@@ -422,7 +400,6 @@ class GameApp{
     this.basicHitCount = 0;
     this.enemies = [];
     this.fxList = [];
-    this.summons = [];
     this.stageActive = false;
     this.inLobby = false;
     this.panelOpen = false;
@@ -697,17 +674,10 @@ class GameApp{
       // still personal to whoever is holding it, just applied by someone else.
       // formation/resonance are the small automatic passive bonus that comes
       // along for the ride whenever that ally-buff is cast.
-      // momentumStacks/rage* power the Wrestler's Momentum passive and its
-      // Adrenaline Rush / Final Grapple self-buffs — same "personal, never
-      // transferred" rule applies.
       buffs:{ shield:0, hasteMult:1, hasteTimer:0, defMult:1, defTimer:0, lifestealPct:0, lifestealTimer:0,
         titanTimer:0, titanAtkPct:0, titanHpPct:0, titanDefPct:0, titanLifesteal:0, titanBonusHp:0,
         archerBoostTimer:0, archerBoostAtkPct:0, archerBoostCritRate:0, archerBoostCritDmg:0,
         supportTimer:0, supportAtkPct:0, supportMagicPct:0, supportCritRate:0, supportCritDmg:0, supportPenetration:0,
-        formationTimer:0, formationAtkPct:0, resonanceTimer:0, resonanceMagicPct:0,
-        hybridAtkFlat:0, hybridAtkTimer:0, hybridPenFlat:0, hybridPenTimer:0,
-        hybridCritRateFlat:0, hybridCritRateTimer:0, hybridCritDmgFlat:0, hybridCritDmgTimer:0,
-        momentumStacks:[], rageTimer:0, rageAtkPct:0, rageAspdPct:0, rageLifesteal:0,
         formationTimer:0, formationAtkPct:0, resonanceTimer:0, resonanceMagicPct:0 },
       bulwarkCd:0, attackLock:0, regenTimer:0
     };
@@ -831,117 +801,6 @@ class GameApp{
   tickSharedBuffs(dt){
     this.sharedBuffs.forEach(b=> b.timeLeft -= dt);
     this.sharedBuffs = this.sharedBuffs.filter(b=> b.timeLeft>0);
-  }
-
-  // ---------------- SUMMONS (Necromancer skeletons) ----------------
-  // Summons live at the team level (like sharedBuffs) so they keep fighting
-  // and their duration keeps ticking down no matter which character is
-  // currently active. Each summon tracks who raised it (ownerClassKey) so
-  // maxActive is enforced per-caster and the Dark Pact passive only counts
-  // the Necromancer's own skeletons.
-  castSummon(def){
-    const p = this.player;
-    const owner = this.classKey;
-    const maxActive = def.maxActive || 3;
-    let toSpawn = def.count || 1;
-    // make room by retiring the oldest summon(s) from this owner first
-    let ownedIdx = this.summons.map((s,i)=>({s,i})).filter(o=>o.s.ownerClassKey===owner);
-    while(ownedIdx.length + toSpawn > maxActive && ownedIdx.length>0){
-      const victim = ownedIdx.shift();
-      this.removeSummonAt(this.summons.indexOf(victim.s));
-      ownedIdx = this.summons.map((s,i)=>({s,i})).filter(o=>o.s.ownerClassKey===owner);
-    }
-    const room = Math.max(0, maxActive - this.summons.filter(s=>s.ownerClassKey===owner).length);
-    toSpawn = Math.min(toSpawn, room);
-    for(let i=0;i<toSpawn;i++){
-      const angle = (i/Math.max(1,toSpawn))*Math.PI*2 + Math.random()*0.6;
-      const pos = p.mesh.position.clone().add(new THREE.Vector3(Math.cos(angle)*1.9,0,Math.sin(angle)*1.9));
-      this.spawnSummon(def.type, pos, def.duration||15, owner);
-    }
-    if(toSpawn>0) this.toast(`${toSpawn} Skeleton dibangkitkan dari kegelapan!`);
-    else this.toast('Summon sudah maksimal!');
-  }
-  spawnSummon(type, pos, duration, ownerClassKey){
-    const g = new THREE.Group();
-    const bodyMat = new THREE.MeshStandardMaterial({color:0xe8e2d0, roughness:0.7, emissive:0x3a2a5c, emissiveIntensity:0.35});
-    const body = new THREE.Mesh(new THREE.CylinderGeometry(0.19,0.23,0.7,6), bodyMat);
-    body.position.y=0.46;
-    const head = new THREE.Mesh(new THREE.SphereGeometry(0.18,10,10), new THREE.MeshStandardMaterial({color:0xf0ecd8, roughness:0.6}));
-    head.position.y=0.92;
-    const eyeGlow = new THREE.PointLight(0x9b7bd4, 0.85, 2.5);
-    eyeGlow.position.y=0.95;
-    g.add(body, head, eyeGlow);
-    g.position.copy(pos);
-    g.scale.setScalar(0.001);
-    this.scene.add(g);
-    const magicRef = this.player.magic || 30;
-    const inst = {
-      mesh:g, type, ownerClassKey, timeLeft:duration, totalDuration:duration,
-      atk: Math.round(magicRef*0.5), atkTimer:0.4, atkInterval:1.5, range:6.0, moveSpeed:4.3, spawnAnim:0.3
-    };
-    this.summons.push(inst);
-    this.spawnFX({type:'summon', color:0x8060a8}, pos.clone(), pos.clone());
-    return inst;
-  }
-  removeSummonAt(idx){
-    if(idx<0 || idx>=this.summons.length) return;
-    const s = this.summons[idx];
-    this.scene.remove(s.mesh);
-    const disposeObj=(o)=>{ if(o.geometry) o.geometry.dispose(); if(o.material) o.material.dispose(); if(o.children) o.children.forEach(disposeObj); };
-    disposeObj(s.mesh);
-    this.summons.splice(idx,1);
-  }
-  clearSummons(){
-    for(let i=this.summons.length-1;i>=0;i--) this.removeSummonAt(i);
-  }
-  getNearestEnemyFromPos(pos, maxDist){
-    let best=null, bd=Infinity;
-    for(const e of this.enemies){
-      if(e.state==='dead') continue;
-      const d = pos.distanceTo(e.mesh.position);
-      if(d<bd){ bd=d; best=e; }
-    }
-    if(best && (maxDist===undefined || bd<=maxDist)) return best;
-    return null;
-  }
-  summonAttack(s, target){
-    const dmg = Math.max(1, Math.round(s.atk * (1 - defenseReduction(target.pdef))));
-    if(target.data.isInfinite){ target.totalDamage = (target.totalDamage||0) + dmg; }
-    else { target.hp = Math.max(0, target.hp - dmg); }
-    if(target.state!=='break'){
-      target.poise = Math.min(target.poiseMax, target.poise + 1);
-      if(target.poise>=target.poiseMax && target.state!=='dead'){ this.triggerBreak(target); }
-    }
-    target.hitCooldown = 3;
-    const above = target.mesh.position.clone(); above.y += 1.3*(target.data.scale||1);
-    this.spawnDamageNumber(above, dmg, 'magic');
-    this.spawnFX({type:'dark', color:0x9b7bd4}, s.mesh.position.clone().setY(1.0), target.mesh.position.clone().setY(1.0));
-    if(!target.data.isInfinite && target.hp<=0 && target.state!=='dead'){ this.killEnemy(target); }
-  }
-  updateSummons(dt){
-    for(let i=this.summons.length-1;i>=0;i--){
-      const s = this.summons[i];
-      s.timeLeft -= dt;
-      if(s.spawnAnim>0){ s.spawnAnim = Math.max(0, s.spawnAnim-dt); }
-      const growScale = 1 - (s.spawnAnim/0.3);
-      s.mesh.scale.setScalar(Math.max(0.05, Math.min(1, growScale)));
-      // flicker/fade warning right before a summon expires
-      const fadeIn = Math.max(0, s.timeLeft);
-      s.mesh.visible = (fadeIn>1.2) || (Math.floor(fadeIn*8)%2===0);
-      if(s.timeLeft<=0){ this.removeSummonAt(i); continue; }
-      if(!this.stageActive && !this.inLobby) continue;
-      const target = this.getNearestEnemyFromPos(s.mesh.position, s.range);
-      if(!target) continue;
-      const dist = s.mesh.position.distanceTo(target.mesh.position);
-      if(dist > 1.5){
-        const dir = new THREE.Vector3().subVectors(target.mesh.position, s.mesh.position).normalize();
-        s.mesh.position.addScaledVector(dir, s.moveSpeed*dt);
-        s.mesh.lookAt(target.mesh.position.x, s.mesh.position.y, target.mesh.position.z);
-      } else {
-        s.atkTimer -= dt;
-        if(s.atkTimer<=0){ s.atkTimer = s.atkInterval; this.summonAttack(s, target); }
-      }
-    }
   }
 
   // ---------------- SAVE / LOAD ----------------
@@ -1069,13 +928,11 @@ class GameApp{
     this.panelOpen = false;
     this.currentRun = null;
     this.clearEnemies();
-    this.clearSummons();
     this.setEnvironmentMode('lobby');
     this.team.forEach(ch=>{
       if(ch.buffs.titanTimer>0){ ch.hpMax -= (ch.buffs.titanBonusHp||0); ch.hp = Math.min(ch.hp, ch.hpMax); }
       ch.buffs.titanTimer=0; ch.buffs.titanBonusHp=0; ch.buffs.titanAtkPct=0; ch.buffs.titanHpPct=0; ch.buffs.titanDefPct=0; ch.buffs.titanLifesteal=0;
       ch.buffs.archerBoostTimer=0; ch.buffs.archerBoostAtkPct=0; ch.buffs.archerBoostCritRate=0; ch.buffs.archerBoostCritDmg=0;
-      ch.buffs.momentumStacks=[]; ch.buffs.rageTimer=0; ch.buffs.rageAtkPct=0; ch.buffs.rageAspdPct=0; ch.buffs.rageLifesteal=0;
       ch.mesh.scale.set(1,1,1);
     });
     this.sharedBuffs = [];
@@ -1157,14 +1014,14 @@ class GameApp{
       <div class="panel-row"><span class="prl">Magic Power</span><span class="prr">${p.magic}</span></div>
       <div class="panel-row"><span class="prl">Physical Defense</span><span class="prr">${p.pdef}</span></div>
       <div class="panel-row"><span class="prl">Magic Defense</span><span class="prr">${p.mdef}</span></div>
-      <div class="panel-row"><span class="prl">Attack Speed</span><span class="prr">${this.getEffAspd().toFixed(2)}/s</span></div>
+      <div class="panel-row"><span class="prl">Attack Speed</span><span class="prr">${p.aspd.toFixed(2)}/s</span></div>
       <div class="panel-row"><span class="prl">Critical Rate</span><span class="prr">${Math.round(p.critRate*100)}%</span></div>
       <div class="panel-row"><span class="prl">Critical Damage</span><span class="prr">${Math.round(p.critDmg*100)}%</span></div>
       <div class="panel-row"><span class="prl">Move Speed</span><span class="prr">${p.moveSpeed.toFixed(2)}</span></div>
       <div class="panel-row"><span class="prl">Cooldown Reduction</span><span class="prr">${Math.round(p.cdr*100)}%</span></div>
     `;
     const slots = [
-      {def:c.basic, slot:null, level:1, isBasic:true, cooldown:(1/this.getEffAspd())},
+      {def:c.basic, slot:null, level:1, isBasic:true, cooldown:(1/p.aspd)},
       {def:c.skill1, slot:'skill1', level:p.skillLevels.skill1, cooldown:this.getEffCooldown(c.skill1.cooldown)},
       {def:c.skill2, slot:'skill2', level:p.skillLevels.skill2, cooldown:this.getEffCooldown(c.skill2.cooldown)},
       {def:c.skill3, slot:'skill3', level:p.skillLevels.skill3, cooldown:this.getEffCooldown(c.skill3.cooldown)},
@@ -1176,9 +1033,7 @@ class GameApp{
       }
       const effMult = s.def.mult>0 ? s.def.mult*(1+(s.level-1)*0.08) : 0;
       const atk = s.def.isMagic ? p.magic : p.patk;
-      const dmgText = s.def.hybrid
-        ? (effMult>0 ? Math.round(p.patk*effMult)+' Phys + '+Math.round(p.magic*effMult)+' Magic (dasar)' : 'Buff / Utility')
-        : (effMult>0 ? Math.round(atk*effMult)+' dmg (dasar)' : 'Buff / Utility');
+      const dmgText = effMult>0 ? Math.round(atk*effMult)+' dmg (dasar)' : 'Buff / Utility';
       const lvlText = s.isBasic ? '' : ` (Lv.${s.level})`;
       return `<div class="panel-row" style="flex-direction:column; align-items:stretch;">
         <div style="display:flex; justify-content:space-between;"><span class="prl">${s.def.icon} ${s.def.name}${lvlText}</span><span class="prr">${dmgText}</span></div>
@@ -1670,7 +1525,6 @@ class GameApp{
       dotTimer:0, dotDps:0, dotIsMagic:false, dotTick:0,
       burnStacks:[], burnTick:0,
       defShredTimer:0, defShredValue:0,
-      tacHybridDefShredTimer:0, tacHybridDefShredValue:0,
       isBoss:!!d.isBoss, isElite:!!d.isElite, phase:1,
       totalDamage:0
     };
@@ -1689,14 +1543,12 @@ class GameApp{
     document.getElementById('spawn-dummy-btn').style.display='none';
     document.getElementById('reset-dpstest-btn').style.display='none';
     this.clearEnemies();
-    this.clearSummons();
     this.team.forEach(ch=>{
       ch.hp = ch.hpMax; ch.mana = ch.manaMax;
       ch.buffs.shield=0; ch.buffs.hasteTimer=0; ch.buffs.defTimer=0; ch.buffs.lifestealTimer=0;
       if(ch.buffs.titanTimer>0){ ch.hpMax -= (ch.buffs.titanBonusHp||0); ch.hp = Math.min(ch.hp, ch.hpMax); }
       ch.buffs.titanTimer=0; ch.buffs.titanBonusHp=0; ch.buffs.titanAtkPct=0; ch.buffs.titanHpPct=0; ch.buffs.titanDefPct=0; ch.buffs.titanLifesteal=0;
       ch.buffs.archerBoostTimer=0; ch.buffs.archerBoostAtkPct=0; ch.buffs.archerBoostCritRate=0; ch.buffs.archerBoostCritDmg=0;
-      ch.buffs.momentumStacks=[]; ch.buffs.rageTimer=0; ch.buffs.rageAtkPct=0; ch.buffs.rageAspdPct=0; ch.buffs.rageLifesteal=0;
       ch.mesh.scale.set(1,1,1);
     });
     this.sharedBuffs = [];
@@ -1770,9 +1622,9 @@ class GameApp{
       if(e.code==='Space' && (this.stageActive||this.inLobby) && !this.panelOpen) this.tryDodge();
       if(e.code==='KeyQ' && (this.stageActive||this.inLobby) && !this.panelOpen) this.swapCharacter();
       if(!this.stageActive) return;
-      if(e.code==='KeyE') this.trySkill('skill1');
-      if(e.code==='KeyR') this.trySkill('skill2');
-      if(e.code==='KeyT') this.trySkill('skill3');
+      if(e.code==='Digit1') this.trySkill('skill1');
+      if(e.code==='Digit2') this.trySkill('skill2');
+      if(e.code==='Digit3') this.trySkill('skill3');
       if(e.code==='KeyF') this.trySkill('ultimate');
     });
     window.addEventListener('keyup', e=>{ this.keys[e.code]=false; });
@@ -2127,70 +1979,6 @@ class GameApp{
         life=0.55; kind='burst'; scaleFrom=0.5; scaleTo=1.8; baseOpacity=0.7;
         break;
       }
-      case 'punch': {
-        // Wrestler impact FX: a compact starburst of knuckle-shaped spikes
-        // radiating from the hit point, punchy and quick — reused for both
-        // Heavy Fist and Rapid Combo so every hit reads as a solid impact.
-        const grp = new THREE.Group();
-        const ring = new THREE.Mesh(new THREE.RingGeometry(0.14,0.42,16), new THREE.MeshBasicMaterial({color, transparent:true, opacity:0.9, side:THREE.DoubleSide}));
-        grp.add(ring);
-        const spikeCount = 5;
-        for(let i=0;i<spikeCount;i++){
-          const spike = new THREE.Mesh(new THREE.ConeGeometry(0.08,0.32,4), new THREE.MeshBasicMaterial({color:0xffdca6, transparent:true, opacity:0.9}));
-          const ang = (i/spikeCount)*Math.PI*2 + Math.random()*0.3;
-          spike.position.set(Math.cos(ang)*0.32, 0, Math.sin(ang)*0.32);
-          spike.rotation.z = Math.PI/2;
-          spike.rotation.y = -ang;
-          grp.add(spike);
-        }
-        grp.position.copy(toP);
-        mesh = grp;
-        life=0.22; kind='burst'; scaleFrom=0.35; scaleTo=1.3; baseOpacity=0.9;
-        break;
-      }
-
-      case 'dark': {
-        // Necromancer dark-magic hit — a swirling void orb with a thin
-        // rotating wisp ring and a faint purple after-glow.
-        const grp = new THREE.Group();
-        const orb = new THREE.Mesh(new THREE.SphereGeometry(0.42,14,14), new THREE.MeshBasicMaterial({color, transparent:true, opacity:0.8}));
-        grp.add(orb);
-        const core = new THREE.Mesh(new THREE.SphereGeometry(0.18,10,10), new THREE.MeshBasicMaterial({color:0x1c0e30, transparent:true, opacity:0.9}));
-        grp.add(core);
-        const wisp = new THREE.Mesh(new THREE.TorusGeometry(0.38,0.035,6,18), new THREE.MeshBasicMaterial({color:0x3a1f5c, transparent:true, opacity:0.65}));
-        wisp.rotation.x = Math.PI/2.2;
-        grp.add(wisp);
-        const glow = new THREE.PointLight(color, 0.9, 3.5);
-        grp.add(glow);
-        grp.position.copy(toP); grp.position.y = 1.0;
-        mesh = grp;
-        life=0.42; kind='burst'; scaleFrom=0.35; scaleTo=1.5; spin=true; baseOpacity=0.8;
-        break;
-      }
-      case 'summon': {
-        // Necromancer summoning circle — a glowing ground rune with orbiting
-        // sparks and rising purple wisps, marking where a skeleton rose up.
-        const grp = new THREE.Group();
-        const ring = new THREE.Mesh(new THREE.RingGeometry(0.18,0.7,32), new THREE.MeshBasicMaterial({color, transparent:true, opacity:0.85, side:THREE.DoubleSide}));
-        ring.rotation.x=-Math.PI/2;
-        grp.add(ring);
-        const ring2 = new THREE.Mesh(new THREE.RingGeometry(0.75,0.85,32), new THREE.MeshBasicMaterial({color:0x593b78, transparent:true, opacity:0.55, side:THREE.DoubleSide}));
-        ring2.rotation.x=-Math.PI/2;
-        grp.add(ring2);
-        for(let i=0;i<6;i++){
-          const spark = new THREE.Mesh(new THREE.SphereGeometry(0.045,6,6), new THREE.MeshBasicMaterial({color:0xb98aff, transparent:true, opacity:0.9}));
-          const ang=(i/6)*Math.PI*2;
-          spark.position.set(Math.cos(ang)*0.55,0.4,Math.sin(ang)*0.55);
-          grp.add(spark);
-        }
-        const glow = new THREE.PointLight(color, 1.0, 4);
-        glow.position.y=0.4;
-        grp.add(glow);
-        grp.position.copy(toP); grp.position.y=0.05;
-        mesh = grp;
-        life=0.75; kind='burst'; scaleFrom=0.25; scaleTo=1.7; spin=true; baseOpacity=0.85;
-        break;
-      }
       default: return;
     }
     this.scene.add(mesh);
@@ -2279,7 +2067,7 @@ class GameApp{
     else if(effect.type==='dot'){ e.dotTimer = Math.max(e.dotTimer, effect.duration); e.dotDps = effect.dps; e.dotIsMagic = !!effect.isMagic; }
     else if(effect.type==='burnStack'){ this.applyBurnStack(e, effect); }
     else if(effect.type==='defShred' || effect.type==='magicShred'){ e.defShredTimer = Math.max(e.defShredTimer, effect.duration); e.defShredValue = Math.max(e.defShredValue, effect.value); }
-    else if(effect.type==='tacSuppress'){ e.slowTimer = Math.max(e.slowTimer, effect.duration); e.slowValue = Math.max(e.slowValue, effect.slow); e.tacHybridDefShredTimer = Math.max(e.tacHybridDefShredTimer||0, effect.duration); e.tacHybridDefShredValue = Math.max(e.tacHybridDefShredValue||0, effect.defShred); } }
+  }
 
   // Mage Fire Blast: each cast adds its own independently-timed burn stack
   // (up to maxStacks). Total burn DPS is the sum of all active stacks, so it
@@ -2291,28 +2079,6 @@ class GameApp{
     if(e.burnStacks.length < max){
       e.burnStacks.push({dps:effect.dps, timeLeft:effect.duration});
     }
-  }
-
-  // Wrestler passive (Momentum): a Basic Attack that lands adds an Attack
-  // Speed stack (up to 4, +5% each) and refreshes every stack's 4s timer —
-  // so keeping the pressure on with basics is what sustains the buff.
-  addMomentumStack(){
-    const b = this.player.buffs;
-    if(!b.momentumStacks) b.momentumStacks=[];
-    if(b.momentumStacks.length<4) b.momentumStacks.push({timeLeft:4});
-    b.momentumStacks.forEach(s=> s.timeLeft=4);
-  }
-
-  // Effective Attack Speed for the active character: base aspd plus Momentum
-  // stacks (+5% each) plus any active rage-style buff's aspdPct (Adrenaline
-  // Rush / Final Grapple). Used everywhere basic-attack timing matters so the
-  // cooldown bar and the actual attack rate always agree.
-  getEffAspd(){
-    const p = this.player, b = p.buffs;
-    let bonus = 0;
-    if(b.momentumStacks) bonus += b.momentumStacks.length*0.05;
-    if(b.rageTimer>0) bonus += b.rageAspdPct;
-    return p.aspd*(1+bonus);
   }
 
   applySelfBuff(buff){
@@ -2343,13 +2109,6 @@ class GameApp{
       b.archerBoostAtkPct = buff.atkPct; b.archerBoostCritRate = buff.critRatePct; b.archerBoostCritDmg = buff.critDmgPct;
       this.toast('Marksman Focus aktif'+who+'!');
     }
-    else if(buff.type==='adrenaline' || buff.type==='wrestlerRage'){
-      // Wrestler's Adrenaline Rush (skill3) and Final Grapple (ultimate) both
-      // grant the same kind of self-buff: Attack, Attack Speed, and Lifesteal
-      // all rolled together for the duration.
-      b.rageTimer = buff.duration; b.rageAtkPct = buff.atkPct; b.rageAspdPct = buff.aspdPct; b.rageLifesteal = buff.lifesteal;
-      this.toast((buff.type==='adrenaline' ? 'Adrenaline Rush' : 'Final Grapple Rage')+' aktif'+who+'!');
-    }
     else if(buff.type==='physicalAttack'){
       b.supportTimer = buff.duration; b.supportAtkPct = buff.atkPct; b.supportMagicPct=0; b.supportCritRate=0; b.supportCritDmg=0; b.supportPenetration=0;
       this.toast('War Command aktif'+who+'!');
@@ -2374,27 +2133,6 @@ class GameApp{
       b.supportTimer = buff.duration; b.supportMagicPct = buff.magicPct; b.supportCritRate = buff.critRatePct; b.supportPenetration = buff.penetrationPct; b.supportAtkPct=0; b.supportCritDmg=0;
       this.toast('Mystic Dominion aktif'+who+'!');
     }
-    else if(buff.type==='hybridAtkShare'){
-      const casterHybridAtk = this.player.patk + this.player.magic;
-      b.hybridAtkFlat = Math.round(casterHybridAtk * buff.pct);
-      b.hybridAtkTimer = buff.duration;
-      this.toast('Hybrid Attack Share aktif'+who+'! (+'+b.hybridAtkFlat+')');
-    }
-    else if(buff.type==='hybridPenShare'){
-      b.hybridPenFlat = buff.pct;
-      b.hybridPenTimer = buff.duration;
-      this.toast('Hybrid Penetration aktif'+who+'!');
-    }
-    else if(buff.type==='grandStrategyShare'){
-      const casterHybridAtk = this.player.patk + this.player.magic;
-      b.hybridAtkFlat = Math.round(casterHybridAtk * buff.atkSharePct);
-      b.hybridAtkTimer = buff.duration;
-      b.hybridCritRateFlat = this.player.critRate * buff.critRateSharePct;
-      b.hybridCritRateTimer = buff.duration;
-      b.hybridCritDmgFlat = this.player.critDmg * buff.critDmgSharePct;
-      b.hybridCritDmgTimer = buff.duration;
-      this.toast('Grand Strategy aktif'+who+'!');
-    }
   }
 
   // War Command / Arcane Blessing (and their upgraded/ultimate versions) are
@@ -2410,43 +2148,23 @@ class GameApp{
   }
 
   dealDamage(target, skillDef){
-    if(skillDef.hybrid){
-      this.dealSingleHit(target, Object.assign({}, skillDef, {isMagic:false}));
-      if(target.state==='dead') return;
-      this.dealSingleHit(target, Object.assign({}, skillDef, {isMagic:true}));
-      return;
-    }
-    this.dealSingleHit(target, skillDef);
-  }
-
-  dealSingleHit(target, skillDef){
     const p = this.player, b = p.buffs;
     let atk = skillDef.isMagic ? p.magic : p.patk;
     let atkBonusPct = this.getSharedStat('atkPct');
     if(b.titanTimer>0) atkBonusPct += b.titanAtkPct;
     if(b.archerBoostTimer>0) atkBonusPct += b.archerBoostAtkPct;
-    if(b.rageTimer>0) atkBonusPct += b.rageAtkPct;
     if(skillDef.isMagic){
       if(b.supportTimer>0) atkBonusPct += (b.supportMagicPct||0);
       if(b.resonanceTimer>0) atkBonusPct += (b.resonanceMagicPct||0);
-      // Dark Pact: each of the Necromancer's own living skeletons adds +4%
-      // Magic Damage (capped at 3 summons — matches maxActive).
-      if(this.classKey==='Necromancer'){
-        const aliveCount = Math.min(3, this.summons.filter(s=> s.ownerClassKey==='Necromancer').length);
-        if(aliveCount>0) atkBonusPct += aliveCount*0.04;
-      }
     } else {
       if(b.supportTimer>0) atkBonusPct += (b.supportAtkPct||0);
       if(b.formationTimer>0) atkBonusPct += (b.formationAtkPct||0);
     }
     atk *= (1+atkBonusPct);
-    // Tactician's stat-share flat bonus — a fixed number added on top,
-    // applying equally whether the holder's damage basis is patk or magic.
-    if(b.hybridAtkTimer>0) atk += b.hybridAtkFlat;
 
-    const effCrit = p.critRate + this.getSharedStat('critRate') + (b.archerBoostTimer>0 ? b.archerBoostCritRate : 0) + (b.supportTimer>0 ? (b.supportCritRate||0) : 0) + (b.hybridCritRateTimer>0 ? b.hybridCritRateFlat : 0);
+    const effCrit = p.critRate + this.getSharedStat('critRate') + (b.archerBoostTimer>0 ? b.archerBoostCritRate : 0) + (b.supportTimer>0 ? (b.supportCritRate||0) : 0);
     const isCrit = Math.random() < effCrit;
-    const effCritDmg = p.critDmg + this.getSharedStat('critDmg') + (b.archerBoostTimer>0 ? b.archerBoostCritDmg : 0) + (b.supportTimer>0 ? (b.supportCritDmg||0) : 0) + (b.hybridCritDmgTimer>0 ? b.hybridCritDmgFlat : 0);
+    const effCritDmg = p.critDmg + this.getSharedStat('critDmg') + (b.archerBoostTimer>0 ? b.archerBoostCritDmg : 0) + (b.supportTimer>0 ? (b.supportCritDmg||0) : 0);
     let critMult = isCrit ? effCritDmg : 1;
     if(this.classKey==='Assassin' && target.hp/target.hpMax < 0.5) critMult += (isCrit?0.2:0);
 
@@ -2454,10 +2172,8 @@ class GameApp{
     let effDef = target.pdef;
     if(skillDef.defShred) effDef *= (1-skillDef.defShred);
     if(target.defShredValue>0) effDef *= (1-target.defShredValue);
-    if(target.tacHybridDefShredValue>0) effDef *= (1-target.tacHybridDefShredValue);
     let totalPen = this.getSharedStat('penetration');
     if(b.supportTimer>0 && b.supportPenetration) totalPen += b.supportPenetration;
-    if(b.hybridPenTimer>0) totalPen += b.hybridPenFlat;
     if(totalPen>0) effDef *= (1-Math.min(0.9,totalPen));
     dmg *= (1 - defenseReduction(effDef));
     if(target.state==='break') dmg *= 1.25;
@@ -2483,8 +2199,6 @@ class GameApp{
     let lifestealPct = this.getSharedStat('lifestealPct');
     if(p.buffs.lifestealTimer>0) lifestealPct += p.buffs.lifestealPct;
     if(p.buffs.titanTimer>0) lifestealPct += p.buffs.titanLifesteal;
-    if(p.buffs.rageTimer>0) lifestealPct += p.buffs.rageLifesteal;
-    if(skillDef.effect && skillDef.effect.type==='lifesteal') lifestealPct += skillDef.effect.value;
     if(lifestealPct>0){ this.healPlayer(dmg*lifestealPct, true); }
 
     if(!target.data.isInfinite && target.hp<=0 && target.state!=='dead'){ this.killEnemy(target); }
@@ -2498,12 +2212,6 @@ class GameApp{
     if(effSkill.resetSkills){ effSkill.resetSkills.forEach(sk=> p.cooldowns[sk]=0); }
 
     if(effSkill.mult<=0){
-      // Necromancer's Raise Skeleton (mult 0, no target/aoe) — summon and stop.
-      if(effSkill.summon){
-        this.castSummon(effSkill.summon);
-        if(effSkill.fx) this.spawnFX(effSkill.fx, p.mesh.position.clone(), p.mesh.position.clone());
-        return;
-      }
       if(effSkill.targetAlly){
         this.castAllyBuff(effSkill.selfBuff);
         const allyPos = this.standby.mesh.position.clone();
@@ -2606,16 +2314,11 @@ class GameApp{
       }
     }
 
-    // Necromancer ultimate (Army of the Dead) combines AOE damage with a
-    // summon wave — trigger the summon after the damage/FX above resolves.
-    if(effSkill.summon){ this.castSummon(effSkill.summon); }
-
     p.combo++; p.comboTimer = 2.2;
 
     if(isBasic){
       this.basicHitCount++;
       if(this.classKey==='Mage' && this.basicHitCount%4===0){ p.mana = Math.min(p.manaMax, p.mana+8); this.toast('Mana Flow: +8 Mana'); }
-      else if(this.classKey==='Wrestler'){ this.addMomentumStack(); }
     } else {
       // Hawk Eye: Archer's own skill-use grants a *transferable* crit rate buff.
       // It lives at team level (this.sharedBuffs), so it keeps ticking and can
@@ -2814,7 +2517,7 @@ class GameApp{
   tryAttack(){
     const p = this.player;
     if(p.attackCd>0) return;
-    p.attackCd = 1/this.getEffAspd();
+    p.attackCd = 1/p.aspd;
     // Ranged classes plant their feet for a beat to fire — Archer's draw takes
     // longer than Mage's quick cast. Fighter also braces briefly after a swing.
     if(this.classKey==='Archer') p.attackLock = 0.35;
@@ -2822,43 +2525,8 @@ class GameApp{
     else if(this.classKey==='Fighter') p.attackLock = 0.3;
     else if(this.classKey==='Tactician') p.attackLock = 0.25;
     else if(this.classKey==='Arcanist') p.attackLock = 0.25;
-    else if(this.classKey==='Wrestler') p.attackLock = 0.18;
-    else if(this.classKey==='Necromancer') p.attackLock = 0.25;
     if(this.classKey==='Mage'){ this.performArcaneBoltAttack(); }
-    else if(this.classKey==='Tactician'){ this.performTacticianBombAttack(); }
     else{ this.applySkillDamage(this.cdata.basic, true, null); }
-  }
-
-  // Tactician basic attack: throws a bomb that travels to the nearest enemy
-  // and only explodes — dealing hybrid Physical+Magical AOE damage — once it
-  // actually lands there (same "impact point, not caster" pattern used for
-  // Archer's Explosive Trap), instead of detonating around the Tactician.
-  performTacticianBombAttack(){
-    const p = this.player;
-    const skillDef = this.cdata.basic;
-    const range = skillDef.range || 9;
-    const target = this.getNearestEnemy(range);
-    if(!target) return;
-
-    const fromPos = p.mesh.position.clone().setY(1.1);
-    const toPos = target.mesh.position.clone().setY(1.0);
-    const dist = fromPos.distanceTo(toPos);
-    const travelSpeed = skillDef.projectileSpeed || 12;
-    const travelTime = Math.max(0.15, Math.min(0.6, dist/travelSpeed));
-
-    this.spawnFX(skillDef.fx, fromPos, toPos, travelTime);
-
-    setTimeout(()=>{
-      if(!this.stageActive) return;
-      this.spawnFX({type:'shockwave', color:0xffcf6a}, toPos.clone(), toPos.clone());
-      const radius = skillDef.aoeRadius || 2.4;
-      const hitTargets = this.enemies.filter(e=> e.state!=='dead' && toPos.distanceTo(e.mesh.position.clone().setY(1.0)) <= radius);
-      hitTargets.forEach(t=> this.dealDamage(t, skillDef));
-      if(hitTargets.length){
-        p.combo++; p.comboTimer = 2.2;
-        this.basicHitCount++;
-      }
-    }, travelTime*1000);
   }
 
   // Mage basic attack: throws a real traveling magic ball at the nearest enemy —
@@ -2909,36 +2577,7 @@ class GameApp{
     else if(s.groundTargetAoe){ this.performGroundTargetAoe(s, slot); }
     else if(s.thrownBomb){ this.performThrownBomb(s, slot); }
     else if(s.rainDrop){ this.performRainOfArrows(s, slot); }
-    else if(s.hits){ this.performRapidCombo(s, slot); }
     else{ this.applySkillDamage(s, false, slot); }
-    if(this.classKey==='Tactician' && slot==='skill2'){
-      this.enemies.forEach(e=>{ if(e.tacHybridDefShredTimer>0) e.tacHybridDefShredValue = 0.30; });
-    }}
-  // Wrestler Rapid Combo: a burst of `hits` quick punches landing on every
-  // enemy caught in the AOE radius around the caster, each hit spaced a
-  // beat apart so it visually reads as a flurry rather than one lump sum.
-  performRapidCombo(skillDef, slot){
-    const p = this.player;
-    const lvl = p.skillLevels[slot];
-    const effSkill = Object.assign({}, skillDef, { mult: skillDef.mult*(1+(lvl-1)*0.08) });
-    if(effSkill.resetSkills){ effSkill.resetSkills.forEach(sk=> p.cooldowns[sk]=0); }
-    const radius = effSkill.aoeRadius || 2.5;
-    const targets = this.enemies.filter(e=> e.state!=='dead' && p.mesh.position.distanceTo(e.mesh.position) <= radius);
-    if(targets.length===0) return;
-    this.toast(`${effSkill.name}!`);
-    p.combo++; p.comboTimer = 2.2;
-    const hits = effSkill.hits || 3;
-    const gap = 130;
-    for(let i=0;i<hits;i++){
-      setTimeout(()=>{
-        if(!this.stageActive) return;
-        const aliveTargets = targets.filter(t=> t.state!=='dead');
-        aliveTargets.forEach(t=>{
-          this.dealDamage(t, effSkill);
-          if(effSkill.fx) this.spawnFX(effSkill.fx, p.mesh.position.clone().setY(1.1), t.mesh.position.clone().setY(1.1));
-        });
-      }, i*gap);
-    }
   }
 
   // Assassin Shadow Dash: dash in the current movement-input direction
@@ -3153,7 +2792,6 @@ class GameApp{
     }
     if(e.slowTimer>0) e.slowTimer -= dt; else e.slowValue=0;
     if(e.defShredTimer>0){ e.defShredTimer -= dt; if(e.defShredTimer<=0) e.defShredValue=0; }
-    if(e.tacHybridDefShredTimer>0){ e.tacHybridDefShredTimer -= dt; if(e.tacHybridDefShredTimer<=0) e.tacHybridDefShredValue=0; }
 
     if(e.state==='break'){
       e.breakTimer -= dt;
@@ -3305,21 +2943,9 @@ class GameApp{
     if(p.buffs.supportTimer>0) icons.push(p.buffs.supportMagicPct>0 ? '🔮' : '🎖️');
     if(p.buffs.formationTimer>0) icons.push('📯');
     if(p.buffs.resonanceTimer>0) icons.push('✨');
-    if(p.buffs.hybridAtkTimer>0) icons.push('💪');
-    if(p.buffs.hybridPenTimer>0) icons.push('🔓');
-    if(p.buffs.hybridCritRateTimer>0) icons.push('🍀');
-    if(p.buffs.hybridCritDmgTimer>0) icons.push('☄️');
-    if(p.buffs.momentumStacks && p.buffs.momentumStacks.length>0) icons.push('🔥');
-    if(p.buffs.rageTimer>0) icons.push('💪');
     // Shared/transferable buffs — shown regardless of who cast them, since
     // they belong to the team, not the character.
     this.sharedBuffs.forEach(b=> icons.push(b.icon));
-    // Necromancer summon count — a quick glance at how many skeletons are
-    // currently fighting alongside the team.
-    if(this.classKey==='Necromancer'){
-      const cnt = this.summons.filter(s=>s.ownerClassKey==='Necromancer').length;
-      if(cnt>0) icons.push('💀×'+cnt);
-    }
     document.getElementById('buff-row').innerHTML = icons.map(i=>`<div class="buff-icon">${i}</div>`).join('');
   }
 
@@ -3329,7 +2955,6 @@ class GameApp{
     if(e.slowTimer>0) chips.push(`<div class="status-chip slow">SLOW</div>`);
     if(e.dotTimer>0) chips.push(`<div class="status-chip dot">DOT</div>`);
     if(e.burnStacks && e.burnStacks.length) chips.push(`<div class="status-chip dot">BURN x${e.burnStacks.length}</div>`);
-    if(e.defShredTimer>0 || e.tacHybridDefShredTimer>0) chips.push(`<div class="status-chip shred">DEF-</div>`);
     if(e.defShredTimer>0) chips.push(`<div class="status-chip shred">DEF-</div>`);
     document.getElementById('enemy-status-row').innerHTML = chips.join('');
   }
@@ -3369,7 +2994,7 @@ class GameApp{
       document.getElementById('combo-counter').style.opacity='0';
     }
 
-    this.updateCooldownVisual('slot-attack', p.attackCd, 1/this.getEffAspd());
+    this.updateCooldownVisual('slot-attack', p.attackCd, 1/p.aspd);
     ['skill1','skill2','skill3','ultimate'].forEach(slot=>{
       const elId = 'slot-'+slot;
       if(p.level < UNLOCK_LEVEL[slot]){
@@ -3489,20 +3114,6 @@ class GameApp{
     }
     if(b.formationTimer>0){ b.formationTimer -= dt; if(b.formationTimer<=0) b.formationAtkPct=0; }
     if(b.resonanceTimer>0){ b.resonanceTimer -= dt; if(b.resonanceTimer<=0) b.resonanceMagicPct=0; }
-    if(b.hybridAtkTimer>0){ b.hybridAtkTimer -= dt; if(b.hybridAtkTimer<=0) b.hybridAtkFlat=0; }
-    if(b.hybridPenTimer>0){ b.hybridPenTimer -= dt; if(b.hybridPenTimer<=0) b.hybridPenFlat=0; }
-    if(b.hybridCritRateTimer>0){ b.hybridCritRateTimer -= dt; if(b.hybridCritRateTimer<=0) b.hybridCritRateFlat=0; }
-    if(b.hybridCritDmgTimer>0){ b.hybridCritDmgTimer -= dt; if(b.hybridCritDmgTimer<=0) b.hybridCritDmgFlat=0; }
-    // Wrestler Momentum stacks: each stack decays on its own 4s timer.
-    if(b.momentumStacks && b.momentumStacks.length){
-      b.momentumStacks.forEach(s=> s.timeLeft -= dt);
-      b.momentumStacks = b.momentumStacks.filter(s=> s.timeLeft>0);
-    }
-    // Wrestler rage buff (Adrenaline Rush / Final Grapple).
-    if(b.rageTimer>0){
-      b.rageTimer -= dt;
-      if(b.rageTimer<=0){ b.rageAtkPct=0; b.rageAspdPct=0; b.rageLifesteal=0; }
-    }
     const titanScale = b.titanTimer>0 ? 1.5 : 1.0;
     ch.mesh.scale.lerp(new THREE.Vector3(titanScale,titanScale,titanScale), Math.min(1, dt*3));
   }
@@ -3519,7 +3130,6 @@ class GameApp{
     if(canMove) this.updatePlayerMovement(dt);
 
     this.enemies.forEach(e=> this.updateEnemyAI(dt, e));
-    this.updateSummons(dt);
     this.updateCamera();
     this.updateFX(dt);
     if(this.stageActive || this.inLobby) this.updateHUD();

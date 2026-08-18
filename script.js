@@ -69,6 +69,17 @@ const CharacterData = {
     skill2:{name:'Mystic Rupture', icon:'💥', mult:1.3, isMagic:true, manaCost:22, cooldown:10, aoe:true, aoeRadius:4.5, effect:{type:'magicShred', value:0.20, duration:5}, fx:{type:'magic', color:0xc58cff}, desc:'Damage area + mengurangi Magic Defense musuh 20% selama 5 detik.'},
     skill3:{name:'Arcane Focus', icon:'🌌', mult:0, isMagic:true, manaCost:35, cooldown:18, targetAlly:true, selfBuff:{type:'magicBoost', magicPct:0.10, critRatePct:0.10, critDmgPct:0.15, duration:8}, fx:{type:'buff', color:0x7fe0d0}, desc:'Memberikan +10% Magic Damage, +10% Crit Rate, dan +15% Crit Damage selama 8 detik.'},
     ultimate:{name:'Mystic Dominion', icon:'🌀', mult:2.8, isMagic:true, manaCost:75, cooldown:45, aoe:true, aoeRadius:5.5, targetAlly:true, selfBuff:{type:'mystic', magicPct:0.15, critRatePct:0.15, penetrationPct:0.15, duration:12}, fx:{type:'magic', color:0x9b6cff}, desc:'Damage area + memberikan +15% Magic Damage, +15% Crit Rate, dan +15% Magic Penetration selama 12 detik.'}
+  },
+  Wrestler: {
+    key:'Wrestler', icon:'🤼', role:'Melee Sustained DPS / Attack Speed', color:0xd9824b,
+    hp:700, mana:150, patk:42, magic:0, pdef:32, mdef:25, aspd:1.5, critRate:0.08, critDmg:1.5, moveSpeed:5.2,
+    growth:{hp:40, mana:10, patk:6, pdef:3, mdef:2},
+    basic:{name:'Heavy Fist', icon:'👊', mult:0.95, isMagic:false, aoe:true, aoeRadius:2.2, fx:{type:'punch', color:0xd9824b}},
+    passive:{name:'Momentum', icon:'🔥', desc:'Setiap Basic Attack yang mengenai musuh memberikan 1 stack Momentum selama 4 detik. Setiap stack memberikan +5% Attack Speed. Maksimal 4 stack. Stack diperbarui saat menyerang.'},
+    skill1:{name:'Power Slam', icon:'💥', mult:1.7, isMagic:false, manaCost:18, cooldown:5, aoe:true, aoeRadius:3.0, effect:{type:'stun', duration:0.8}, fx:{type:'shockwave', color:0xe8a15b}, desc:'Menghantam musuh dengan kuat, memberikan damage area + Stun 0.8 detik.'},
+    skill2:{name:'Rapid Combo', icon:'🥊', mult:0.55, isMagic:false, manaCost:25, cooldown:7, hits:3, aoe:true, aoeRadius:2.5, fx:{type:'punch', color:0xffb15c}, desc:'Melakukan 3 pukulan cepat, masing-masing memberikan 0.55x Attack Damage.'},
+    skill3:{name:'Adrenaline Rush', icon:'💪', mult:0, isMagic:false, manaCost:30, cooldown:18, selfBuff:{type:'adrenaline', atkPct:0.15, aspdPct:0.25, lifesteal:0.10, duration:8}, fx:{type:'buff', color:0xff6b4a}, desc:'Meningkatkan +15% Attack, +25% Attack Speed, dan +10% Lifesteal selama 8 detik.'},
+    ultimate:{name:'Final Grapple', icon:'🤼', mult:3.8, isMagic:false, manaCost:75, cooldown:38, aoe:true, aoeRadius:3.5, effect:{type:'stun', duration:1.5}, selfBuff:{type:'wrestlerRage', atkPct:0.20, aspdPct:0.30, lifesteal:0.15, duration:10}, fx:{type:'shockwave', color:0xd94f3d}, desc:'Serangan grappling besar ke area + Stun 1.5 detik. Setelahnya mendapatkan +20% Attack, +30% Attack Speed, dan +15% Lifesteal selama 10 detik.'}
   }
 };
 
@@ -176,7 +187,7 @@ const SKILL_UPGRADE_COST = {
   5:{gold:2500, book:4, ess:8}, 6:{gold:4000, book:5, ess:10}, 7:{gold:6500, book:6, ess:12},
   8:{gold:9500, book:8, ess:15}, 9:{gold:14000, book:10, ess:18}, 10:{gold:20000, book:12, ess:25}
 };
-const CLASS_ESSENCE = {Mage:'Magic Essence', Archer:'Arrow Emblem', Assassin:'Shadow Core', Fighter:'War Medal', Tactician:'Command Insignia', Arcanist:'Mystic Rune'};
+const CLASS_ESSENCE = {Mage:'Magic Essence', Archer:'Arrow Emblem', Assassin:'Shadow Core', Fighter:'War Medal', Tactician:'Command Insignia', Arcanist:'Mystic Rune', Wrestler:'Grapple Token'};
 // Skills unlock as the player levels up (Lv1 has none), and each further
 // skill-level upgrade needs its own player-level gate: unlock + (skillLevel-1).
 const UNLOCK_LEVEL = {skill1:2, skill2:4, skill3:7, ultimate:10};
@@ -674,13 +685,17 @@ class GameApp{
       // still personal to whoever is holding it, just applied by someone else.
       // formation/resonance are the small automatic passive bonus that comes
       // along for the ride whenever that ally-buff is cast.
+      // momentumStacks/rage* power the Wrestler's Momentum passive and its
+      // Adrenaline Rush / Final Grapple self-buffs — same "personal, never
+      // transferred" rule applies.
       buffs:{ shield:0, hasteMult:1, hasteTimer:0, defMult:1, defTimer:0, lifestealPct:0, lifestealTimer:0,
         titanTimer:0, titanAtkPct:0, titanHpPct:0, titanDefPct:0, titanLifesteal:0, titanBonusHp:0,
         archerBoostTimer:0, archerBoostAtkPct:0, archerBoostCritRate:0, archerBoostCritDmg:0,
         supportTimer:0, supportAtkPct:0, supportMagicPct:0, supportCritRate:0, supportCritDmg:0, supportPenetration:0,
         formationTimer:0, formationAtkPct:0, resonanceTimer:0, resonanceMagicPct:0,
         hybridAtkFlat:0, hybridAtkTimer:0, hybridPenFlat:0, hybridPenTimer:0,
-        hybridCritRateFlat:0, hybridCritRateTimer:0, hybridCritDmgFlat:0, hybridCritDmgTimer:0 },
+        hybridCritRateFlat:0, hybridCritRateTimer:0, hybridCritDmgFlat:0, hybridCritDmgTimer:0,
+        momentumStacks:[], rageTimer:0, rageAtkPct:0, rageAspdPct:0, rageLifesteal:0 },
       bulwarkCd:0, attackLock:0, regenTimer:0
     };
   }
@@ -935,6 +950,7 @@ class GameApp{
       if(ch.buffs.titanTimer>0){ ch.hpMax -= (ch.buffs.titanBonusHp||0); ch.hp = Math.min(ch.hp, ch.hpMax); }
       ch.buffs.titanTimer=0; ch.buffs.titanBonusHp=0; ch.buffs.titanAtkPct=0; ch.buffs.titanHpPct=0; ch.buffs.titanDefPct=0; ch.buffs.titanLifesteal=0;
       ch.buffs.archerBoostTimer=0; ch.buffs.archerBoostAtkPct=0; ch.buffs.archerBoostCritRate=0; ch.buffs.archerBoostCritDmg=0;
+      ch.buffs.momentumStacks=[]; ch.buffs.rageTimer=0; ch.buffs.rageAtkPct=0; ch.buffs.rageAspdPct=0; ch.buffs.rageLifesteal=0;
       ch.mesh.scale.set(1,1,1);
     });
     this.sharedBuffs = [];
@@ -1016,14 +1032,14 @@ class GameApp{
       <div class="panel-row"><span class="prl">Magic Power</span><span class="prr">${p.magic}</span></div>
       <div class="panel-row"><span class="prl">Physical Defense</span><span class="prr">${p.pdef}</span></div>
       <div class="panel-row"><span class="prl">Magic Defense</span><span class="prr">${p.mdef}</span></div>
-      <div class="panel-row"><span class="prl">Attack Speed</span><span class="prr">${p.aspd.toFixed(2)}/s</span></div>
+      <div class="panel-row"><span class="prl">Attack Speed</span><span class="prr">${this.getEffAspd().toFixed(2)}/s</span></div>
       <div class="panel-row"><span class="prl">Critical Rate</span><span class="prr">${Math.round(p.critRate*100)}%</span></div>
       <div class="panel-row"><span class="prl">Critical Damage</span><span class="prr">${Math.round(p.critDmg*100)}%</span></div>
       <div class="panel-row"><span class="prl">Move Speed</span><span class="prr">${p.moveSpeed.toFixed(2)}</span></div>
       <div class="panel-row"><span class="prl">Cooldown Reduction</span><span class="prr">${Math.round(p.cdr*100)}%</span></div>
     `;
     const slots = [
-      {def:c.basic, slot:null, level:1, isBasic:true, cooldown:(1/p.aspd)},
+      {def:c.basic, slot:null, level:1, isBasic:true, cooldown:(1/this.getEffAspd())},
       {def:c.skill1, slot:'skill1', level:p.skillLevels.skill1, cooldown:this.getEffCooldown(c.skill1.cooldown)},
       {def:c.skill2, slot:'skill2', level:p.skillLevels.skill2, cooldown:this.getEffCooldown(c.skill2.cooldown)},
       {def:c.skill3, slot:'skill3', level:p.skillLevels.skill3, cooldown:this.getEffCooldown(c.skill3.cooldown)},
@@ -1554,6 +1570,7 @@ class GameApp{
       if(ch.buffs.titanTimer>0){ ch.hpMax -= (ch.buffs.titanBonusHp||0); ch.hp = Math.min(ch.hp, ch.hpMax); }
       ch.buffs.titanTimer=0; ch.buffs.titanBonusHp=0; ch.buffs.titanAtkPct=0; ch.buffs.titanHpPct=0; ch.buffs.titanDefPct=0; ch.buffs.titanLifesteal=0;
       ch.buffs.archerBoostTimer=0; ch.buffs.archerBoostAtkPct=0; ch.buffs.archerBoostCritRate=0; ch.buffs.archerBoostCritDmg=0;
+      ch.buffs.momentumStacks=[]; ch.buffs.rageTimer=0; ch.buffs.rageAtkPct=0; ch.buffs.rageAspdPct=0; ch.buffs.rageLifesteal=0;
       ch.mesh.scale.set(1,1,1);
     });
     this.sharedBuffs = [];
@@ -1957,7 +1974,9 @@ class GameApp{
         break;}
       case 'buff': {
         // A rising ring of light on whoever just received a support buff —
-        // used for Tactician/Arcanist ally-target skills.
+        // used for Tactician/Arcanist ally-target skills AND for
+        // self-targeted rage/rush buffs (Wrestler's Adrenaline Rush /
+        // Final Grapple) that also want a clear "buff landed" glow.
         const grp = new THREE.Group();
         const ring = new THREE.Mesh(new THREE.TorusGeometry(0.5,0.06,8,20), new THREE.MeshBasicMaterial({color, transparent:true, opacity:0.85}));
         ring.rotation.x=Math.PI/2;
@@ -1982,6 +2001,27 @@ class GameApp{
         grp.position.copy(toP); grp.position.y=0.08;
         mesh = grp;
         life=0.55; kind='burst'; scaleFrom=0.5; scaleTo=1.8; baseOpacity=0.7;
+        break;
+      }
+      case 'punch': {
+        // Wrestler impact FX: a compact starburst of knuckle-shaped spikes
+        // radiating from the hit point, punchy and quick — reused for both
+        // Heavy Fist and Rapid Combo so every hit reads as a solid impact.
+        const grp = new THREE.Group();
+        const ring = new THREE.Mesh(new THREE.RingGeometry(0.14,0.42,16), new THREE.MeshBasicMaterial({color, transparent:true, opacity:0.9, side:THREE.DoubleSide}));
+        grp.add(ring);
+        const spikeCount = 5;
+        for(let i=0;i<spikeCount;i++){
+          const spike = new THREE.Mesh(new THREE.ConeGeometry(0.08,0.32,4), new THREE.MeshBasicMaterial({color:0xffdca6, transparent:true, opacity:0.9}));
+          const ang = (i/spikeCount)*Math.PI*2 + Math.random()*0.3;
+          spike.position.set(Math.cos(ang)*0.32, 0, Math.sin(ang)*0.32);
+          spike.rotation.z = Math.PI/2;
+          spike.rotation.y = -ang;
+          grp.add(spike);
+        }
+        grp.position.copy(toP);
+        mesh = grp;
+        life=0.22; kind='burst'; scaleFrom=0.35; scaleTo=1.3; baseOpacity=0.9;
         break;
       }
       default: return;
@@ -2086,6 +2126,28 @@ class GameApp{
     }
   }
 
+  // Wrestler passive (Momentum): a Basic Attack that lands adds an Attack
+  // Speed stack (up to 4, +5% each) and refreshes every stack's 4s timer —
+  // so keeping the pressure on with basics is what sustains the buff.
+  addMomentumStack(){
+    const b = this.player.buffs;
+    if(!b.momentumStacks) b.momentumStacks=[];
+    if(b.momentumStacks.length<4) b.momentumStacks.push({timeLeft:4});
+    b.momentumStacks.forEach(s=> s.timeLeft=4);
+  }
+
+  // Effective Attack Speed for the active character: base aspd plus Momentum
+  // stacks (+5% each) plus any active rage-style buff's aspdPct (Adrenaline
+  // Rush / Final Grapple). Used everywhere basic-attack timing matters so the
+  // cooldown bar and the actual attack rate always agree.
+  getEffAspd(){
+    const p = this.player, b = p.buffs;
+    let bonus = 0;
+    if(b.momentumStacks) bonus += b.momentumStacks.length*0.05;
+    if(b.rageTimer>0) bonus += b.rageAspdPct;
+    return p.aspd*(1+bonus);
+  }
+
   applySelfBuff(buff){
     this.applyBuffToChar(this.player, buff);
   }
@@ -2113,6 +2175,13 @@ class GameApp{
       b.archerBoostTimer = buff.duration;
       b.archerBoostAtkPct = buff.atkPct; b.archerBoostCritRate = buff.critRatePct; b.archerBoostCritDmg = buff.critDmgPct;
       this.toast('Marksman Focus aktif'+who+'!');
+    }
+    else if(buff.type==='adrenaline' || buff.type==='wrestlerRage'){
+      // Wrestler's Adrenaline Rush (skill3) and Final Grapple (ultimate) both
+      // grant the same kind of self-buff: Attack, Attack Speed, and Lifesteal
+      // all rolled together for the duration.
+      b.rageTimer = buff.duration; b.rageAtkPct = buff.atkPct; b.rageAspdPct = buff.aspdPct; b.rageLifesteal = buff.lifesteal;
+      this.toast((buff.type==='adrenaline' ? 'Adrenaline Rush' : 'Final Grapple Rage')+' aktif'+who+'!');
     }
     else if(buff.type==='physicalAttack'){
       b.supportTimer = buff.duration; b.supportAtkPct = buff.atkPct; b.supportMagicPct=0; b.supportCritRate=0; b.supportCritDmg=0; b.supportPenetration=0;
@@ -2189,6 +2258,7 @@ class GameApp{
     let atkBonusPct = this.getSharedStat('atkPct');
     if(b.titanTimer>0) atkBonusPct += b.titanAtkPct;
     if(b.archerBoostTimer>0) atkBonusPct += b.archerBoostAtkPct;
+    if(b.rageTimer>0) atkBonusPct += b.rageAtkPct;
     if(skillDef.isMagic){
       if(b.supportTimer>0) atkBonusPct += (b.supportMagicPct||0);
       if(b.resonanceTimer>0) atkBonusPct += (b.resonanceMagicPct||0);
@@ -2240,6 +2310,7 @@ class GameApp{
     let lifestealPct = this.getSharedStat('lifestealPct');
     if(p.buffs.lifestealTimer>0) lifestealPct += p.buffs.lifestealPct;
     if(p.buffs.titanTimer>0) lifestealPct += p.buffs.titanLifesteal;
+    if(p.buffs.rageTimer>0) lifestealPct += p.buffs.rageLifesteal;
     if(lifestealPct>0){ this.healPlayer(dmg*lifestealPct, true); }
 
     if(!target.data.isInfinite && target.hp<=0 && target.state!=='dead'){ this.killEnemy(target); }
@@ -2360,6 +2431,7 @@ class GameApp{
     if(isBasic){
       this.basicHitCount++;
       if(this.classKey==='Mage' && this.basicHitCount%4===0){ p.mana = Math.min(p.manaMax, p.mana+8); this.toast('Mana Flow: +8 Mana'); }
+      else if(this.classKey==='Wrestler'){ this.addMomentumStack(); }
     } else {
       // Hawk Eye: Archer's own skill-use grants a *transferable* crit rate buff.
       // It lives at team level (this.sharedBuffs), so it keeps ticking and can
@@ -2558,7 +2630,7 @@ class GameApp{
   tryAttack(){
     const p = this.player;
     if(p.attackCd>0) return;
-    p.attackCd = 1/p.aspd;
+    p.attackCd = 1/this.getEffAspd();
     // Ranged classes plant their feet for a beat to fire — Archer's draw takes
     // longer than Mage's quick cast. Fighter also braces briefly after a swing.
     if(this.classKey==='Archer') p.attackLock = 0.35;
@@ -2566,6 +2638,7 @@ class GameApp{
     else if(this.classKey==='Fighter') p.attackLock = 0.3;
     else if(this.classKey==='Tactician') p.attackLock = 0.25;
     else if(this.classKey==='Arcanist') p.attackLock = 0.25;
+    else if(this.classKey==='Wrestler') p.attackLock = 0.18;
     if(this.classKey==='Mage'){ this.performArcaneBoltAttack(); }
     else if(this.classKey==='Tactician'){ this.performTacticianBombAttack(); }
     else{ this.applySkillDamage(this.cdata.basic, true, null); }
@@ -2651,9 +2724,35 @@ class GameApp{
     else if(s.groundTargetAoe){ this.performGroundTargetAoe(s, slot); }
     else if(s.thrownBomb){ this.performThrownBomb(s, slot); }
     else if(s.rainDrop){ this.performRainOfArrows(s, slot); }
+    else if(s.hits){ this.performRapidCombo(s, slot); }
     else{ this.applySkillDamage(s, false, slot); }
     if(this.classKey==='Tactician' && slot==='skill2'){
       this.enemies.forEach(e=>{ if(e.tacHybridDefShredTimer>0) e.tacHybridDefShredValue = 0.30; });
+    }}
+  // Wrestler Rapid Combo: a burst of `hits` quick punches landing on every
+  // enemy caught in the AOE radius around the caster, each hit spaced a
+  // beat apart so it visually reads as a flurry rather than one lump sum.
+  performRapidCombo(skillDef, slot){
+    const p = this.player;
+    const lvl = p.skillLevels[slot];
+    const effSkill = Object.assign({}, skillDef, { mult: skillDef.mult*(1+(lvl-1)*0.08) });
+    if(effSkill.resetSkills){ effSkill.resetSkills.forEach(sk=> p.cooldowns[sk]=0); }
+    const radius = effSkill.aoeRadius || 2.5;
+    const targets = this.enemies.filter(e=> e.state!=='dead' && p.mesh.position.distanceTo(e.mesh.position) <= radius);
+    if(targets.length===0) return;
+    this.toast(`${effSkill.name}!`);
+    p.combo++; p.comboTimer = 2.2;
+    const hits = effSkill.hits || 3;
+    const gap = 130;
+    for(let i=0;i<hits;i++){
+      setTimeout(()=>{
+        if(!this.stageActive) return;
+        const aliveTargets = targets.filter(t=> t.state!=='dead');
+        aliveTargets.forEach(t=>{
+          this.dealDamage(t, effSkill);
+          if(effSkill.fx) this.spawnFX(effSkill.fx, p.mesh.position.clone().setY(1.1), t.mesh.position.clone().setY(1.1));
+        });
+      }, i*gap);
     }
   }
 
@@ -3025,6 +3124,8 @@ class GameApp{
     if(p.buffs.hybridPenTimer>0) icons.push('🔓');
     if(p.buffs.hybridCritRateTimer>0) icons.push('🍀');
     if(p.buffs.hybridCritDmgTimer>0) icons.push('☄️');
+    if(p.buffs.momentumStacks && p.buffs.momentumStacks.length>0) icons.push('🔥');
+    if(p.buffs.rageTimer>0) icons.push('💪');
     // Shared/transferable buffs — shown regardless of who cast them, since
     // they belong to the team, not the character.
     this.sharedBuffs.forEach(b=> icons.push(b.icon));
@@ -3038,6 +3139,7 @@ class GameApp{
     if(e.dotTimer>0) chips.push(`<div class="status-chip dot">DOT</div>`);
     if(e.burnStacks && e.burnStacks.length) chips.push(`<div class="status-chip dot">BURN x${e.burnStacks.length}</div>`);
     if(e.defShredTimer>0 || e.tacHybridDefShredTimer>0) chips.push(`<div class="status-chip shred">DEF-</div>`);
+    if(e.defShredTimer>0) chips.push(`<div class="status-chip shred">DEF-</div>`);
     document.getElementById('enemy-status-row').innerHTML = chips.join('');
   }
 
@@ -3076,7 +3178,7 @@ class GameApp{
       document.getElementById('combo-counter').style.opacity='0';
     }
 
-    this.updateCooldownVisual('slot-attack', p.attackCd, 1/p.aspd);
+    this.updateCooldownVisual('slot-attack', p.attackCd, 1/this.getEffAspd());
     ['skill1','skill2','skill3','ultimate'].forEach(slot=>{
       const elId = 'slot-'+slot;
       if(p.level < UNLOCK_LEVEL[slot]){
@@ -3200,6 +3302,16 @@ class GameApp{
     if(b.hybridPenTimer>0){ b.hybridPenTimer -= dt; if(b.hybridPenTimer<=0) b.hybridPenFlat=0; }
     if(b.hybridCritRateTimer>0){ b.hybridCritRateTimer -= dt; if(b.hybridCritRateTimer<=0) b.hybridCritRateFlat=0; }
     if(b.hybridCritDmgTimer>0){ b.hybridCritDmgTimer -= dt; if(b.hybridCritDmgTimer<=0) b.hybridCritDmgFlat=0; }
+    // Wrestler Momentum stacks: each stack decays on its own 4s timer.
+    if(b.momentumStacks && b.momentumStacks.length){
+      b.momentumStacks.forEach(s=> s.timeLeft -= dt);
+      b.momentumStacks = b.momentumStacks.filter(s=> s.timeLeft>0);
+    }
+    // Wrestler rage buff (Adrenaline Rush / Final Grapple).
+    if(b.rageTimer>0){
+      b.rageTimer -= dt;
+      if(b.rageTimer<=0){ b.rageAtkPct=0; b.rageAspdPct=0; b.rageLifesteal=0; }
+    }
     const titanScale = b.titanTimer>0 ? 1.5 : 1.0;
     ch.mesh.scale.lerp(new THREE.Vector3(titanScale,titanScale,titanScale), Math.min(1, dt*3));
   }

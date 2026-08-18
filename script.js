@@ -80,6 +80,17 @@ const CharacterData = {
     skill2:{name:'Rapid Combo', icon:'🥊', mult:0.55, isMagic:false, manaCost:25, cooldown:7, hits:3, aoe:true, aoeRadius:2.5, fx:{type:'punch', color:0xffb15c}, desc:'Melakukan 3 pukulan cepat, masing-masing memberikan 0.55x Attack Damage.'},
     skill3:{name:'Adrenaline Rush', icon:'💪', mult:0, isMagic:false, manaCost:30, cooldown:18, selfBuff:{type:'adrenaline', atkPct:0.15, aspdPct:0.25, lifesteal:0.10, duration:8}, fx:{type:'buff', color:0xff6b4a}, desc:'Meningkatkan +15% Attack, +25% Attack Speed, dan +10% Lifesteal selama 8 detik.'},
     ultimate:{name:'Final Grapple', icon:'🤼', mult:3.8, isMagic:false, manaCost:75, cooldown:38, aoe:true, aoeRadius:3.5, effect:{type:'stun', duration:1.5}, selfBuff:{type:'wrestlerRage', atkPct:0.20, aspdPct:0.30, lifesteal:0.15, duration:10}, fx:{type:'shockwave', color:0xd94f3d}, desc:'Serangan grappling besar ke area + Stun 1.5 detik. Setelahnya mendapatkan +20% Attack, +30% Attack Speed, dan +15% Lifesteal selama 10 detik.'}
+  },
+  Necromancer: {
+    key:'Necromancer', icon:'💀', role:'Magic DPS / Summoner', color:0x7b5bb5,
+    hp:540, mana:320, patk:15, magic:42, pdef:20, mdef:32, aspd:0.9, critRate:0.05, critDmg:1.5, moveSpeed:4.9,
+    growth:{hp:32, mana:24, patk:2, magic:6, pdef:2, mdef:3},
+    basic:{name:'Soul Bolt', icon:'👻', mult:1.0, isMagic:true, range:7.0, fx:{type:'bolt', color:0x9b7bd4}},
+    passive:{name:'Dark Pact', icon:'☠️', desc:'Setiap summon yang masih hidup meningkatkan Magic Damage Necromancer sebesar 4%. Maksimal 3 summon aktif.'},
+    skill1:{name:'Soul Drain', icon:'🩸', mult:1.5, isMagic:true, manaCost:22, cooldown:5, range:7.0, effect:{type:'lifesteal', value:0.15}, fx:{type:'dark', color:0x8f5ac7}, desc:'Menyerang musuh dengan energi gelap dan memulihkan 15% dari damage yang diberikan sebagai HP.'},
+    skill2:{name:'Raise Skeleton', icon:'💀', mult:0, isMagic:true, manaCost:40, cooldown:10, summon:{type:'skeleton', count:1, maxActive:3, duration:18}, fx:{type:'summon', color:0x8060a8}, desc:'Memanggil 1 Skeleton untuk membantu menyerang musuh. Maksimal 3 summon aktif.'},
+    skill3:{name:'Grave Curse', icon:'🪦', mult:1.4, isMagic:true, manaCost:35, cooldown:12, aoe:true, aoeRadius:4.5, effect:{type:'magicShred', value:0.15, duration:5}, fx:{type:'dark', color:0x665080}, desc:'Memberikan damage area + mengurangi Magic Defense musuh 15% selama 5 detik.'},
+    ultimate:{name:'Army of the Dead', icon:'☠️', mult:2.8, isMagic:true, manaCost:90, cooldown:48, aoe:true, aoeRadius:5.5, summon:{type:'skeleton', count:3, maxActive:3, duration:20}, effect:{type:'slow', value:0.3, duration:3}, fx:{type:'summon', color:0x593b78}, desc:'Memberikan damage area + Slow 30% selama 3 detik dan memanggil pasukan Skeleton hingga maksimal 3 summon aktif selama 20 detik.'}
   }
 };
 
@@ -187,7 +198,7 @@ const SKILL_UPGRADE_COST = {
   5:{gold:2500, book:4, ess:8}, 6:{gold:4000, book:5, ess:10}, 7:{gold:6500, book:6, ess:12},
   8:{gold:9500, book:8, ess:15}, 9:{gold:14000, book:10, ess:18}, 10:{gold:20000, book:12, ess:25}
 };
-const CLASS_ESSENCE = {Mage:'Magic Essence', Archer:'Arrow Emblem', Assassin:'Shadow Core', Fighter:'War Medal', Tactician:'Command Insignia', Arcanist:'Mystic Rune', Wrestler:'Grapple Token'};
+const CLASS_ESSENCE = {Mage:'Magic Essence', Archer:'Arrow Emblem', Assassin:'Shadow Core', Fighter:'War Medal', Tactician:'Command Insignia', Arcanist:'Mystic Rune', Necromancer:'Bone Fragment'};
 // Skills unlock as the player levels up (Lv1 has none), and each further
 // skill-level upgrade needs its own player-level gate: unlock + (skillLevel-1).
 const UNLOCK_LEVEL = {skill1:2, skill2:4, skill3:7, ultimate:10};
@@ -411,6 +422,7 @@ class GameApp{
     this.basicHitCount = 0;
     this.enemies = [];
     this.fxList = [];
+    this.summons = [];
     this.stageActive = false;
     this.inLobby = false;
     this.panelOpen = false;
@@ -695,7 +707,8 @@ class GameApp{
         formationTimer:0, formationAtkPct:0, resonanceTimer:0, resonanceMagicPct:0,
         hybridAtkFlat:0, hybridAtkTimer:0, hybridPenFlat:0, hybridPenTimer:0,
         hybridCritRateFlat:0, hybridCritRateTimer:0, hybridCritDmgFlat:0, hybridCritDmgTimer:0,
-        momentumStacks:[], rageTimer:0, rageAtkPct:0, rageAspdPct:0, rageLifesteal:0 },
+        momentumStacks:[], rageTimer:0, rageAtkPct:0, rageAspdPct:0, rageLifesteal:0,
+        formationTimer:0, formationAtkPct:0, resonanceTimer:0, resonanceMagicPct:0 },
       bulwarkCd:0, attackLock:0, regenTimer:0
     };
   }
@@ -818,6 +831,117 @@ class GameApp{
   tickSharedBuffs(dt){
     this.sharedBuffs.forEach(b=> b.timeLeft -= dt);
     this.sharedBuffs = this.sharedBuffs.filter(b=> b.timeLeft>0);
+  }
+
+  // ---------------- SUMMONS (Necromancer skeletons) ----------------
+  // Summons live at the team level (like sharedBuffs) so they keep fighting
+  // and their duration keeps ticking down no matter which character is
+  // currently active. Each summon tracks who raised it (ownerClassKey) so
+  // maxActive is enforced per-caster and the Dark Pact passive only counts
+  // the Necromancer's own skeletons.
+  castSummon(def){
+    const p = this.player;
+    const owner = this.classKey;
+    const maxActive = def.maxActive || 3;
+    let toSpawn = def.count || 1;
+    // make room by retiring the oldest summon(s) from this owner first
+    let ownedIdx = this.summons.map((s,i)=>({s,i})).filter(o=>o.s.ownerClassKey===owner);
+    while(ownedIdx.length + toSpawn > maxActive && ownedIdx.length>0){
+      const victim = ownedIdx.shift();
+      this.removeSummonAt(this.summons.indexOf(victim.s));
+      ownedIdx = this.summons.map((s,i)=>({s,i})).filter(o=>o.s.ownerClassKey===owner);
+    }
+    const room = Math.max(0, maxActive - this.summons.filter(s=>s.ownerClassKey===owner).length);
+    toSpawn = Math.min(toSpawn, room);
+    for(let i=0;i<toSpawn;i++){
+      const angle = (i/Math.max(1,toSpawn))*Math.PI*2 + Math.random()*0.6;
+      const pos = p.mesh.position.clone().add(new THREE.Vector3(Math.cos(angle)*1.9,0,Math.sin(angle)*1.9));
+      this.spawnSummon(def.type, pos, def.duration||15, owner);
+    }
+    if(toSpawn>0) this.toast(`${toSpawn} Skeleton dibangkitkan dari kegelapan!`);
+    else this.toast('Summon sudah maksimal!');
+  }
+  spawnSummon(type, pos, duration, ownerClassKey){
+    const g = new THREE.Group();
+    const bodyMat = new THREE.MeshStandardMaterial({color:0xe8e2d0, roughness:0.7, emissive:0x3a2a5c, emissiveIntensity:0.35});
+    const body = new THREE.Mesh(new THREE.CylinderGeometry(0.19,0.23,0.7,6), bodyMat);
+    body.position.y=0.46;
+    const head = new THREE.Mesh(new THREE.SphereGeometry(0.18,10,10), new THREE.MeshStandardMaterial({color:0xf0ecd8, roughness:0.6}));
+    head.position.y=0.92;
+    const eyeGlow = new THREE.PointLight(0x9b7bd4, 0.85, 2.5);
+    eyeGlow.position.y=0.95;
+    g.add(body, head, eyeGlow);
+    g.position.copy(pos);
+    g.scale.setScalar(0.001);
+    this.scene.add(g);
+    const magicRef = this.player.magic || 30;
+    const inst = {
+      mesh:g, type, ownerClassKey, timeLeft:duration, totalDuration:duration,
+      atk: Math.round(magicRef*0.5), atkTimer:0.4, atkInterval:1.5, range:6.0, moveSpeed:4.3, spawnAnim:0.3
+    };
+    this.summons.push(inst);
+    this.spawnFX({type:'summon', color:0x8060a8}, pos.clone(), pos.clone());
+    return inst;
+  }
+  removeSummonAt(idx){
+    if(idx<0 || idx>=this.summons.length) return;
+    const s = this.summons[idx];
+    this.scene.remove(s.mesh);
+    const disposeObj=(o)=>{ if(o.geometry) o.geometry.dispose(); if(o.material) o.material.dispose(); if(o.children) o.children.forEach(disposeObj); };
+    disposeObj(s.mesh);
+    this.summons.splice(idx,1);
+  }
+  clearSummons(){
+    for(let i=this.summons.length-1;i>=0;i--) this.removeSummonAt(i);
+  }
+  getNearestEnemyFromPos(pos, maxDist){
+    let best=null, bd=Infinity;
+    for(const e of this.enemies){
+      if(e.state==='dead') continue;
+      const d = pos.distanceTo(e.mesh.position);
+      if(d<bd){ bd=d; best=e; }
+    }
+    if(best && (maxDist===undefined || bd<=maxDist)) return best;
+    return null;
+  }
+  summonAttack(s, target){
+    const dmg = Math.max(1, Math.round(s.atk * (1 - defenseReduction(target.pdef))));
+    if(target.data.isInfinite){ target.totalDamage = (target.totalDamage||0) + dmg; }
+    else { target.hp = Math.max(0, target.hp - dmg); }
+    if(target.state!=='break'){
+      target.poise = Math.min(target.poiseMax, target.poise + 1);
+      if(target.poise>=target.poiseMax && target.state!=='dead'){ this.triggerBreak(target); }
+    }
+    target.hitCooldown = 3;
+    const above = target.mesh.position.clone(); above.y += 1.3*(target.data.scale||1);
+    this.spawnDamageNumber(above, dmg, 'magic');
+    this.spawnFX({type:'dark', color:0x9b7bd4}, s.mesh.position.clone().setY(1.0), target.mesh.position.clone().setY(1.0));
+    if(!target.data.isInfinite && target.hp<=0 && target.state!=='dead'){ this.killEnemy(target); }
+  }
+  updateSummons(dt){
+    for(let i=this.summons.length-1;i>=0;i--){
+      const s = this.summons[i];
+      s.timeLeft -= dt;
+      if(s.spawnAnim>0){ s.spawnAnim = Math.max(0, s.spawnAnim-dt); }
+      const growScale = 1 - (s.spawnAnim/0.3);
+      s.mesh.scale.setScalar(Math.max(0.05, Math.min(1, growScale)));
+      // flicker/fade warning right before a summon expires
+      const fadeIn = Math.max(0, s.timeLeft);
+      s.mesh.visible = (fadeIn>1.2) || (Math.floor(fadeIn*8)%2===0);
+      if(s.timeLeft<=0){ this.removeSummonAt(i); continue; }
+      if(!this.stageActive && !this.inLobby) continue;
+      const target = this.getNearestEnemyFromPos(s.mesh.position, s.range);
+      if(!target) continue;
+      const dist = s.mesh.position.distanceTo(target.mesh.position);
+      if(dist > 1.5){
+        const dir = new THREE.Vector3().subVectors(target.mesh.position, s.mesh.position).normalize();
+        s.mesh.position.addScaledVector(dir, s.moveSpeed*dt);
+        s.mesh.lookAt(target.mesh.position.x, s.mesh.position.y, target.mesh.position.z);
+      } else {
+        s.atkTimer -= dt;
+        if(s.atkTimer<=0){ s.atkTimer = s.atkInterval; this.summonAttack(s, target); }
+      }
+    }
   }
 
   // ---------------- SAVE / LOAD ----------------
@@ -945,6 +1069,7 @@ class GameApp{
     this.panelOpen = false;
     this.currentRun = null;
     this.clearEnemies();
+    this.clearSummons();
     this.setEnvironmentMode('lobby');
     this.team.forEach(ch=>{
       if(ch.buffs.titanTimer>0){ ch.hpMax -= (ch.buffs.titanBonusHp||0); ch.hp = Math.min(ch.hp, ch.hpMax); }
@@ -1564,6 +1689,7 @@ class GameApp{
     document.getElementById('spawn-dummy-btn').style.display='none';
     document.getElementById('reset-dpstest-btn').style.display='none';
     this.clearEnemies();
+    this.clearSummons();
     this.team.forEach(ch=>{
       ch.hp = ch.hpMax; ch.mana = ch.manaMax;
       ch.buffs.shield=0; ch.buffs.hasteTimer=0; ch.buffs.defTimer=0; ch.buffs.lifestealTimer=0;
@@ -1974,9 +2100,7 @@ class GameApp{
         break;}
       case 'buff': {
         // A rising ring of light on whoever just received a support buff —
-        // used for Tactician/Arcanist ally-target skills AND for
-        // self-targeted rage/rush buffs (Wrestler's Adrenaline Rush /
-        // Final Grapple) that also want a clear "buff landed" glow.
+        // used for Tactician/Arcanist ally-target skills.
         const grp = new THREE.Group();
         const ring = new THREE.Mesh(new THREE.TorusGeometry(0.5,0.06,8,20), new THREE.MeshBasicMaterial({color, transparent:true, opacity:0.85}));
         ring.rotation.x=Math.PI/2;
@@ -2022,6 +2146,49 @@ class GameApp{
         grp.position.copy(toP);
         mesh = grp;
         life=0.22; kind='burst'; scaleFrom=0.35; scaleTo=1.3; baseOpacity=0.9;
+        break;
+      }
+
+      case 'dark': {
+        // Necromancer dark-magic hit — a swirling void orb with a thin
+        // rotating wisp ring and a faint purple after-glow.
+        const grp = new THREE.Group();
+        const orb = new THREE.Mesh(new THREE.SphereGeometry(0.42,14,14), new THREE.MeshBasicMaterial({color, transparent:true, opacity:0.8}));
+        grp.add(orb);
+        const core = new THREE.Mesh(new THREE.SphereGeometry(0.18,10,10), new THREE.MeshBasicMaterial({color:0x1c0e30, transparent:true, opacity:0.9}));
+        grp.add(core);
+        const wisp = new THREE.Mesh(new THREE.TorusGeometry(0.38,0.035,6,18), new THREE.MeshBasicMaterial({color:0x3a1f5c, transparent:true, opacity:0.65}));
+        wisp.rotation.x = Math.PI/2.2;
+        grp.add(wisp);
+        const glow = new THREE.PointLight(color, 0.9, 3.5);
+        grp.add(glow);
+        grp.position.copy(toP); grp.position.y = 1.0;
+        mesh = grp;
+        life=0.42; kind='burst'; scaleFrom=0.35; scaleTo=1.5; spin=true; baseOpacity=0.8;
+        break;
+      }
+      case 'summon': {
+        // Necromancer summoning circle — a glowing ground rune with orbiting
+        // sparks and rising purple wisps, marking where a skeleton rose up.
+        const grp = new THREE.Group();
+        const ring = new THREE.Mesh(new THREE.RingGeometry(0.18,0.7,32), new THREE.MeshBasicMaterial({color, transparent:true, opacity:0.85, side:THREE.DoubleSide}));
+        ring.rotation.x=-Math.PI/2;
+        grp.add(ring);
+        const ring2 = new THREE.Mesh(new THREE.RingGeometry(0.75,0.85,32), new THREE.MeshBasicMaterial({color:0x593b78, transparent:true, opacity:0.55, side:THREE.DoubleSide}));
+        ring2.rotation.x=-Math.PI/2;
+        grp.add(ring2);
+        for(let i=0;i<6;i++){
+          const spark = new THREE.Mesh(new THREE.SphereGeometry(0.045,6,6), new THREE.MeshBasicMaterial({color:0xb98aff, transparent:true, opacity:0.9}));
+          const ang=(i/6)*Math.PI*2;
+          spark.position.set(Math.cos(ang)*0.55,0.4,Math.sin(ang)*0.55);
+          grp.add(spark);
+        }
+        const glow = new THREE.PointLight(color, 1.0, 4);
+        glow.position.y=0.4;
+        grp.add(glow);
+        grp.position.copy(toP); grp.position.y=0.05;
+        mesh = grp;
+        life=0.75; kind='burst'; scaleFrom=0.25; scaleTo=1.7; spin=true; baseOpacity=0.85;
         break;
       }
       default: return;
@@ -2262,6 +2429,12 @@ class GameApp{
     if(skillDef.isMagic){
       if(b.supportTimer>0) atkBonusPct += (b.supportMagicPct||0);
       if(b.resonanceTimer>0) atkBonusPct += (b.resonanceMagicPct||0);
+      // Dark Pact: each of the Necromancer's own living skeletons adds +4%
+      // Magic Damage (capped at 3 summons — matches maxActive).
+      if(this.classKey==='Necromancer'){
+        const aliveCount = Math.min(3, this.summons.filter(s=> s.ownerClassKey==='Necromancer').length);
+        if(aliveCount>0) atkBonusPct += aliveCount*0.04;
+      }
     } else {
       if(b.supportTimer>0) atkBonusPct += (b.supportAtkPct||0);
       if(b.formationTimer>0) atkBonusPct += (b.formationAtkPct||0);
@@ -2311,6 +2484,7 @@ class GameApp{
     if(p.buffs.lifestealTimer>0) lifestealPct += p.buffs.lifestealPct;
     if(p.buffs.titanTimer>0) lifestealPct += p.buffs.titanLifesteal;
     if(p.buffs.rageTimer>0) lifestealPct += p.buffs.rageLifesteal;
+    if(skillDef.effect && skillDef.effect.type==='lifesteal') lifestealPct += skillDef.effect.value;
     if(lifestealPct>0){ this.healPlayer(dmg*lifestealPct, true); }
 
     if(!target.data.isInfinite && target.hp<=0 && target.state!=='dead'){ this.killEnemy(target); }
@@ -2324,6 +2498,12 @@ class GameApp{
     if(effSkill.resetSkills){ effSkill.resetSkills.forEach(sk=> p.cooldowns[sk]=0); }
 
     if(effSkill.mult<=0){
+      // Necromancer's Raise Skeleton (mult 0, no target/aoe) — summon and stop.
+      if(effSkill.summon){
+        this.castSummon(effSkill.summon);
+        if(effSkill.fx) this.spawnFX(effSkill.fx, p.mesh.position.clone(), p.mesh.position.clone());
+        return;
+      }
       if(effSkill.targetAlly){
         this.castAllyBuff(effSkill.selfBuff);
         const allyPos = this.standby.mesh.position.clone();
@@ -2425,6 +2605,10 @@ class GameApp{
         if(archerDoubleShot) this.spawnFX(effSkill.fx, p.mesh.position.clone().setY(1.35), targets[0].mesh.position.clone().setY(1.35));
       }
     }
+
+    // Necromancer ultimate (Army of the Dead) combines AOE damage with a
+    // summon wave — trigger the summon after the damage/FX above resolves.
+    if(effSkill.summon){ this.castSummon(effSkill.summon); }
 
     p.combo++; p.comboTimer = 2.2;
 
@@ -2639,6 +2823,7 @@ class GameApp{
     else if(this.classKey==='Tactician') p.attackLock = 0.25;
     else if(this.classKey==='Arcanist') p.attackLock = 0.25;
     else if(this.classKey==='Wrestler') p.attackLock = 0.18;
+    else if(this.classKey==='Necromancer') p.attackLock = 0.25;
     if(this.classKey==='Mage'){ this.performArcaneBoltAttack(); }
     else if(this.classKey==='Tactician'){ this.performTacticianBombAttack(); }
     else{ this.applySkillDamage(this.cdata.basic, true, null); }
@@ -3129,6 +3314,12 @@ class GameApp{
     // Shared/transferable buffs — shown regardless of who cast them, since
     // they belong to the team, not the character.
     this.sharedBuffs.forEach(b=> icons.push(b.icon));
+    // Necromancer summon count — a quick glance at how many skeletons are
+    // currently fighting alongside the team.
+    if(this.classKey==='Necromancer'){
+      const cnt = this.summons.filter(s=>s.ownerClassKey==='Necromancer').length;
+      if(cnt>0) icons.push('💀×'+cnt);
+    }
     document.getElementById('buff-row').innerHTML = icons.map(i=>`<div class="buff-icon">${i}</div>`).join('');
   }
 
@@ -3328,6 +3519,7 @@ class GameApp{
     if(canMove) this.updatePlayerMovement(dt);
 
     this.enemies.forEach(e=> this.updateEnemyAI(dt, e));
+    this.updateSummons(dt);
     this.updateCamera();
     this.updateFX(dt);
     if(this.stageActive || this.inLobby) this.updateHUD();

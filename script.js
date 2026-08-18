@@ -49,7 +49,7 @@ const CharacterData = {
     ultimate:{name:'Earth Sunder', icon:'🌋', mult:4.2, isMagic:false, manaCost:75, cooldown:54, aoe:true, targetAoe:true, range:5.0, aoeRadius:4.5, effect:{type:'stun', duration:1.5}, selfBuff:{type:'titan', atkPct:0.1, hpPct:0.2, defPct:0.2, lifesteal:0.25, duration:12}, fx:{type:'shockwave', color:0xb5651d}, desc:'Damage besar area + Knockdown 1.5 detik. Berubah raksasa 1.5x selama 12 detik: +10% Damage, +20% Max HP, +20% Defense, +25% Lifesteal (self-buff, tidak transferable, stack dgn Iron Will).'}
   },
   Tactician: {
-    key:'Tactician', icon:'🎖️', role:'Hybrid Bomber / Support', color:0xd4a84f,
+    key:'Tactician', icon:'🎖️', role:'Damage Buffer / Pennet', color:0xd4a84f,
     hp:620, mana:220, patk:40, magic:40, pdef:28, mdef:28, aspd:1.1, critRate:0.05, critDmg:1.5, moveSpeed:5.0,
     growth:{hp:36, mana:14, patk:5, magic:5, pdef:3, mdef:3},
     basic:{name:'Bomb Toss', icon:'💣', mult:0.8, hybrid:true, aoe:true, aoeRadius:2.4, range:9, projectileSpeed:12, fx:{type:'bomb', color:0xd4a84f}, desc:'Melempar bola bom ke musuh terdekat — meledak di titik jatuhnya, memberikan damage Physical dan Magical secara bersamaan (mult 0.4 masing-masing).'},
@@ -60,7 +60,7 @@ const CharacterData = {
     ultimate:{name:'Grand Strategy', icon:'🏳️', mult:2.2, hybrid:true, manaCost:80, cooldown:64, range:7, targetAlly:true, selfBuff:{type:'grandStrategyShare', atkSharePct:0.30, critRateSharePct:0.25, critDmgSharePct:0.10, duration:12}, fx:{type:'banner', color:0xd4a84f}, desc:'Memberikan kepada rekan on-field: 30% Hybrid Attack, 25% Crit Chance, dan 10% Crit Damage milik Tactician selama 12 detik.'}
   },
   Arcanist: {
-    key:'Arcanist', icon:'🔮', role:'Magic Buffer / Support', color:0x9b6cff,
+    key:'Arcanist', icon:'🔮', role:'Cooldown Buffer / Debuffer', color:0x9b6cff,
     hp:580, mana:300, patk:15, magic:35, pdef:22, mdef:35, aspd:1.0, critRate:0.05, critDmg:1.5, moveSpeed:5.0,
     growth:{hp:32, mana:20, patk:2, magic:5, pdef:2, mdef:3},
     basic:{name:'Arcane Bolt', icon:'✨', mult:1.0, isMagic:true, range:6.5, fx:{type:'bolt', color:0xb98aff}},
@@ -71,7 +71,7 @@ const CharacterData = {
     ultimate:{name:'Mystic Dominion', icon:'🌀', mult:2.8, isMagic:true, manaCost:75, cooldown:45, aoe:true, aoeRadius:5.5, targetAlly:true, selfBuff:{type:'mystic', magicPct:0.15, critRatePct:0.15, penetrationPct:0.15, duration:12}, fx:{type:'magic', color:0x9b6cff}, desc:'Damage area + memberikan +15% Magic Damage, +15% Crit Rate, dan +15% Magic Penetration selama 12 detik.'}
   },
   Wrestler: {
-    key:'Wrestler', icon:'🤼', role:'Melee Sustained DPS / Attack Speed', color:0xd9824b,
+    key:'Wrestler', icon:'🤼', role:'Melee DPS / Attack Speed', color:0xd9824b,
     hp:700, mana:150, patk:42, magic:0, pdef:32, mdef:25, aspd:1.5, critRate:0.08, critDmg:1.5, moveSpeed:5.2,
     growth:{hp:40, mana:10, patk:6, pdef:3, mdef:2},
     basic:{name:'Heavy Fist', icon:'👊', mult:0.95, isMagic:false, aoe:true, aoeRadius:2.2, fx:{type:'punch', color:0xd9824b}},

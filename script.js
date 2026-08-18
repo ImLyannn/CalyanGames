@@ -41,12 +41,12 @@ const CharacterData = {
     key:'Fighter', icon:'🛡️', role:'Tank / Bruiser', color:0xe8b64c,
     hp:800, mana:120, patk:40, magic:0, pdef:40, mdef:40, aspd:0.9, critRate:0.05, critDmg:1.5, moveSpeed:4.75,
     growth:{hp:45, mana:8, patk:5, pdef:4, mdef:4},
-    basic:{name:'Slam', icon:'🔨', mult:1.15, isMagic:false, aoe:true, aoeRadius:2.6, fx:{type:'shockwave', color:0xe8b64c}},
+    basic:{name:'Slam', icon:'🔨', mult:1.15, isMagic:false, aoe:true, targetAoe:true, range:3.2, aoeRadius:2.6, fx:{type:'shockwave', color:0xe8b64c}},
     passive:{name:'Bulwark', icon:'🧱', desc:'Shield 15% Max HP otomatis saat HP < 30% (CD 30 detik).'},
-    skill1:{name:'Shield Bash', icon:'🛡️', mult:1.4, isMagic:false, manaCost:15, cooldown:4, groundTargetAoe:true, aoeRadius:3.0, effect:{type:'stun', duration:1.0}, fx:{type:'shockwave', color:0xf2d34c}, desc:'Damage area + Stun 1 detik.'},
-    skill2:{name:'Guardian Smash', icon:'💢', mult:1.8, isMagic:false, manaCost:28, cooldown:6, groundTargetAoe:true, fx:{type:'shockwave', color:0xff8a3f}, desc:'Hantaman area damage besar.'},
+    skill1:{name:'Shield Bash', icon:'🛡️', mult:1.4, isMagic:false, manaCost:15, cooldown:4, aoe:true, targetAoe:true, range:3.6, aoeRadius:3.0, effect:{type:'stun', duration:1.0}, fx:{type:'shockwave', color:0xf2d34c}, desc:'Damage area + Stun 1 detik.'},
+    skill2:{name:'Guardian Smash', icon:'💢', mult:1.8, isMagic:false, manaCost:28, cooldown:6, aoe:true, targetAoe:true, range:4.5, aoeRadius:4.2, fx:{type:'shockwave', color:0xff8a3f}, desc:'Hantaman area damage besar.'},
     skill3:{name:'Iron Will', icon:'🩸', mult:0, isMagic:false, manaCost:18, cooldown:24, selfBuff:{type:'ironwill', defMult:1.3, lifesteal:0.15, duration:7}, fx:{type:'shield', color:0xe8b64c}, desc:'+30% Defense & 15% Lifesteal, 7 detik (self-buff, tidak transferable).'},
-    ultimate:{name:'Earth Sunder', icon:'🌋', mult:4.2, isMagic:false, manaCost:75, cooldown:54, groundTargetAoe:true, effect:{type:'stun', duration:1.5}, selfBuff:{type:'titan', atkPct:0.1, hpPct:0.2, defPct:0.2, lifesteal:0.25, duration:12}, fx:{type:'shockwave', color:0xb5651d}, desc:'Damage besar area + Knockdown 1.5 detik. Berubah raksasa 1.5x selama 12 detik: +10% Damage, +20% Max HP, +20% Defense, +25% Lifesteal (self-buff, tidak transferable, stack dgn Iron Will).'}
+    ultimate:{name:'Earth Sunder', icon:'🌋', mult:4.2, isMagic:false, manaCost:75, cooldown:54, aoe:true, targetAoe:true, range:5.0, aoeRadius:4.5, effect:{type:'stun', duration:1.5}, selfBuff:{type:'titan', atkPct:0.1, hpPct:0.2, defPct:0.2, lifesteal:0.25, duration:12}, fx:{type:'shockwave', color:0xb5651d}, desc:'Damage besar area + Knockdown 1.5 detik. Berubah raksasa 1.5x selama 12 detik: +10% Damage, +20% Max HP, +20% Defense, +25% Lifesteal (self-buff, tidak transferable, stack dgn Iron Will).'}
   },
   Tactician: {
     key:'Tactician', icon:'🎖️', role:'Physical Buffer / Support', color:0xd4a84f,
@@ -1622,10 +1622,10 @@ class GameApp{
       if(e.code==='Space' && (this.stageActive||this.inLobby) && !this.panelOpen) this.tryDodge();
       if(e.code==='KeyQ' && (this.stageActive||this.inLobby) && !this.panelOpen) this.swapCharacter();
       if(!this.stageActive) return;
-      if(e.code==='Digit1') this.trySkill('skill1');
-      if(e.code==='Digit2') this.trySkill('skill2');
-      if(e.code==='Digit3') this.trySkill('skill3');
-      if(e.code==='KeyF') this.trySkill('ultimate');
+      if(e.code==='KeyE') this.trySkill('skill1');
+      if(e.code==='KeyR') this.trySkill('skill2');
+      if(e.code==='KeyF') this.trySkill('skill3');
+      if(e.code==='KeyC') this.trySkill('ultimate');
     });
     window.addEventListener('keyup', e=>{ this.keys[e.code]=false; });
 
@@ -2225,9 +2225,23 @@ class GameApp{
     }
 
     let targets = [];
+    let aoeAnchorPos = null;
     if(effSkill.aoe){
       const radius = effSkill.aoeRadius || 4.2;
-      targets = this.enemies.filter(e=> e.state!=='dead' && p.mesh.position.distanceTo(e.mesh.position) <= radius);
+      if(effSkill.targetAoe){
+        // Fighter-style AOE: find the nearest enemy first and anchor the
+        // burst radius on THAT enemy, instead of on the caster's own body —
+        // otherwise the hit visually lands on a target but only enemies
+        // standing near the Fighter actually take damage.
+        const searchRange = effSkill.range || radius;
+        const anchor = this.getNearestEnemy(searchRange);
+        if(anchor){
+          aoeAnchorPos = anchor.mesh.position.clone();
+          targets = this.enemies.filter(e=> e.state!=='dead' && aoeAnchorPos.distanceTo(e.mesh.position) <= radius);
+        }
+      } else {
+        targets = this.enemies.filter(e=> e.state!=='dead' && p.mesh.position.distanceTo(e.mesh.position) <= radius);
+      }
     } else if(effSkill.maxTargets){
       // Multi Shot: up to N *different* nearest enemies within range, one arrow (one hit) each —
       // not repeated hits on a single target.
@@ -2283,6 +2297,11 @@ class GameApp{
         if(effSkill.casterFx){
           // Show every enemy actually burning, not just one at random.
           targets.forEach(t=> this.spawnFX(effSkill.fx, t.mesh.position.clone().setY(1.0), t.mesh.position.clone().setY(1.0)));
+        } else if(effSkill.targetAoe && aoeAnchorPos){
+          // Ring on the ground at the targeted enemy's position (shows the
+          // real burst zone) + an impact effect on every enemy actually hit.
+          this.spawnFX({type:'areaRing', color: effSkill.fx.color, radius: effSkill.aoeRadius||4}, aoeAnchorPos.clone(), aoeAnchorPos.clone());
+          targets.forEach(t=> this.spawnFX(effSkill.fx, p.mesh.position.clone().setY(1.1), t.mesh.position.clone().setY(1.1)));
         } else {
           this.spawnFX(effSkill.fx, p.mesh.position.clone(), targets[0].mesh.position.clone());
           if(archerDoubleShot) this.spawnFX(effSkill.fx, p.mesh.position.clone().add(new THREE.Vector3(0.25,0,0)), targets[0].mesh.position.clone());

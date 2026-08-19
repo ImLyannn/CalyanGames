@@ -14,14 +14,26 @@
 </head>
 <body>
 
-<div id="class-select" class="fs-screen">
-  <h1>Project Eclipse</h1>
-  <div class="sub">Pilih 2 Karakter untuk Timmu</div>
-  <div id="class-cards"></div>
-  <div id="team-slots-hint">Karakter 1: <b id="slot1-name">-</b> &nbsp;·&nbsp; Karakter 2: <b id="slot2-name">-</b></div>
-  <div id="start-team-btn" class="gold-btn">Mulai Bertualang</div>
-  <div id="start-hint">Prototype build — Green Forest, Region 1</div>
-  <div id="reset-progress-btn" class="ghost-btn" style="margin-top:16px; font-size:11px;">🗑️ Reset Semua Progress</div>
+<div id="class-select" class="fs-screen cs-split">
+  <div id="cs-header">
+    <h1>Project Eclipse</h1>
+    <div class="sub">Pilih 2 Karakter untuk Timmu</div>
+  </div>
+  <div id="cs-body">
+    <div id="cs-left">
+      <div id="class-list"></div>
+    </div>
+    <div id="cs-right">
+      <div id="class-detail-empty">👈 Klik salah satu karakter di kiri untuk melihat Basic Attack, Passive, Skill, dan progress yang sudah dicapai.</div>
+      <div id="class-detail"></div>
+    </div>
+  </div>
+  <div id="cs-footer">
+    <div id="team-slots-hint">Karakter 1: <b id="slot1-name">-</b> &nbsp;·&nbsp; Karakter 2: <b id="slot2-name">-</b></div>
+    <div id="start-team-btn" class="gold-btn">Mulai Bertualang</div>
+    <div id="start-hint">Prototype build — Green Forest, Region 1</div>
+    <div id="reset-progress-btn" class="ghost-btn" style="font-size:11px;">🗑️ Reset Semua Progress</div>
+  </div>
 </div>
 
 <canvas id="game-canvas"></canvas>
@@ -89,13 +101,13 @@
 
   <div id="joystick-zone"><div id="joystick-base"></div><div id="joystick-knob"></div></div>
   <div id="mobile-buttons">
-    <div class="mbtn" id="mbtn-skill1">1</div>
-    <div class="mbtn" id="mbtn-skill2">2</div>
-    <div class="mbtn" id="mbtn-skill3">3</div>
-    <div class="mbtn" id="mbtn-dodge">Dash</div>
-    <div class="mbtn" id="mbtn-ultimate">ULT</div>
-    <div class="mbtn" id="mbtn-attack">⚔️</div>
-    <div class="mbtn" id="mbtn-swap">SWAP</div>
+    <div class="mbtn" id="mbtn-skill1"><span class="mbtn-label">1</span><div class="cdov"></div><div class="cdtx"></div></div>
+    <div class="mbtn" id="mbtn-skill2"><span class="mbtn-label">2</span><div class="cdov"></div><div class="cdtx"></div></div>
+    <div class="mbtn" id="mbtn-skill3"><span class="mbtn-label">3</span><div class="cdov"></div><div class="cdtx"></div></div>
+    <div class="mbtn" id="mbtn-dodge"><span class="mbtn-label">Dash</span><div class="cdov"></div><div class="cdtx"></div></div>
+    <div class="mbtn" id="mbtn-ultimate"><span class="mbtn-label">Ulti</span><div class="cdov"></div><div class="cdtx"></div></div>
+    <div class="mbtn" id="mbtn-attack"><span class="mbtn-icon">⚔️</span><span class="mbtn-cap">Basic<br>Attack</span></div>
+    <div class="mbtn" id="mbtn-swap">Swap</div>
   </div>
 
   <div id="toast-wrap"></div>

@@ -1,3 +1,4 @@
+
 const CharacterData = {
   Mage: {
     key:'Mage', icon:'🧙', role:'Burst / Crowd Control', color:0x8a5cff,
@@ -303,75 +304,175 @@ document.getElementById('reset-progress-btn').addEventListener('click', async ()
 });
 
 // =======================================================================
-// CLASS SELECT SCREEN — pick 2 characters for the team
+// CLASS SELECT SCREEN — left pane: pick which class to preview.
+// Right pane: full detail for the previewed class (basic attack, passive,
+// skills, and any saved progress — level, skill levels, equipped artifacts).
+// A separate button inside the detail panel actually adds/removes the
+// previewed class from the 2-character team.
 // =======================================================================
 let selectedTeam = [];
+let previewClassKey = null;
+const classSaveCache = {}; // classKey -> parsed save data (or null if none)
 
 function refreshTeamSelectUI(){
   document.getElementById('slot1-name').textContent = selectedTeam[0] ? CharacterData[selectedTeam[0]].key : '-';
   document.getElementById('slot2-name').textContent = selectedTeam[1] ? CharacterData[selectedTeam[1]].key : '-';
   document.getElementById('start-team-btn').style.display = selectedTeam.length===2 ? 'inline-block' : 'none';
-  document.querySelectorAll('.class-card').forEach(card=>{
-    const key = card.dataset.class;
+  document.querySelectorAll('.class-list-item').forEach(item=>{
+    const key = item.dataset.class;
     const idx = selectedTeam.indexOf(key);
-    let badge = card.querySelector('.slot-badge');
+    let badge = item.querySelector('.list-slot-badge');
     if(idx>=0){
-      if(!badge){ badge = document.createElement('div'); badge.className='slot-badge'; card.appendChild(badge); }
-      badge.textContent = 'Slot '+(idx+1);
-      card.classList.add('team-selected');
+      if(!badge){ badge = document.createElement('div'); badge.className='list-slot-badge'; item.appendChild(badge); }
+      badge.textContent = 'S'+(idx+1);
+      item.classList.add('team-selected');
     } else {
       if(badge) badge.remove();
-      card.classList.remove('team-selected');
+      item.classList.remove('team-selected');
     }
   });
+  updateDetailSelectButton();
 }
 
-const cardsWrap = document.getElementById('class-cards');
+function updateDetailSelectButton(){
+  const btn = document.getElementById('detail-select-btn');
+  if(!btn || !previewClassKey) return;
+  const idx = selectedTeam.indexOf(previewClassKey);
+  btn.textContent = idx>=0 ? `✓ Terpilih (Slot ${idx+1}) — Batalkan` : 'Pilih untuk Tim';
+  btn.classList.toggle('team-selected', idx>=0);
+}
+
+function toggleTeamSelect(key){
+  const idx = selectedTeam.indexOf(key);
+  if(idx>=0){ selectedTeam.splice(idx,1); }
+  else if(selectedTeam.length<2){ selectedTeam.push(key); }
+  else { selectedTeam = [selectedTeam[1], key]; }
+  refreshTeamSelectUI();
+}
+
+const listPane = document.getElementById('class-list-pane');
 Object.values(CharacterData).forEach(c=>{
-  const div = document.createElement('div');
-  div.className='class-card';
-  div.dataset.class = c.key;
-  div.innerHTML = `
-    <div class="class-icon" style="background:#${c.color.toString(16).padStart(6,'0')}; color:#${c.color.toString(16).padStart(6,'0')}">${c.icon}</div>
-    <h3>${c.key}</h3>
-    <div class="role">${c.role}</div>
-    <div class="stat-row"><span>HP</span><span>${c.hp}</span></div>
-    <div class="stat-row"><span>Mana</span><span>${c.mana}</span></div>
-    <div class="stat-row"><span>Attack</span><span>${c.magic||c.patk}</span></div>
-    <div class="skill-list">
-      <div><b>P</b>${c.passive.name}</div>
-      <div><b>1</b>${c.skill1.name}</div>
-      <div><b>2</b>${c.skill2.name}</div>
-      <div><b>3</b>${c.skill3.name}</div>
-      <div><b>F</b>${c.ultimate.name}</div>
-    </div>
+  const item = document.createElement('div');
+  item.className='class-list-item';
+  item.dataset.class = c.key;
+  item.innerHTML = `
+    <div class="class-list-icon" style="background:#${c.color.toString(16).padStart(6,'0')}; color:#${c.color.toString(16).padStart(6,'0')}">${c.icon}</div>
+    <div class="class-list-name">${c.key}</div>
   `;
-  div.addEventListener('click', ()=>{
-    const idx = selectedTeam.indexOf(c.key);
-    if(idx>=0){ selectedTeam.splice(idx,1); }
-    else if(selectedTeam.length<2){ selectedTeam.push(c.key); }
-    else { selectedTeam = [selectedTeam[1], c.key]; }
-    refreshTeamSelectUI();
-  });
-  cardsWrap.appendChild(div);
+  item.addEventListener('click', ()=> selectPreviewClass(c.key));
+  listPane.appendChild(item);
 });
+
+async function selectPreviewClass(key){
+  previewClassKey = key;
+  document.querySelectorAll('.class-list-item').forEach(el=> el.classList.toggle('previewing', el.dataset.class===key));
+  renderClassDetail(key, classSaveCache[key]!==undefined ? classSaveCache[key] : null);
+  if(classSaveCache[key]===undefined){
+    let saveData = null;
+    try{
+      const raw = await storageGet('save_class_'+key);
+      saveData = raw ? JSON.parse(raw) : null;
+    }catch(e){ saveData = null; }
+    classSaveCache[key] = saveData;
+    if(previewClassKey===key) renderClassDetail(key, saveData);
+  }
+}
+
+function renderClassDetail(key, saveData){
+  const c = CharacterData[key];
+  const pane = document.getElementById('class-detail-pane');
+  const hexColor = '#'+c.color.toString(16).padStart(6,'0');
+
+  const statChips = `
+    <div class="detail-stat-grid">
+      <div class="detail-stat-chip"><b>${c.hp}</b>HP</div>
+      <div class="detail-stat-chip"><b>${c.mana}</b>Mana</div>
+      <div class="detail-stat-chip"><b>${c.patk}</b>Attack</div>
+      <div class="detail-stat-chip"><b>${c.magic}</b>Magic</div>
+      <div class="detail-stat-chip"><b>${c.pdef}</b>P.Def</div>
+      <div class="detail-stat-chip"><b>${c.mdef}</b>M.Def</div>
+    </div>`;
+
+  const skillLevels = (saveData && saveData.skillLevels) ? saveData.skillLevels : {skill1:1,skill2:1,skill3:1,ultimate:1};
+  const charLevel = saveData ? (saveData.level||1) : 1;
+
+  const skillRow = (slot, s)=>{
+    const lvlTxt = slot ? ` (Lv.${skillLevels[slot]}/10)` : '';
+    const unlockTxt = slot && UNLOCK_LEVEL[slot]>1 ? `<span style="color:var(--text-dim)"> · Butuh Char Lv.${UNLOCK_LEVEL[slot]}</span>` : '';
+    return `<div class="detail-skill-row">
+      <div class="dsr-head"><span>${s.icon} ${s.name}${lvlTxt}</span></div>
+      <div class="dsr-meta">${s.manaCost!==undefined ? 'Mana: '+s.manaCost+' · ' : ''}${s.cooldown!==undefined ? 'Cooldown: '+s.cooldown+'s' : 'Cooldown: -'}${unlockTxt}</div>
+      <div class="dsr-desc">${s.desc || (slot ? '' : 'Serangan dasar tanpa cooldown/mana.')}</div>
+    </div>`;
+  };
+
+  let progressHtml;
+  if(saveData){
+    const eq = saveData.equippedArtifacts || {};
+    const artRows = ARTIFACT_SLOTS.map(slot=>{
+      const a = eq[slot];
+      if(!a) return `<div class="detail-progress-row"><span>${slot}</span><span class="detail-progress-none">Kosong</span></div>`;
+      normalizeArtifact(a);
+      return `<div class="detail-progress-row"><span>${slot}</span><span style="color:${RARITY_COLOR[a.rarity]}">${a.rarity} Lv.${a.level} · ${a.mainStatLabel}</span></div>`;
+    }).join('');
+    progressHtml = `
+      <div class="detail-section-h">💾 Progress Tersimpan</div>
+      <div class="detail-progress-row"><span>Character Level</span><span>${charLevel}</span></div>
+      <div class="detail-progress-row"><span>Skill 1 / Skill 2 / Skill 3 / Ultimate</span><span>Lv.${skillLevels.skill1} / Lv.${skillLevels.skill2} / Lv.${skillLevels.skill3} / Lv.${skillLevels.ultimate}</span></div>
+      <div class="detail-section-h">💎 Artifact Terpasang</div>
+      ${artRows}
+    `;
+  } else {
+    progressHtml = `<div class="detail-section-h">💾 Progress Tersimpan</div><div class="detail-progress-none">Belum ada progress untuk karakter ini — mulai dari Level 1.</div>`;
+  }
+
+  pane.innerHTML = `
+    <div class="detail-head">
+      <div class="detail-icon" style="background:${hexColor}; color:${hexColor}">${c.icon}</div>
+      <div>
+        <div class="detail-title">${c.key}</div>
+        <div class="detail-role">${c.role}</div>
+      </div>
+      <div class="gold-btn detail-select-btn" id="detail-select-btn">Pilih untuk Tim</div>
+    </div>
+    ${statChips}
+    <div class="detail-section-h">⚔️ Basic Attack</div>
+    ${skillRow(null, c.basic)}
+    <div class="detail-section-h">🌟 Pasif — ${c.passive.name}</div>
+    <div class="detail-skill-row"><div class="dsr-desc">${c.passive.desc}</div></div>
+    <div class="detail-section-h">🔮 Skill Aktif</div>
+    ${skillRow('skill1', c.skill1)}
+    ${skillRow('skill2', c.skill2)}
+    ${skillRow('skill3', c.skill3)}
+    <div class="detail-section-h">💥 Ultimate</div>
+    ${skillRow('ultimate', c.ultimate)}
+    ${progressHtml}
+  `;
+  document.getElementById('detail-select-btn').addEventListener('click', ()=> toggleTeamSelect(key));
+  updateDetailSelectButton();
+}
+
 document.getElementById('start-team-btn').addEventListener('click', ()=>{
   if(selectedTeam.length===2) startGame([...selectedTeam]);
 });
 
-// mark cards that already have a save so the player can see progress exists
+// mark list items that already have a save so the player can see progress exists,
+// and warm the save-data cache so opening the detail panel later is instant
 (async ()=>{
   for(const c of Object.values(CharacterData)){
     try{
       const raw = await storageGet('save_class_'+c.key);
       if(raw){
-        const card = document.querySelector(`.class-card[data-class="${c.key}"]`);
-        if(card && !card.querySelector('.save-badge')){
+        classSaveCache[c.key] = JSON.parse(raw);
+        const item = document.querySelector(`.class-list-item[data-class="${c.key}"]`);
+        if(item && !item.querySelector('.list-save-badge')){
           const badge = document.createElement('div');
-          badge.className='save-badge';
-          badge.textContent='💾 Ada Progress';
-          card.appendChild(badge);
+          badge.className='list-save-badge';
+          badge.textContent='💾';
+          item.appendChild(badge);
         }
+      } else {
+        classSaveCache[c.key] = null;
       }
     }catch(e){ /* ignore */ }
   }

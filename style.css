@@ -82,6 +82,61 @@ box-shadow:inset 0 0 0 2px rgba(255,255,255,0.25), 0 0 22px currentColor;
 .class-card .skill-list{margin-top:10px; padding-top:10px; border-top:1px solid rgba(232,182,76,0.15); text-align:left;}
 .class-card .skill-list div{font-size:10.5px; color:var(--text-dim); padding:2px 0; display:flex; gap:6px;}
 .class-card .skill-list b{color:var(--gold-soft); font-weight:600; flex-shrink:0;}
+#class-select-layout{
+display:flex; width:100%; max-width:960px; margin:0 auto;
+height:min(64vh, 560px); border-radius:14px; overflow:hidden;
+box-shadow:var(--border-glow); background:var(--bg-panel);
+}
+#class-list-pane{
+width:25%; flex-shrink:0; overflow-y:auto; padding:10px;
+border-right:1px solid rgba(232,182,76,0.18);
+display:flex; flex-direction:column; gap:8px;
+pointer-events:all;
+}
+.class-list-item{
+position:relative; display:flex; flex-direction:column; align-items:center;
+padding:12px 6px; border-radius:10px; cursor:pointer;
+background:rgba(0,0,0,0.18); transition:background .15s ease, box-shadow .15s ease;
+}
+.class-list-item:hover{ background:rgba(232,182,76,0.10); }
+.class-list-item.previewing{ box-shadow:0 0 0 2px rgba(232,182,76,0.65); background:rgba(232,182,76,0.14); }
+.class-list-item.team-selected{ box-shadow:0 0 0 2px rgba(127,224,138,0.75); }
+.class-list-item.previewing.team-selected{ box-shadow:0 0 0 2px rgba(232,182,76,0.65), 0 0 0 4px rgba(127,224,138,0.5); }
+.class-list-icon{
+width:52px; height:52px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+font-family:'Cinzel',serif; font-size:22px; font-weight:700; color:#fff; margin-bottom:6px;
+box-shadow:inset 0 0 0 2px rgba(255,255,255,0.25), 0 0 16px currentColor;
+}
+.class-list-name{ font-family:'Cinzel',serif; font-size:11.5px; color:var(--gold-soft); text-align:center; letter-spacing:0.02em; }
+.class-list-item .list-slot-badge{
+position:absolute; top:4px; left:4px; background:var(--gold); color:#2a1c05; font-size:8px; font-weight:700;
+padding:2px 5px; border-radius:5px;
+}
+.class-list-item .list-save-badge{
+position:absolute; top:4px; right:4px; font-size:12px;
+}
+#class-detail-pane{ flex:1; overflow-y:auto; padding:18px 22px; text-align:left; pointer-events:all; }
+#detail-empty{ color:var(--text-dim); font-size:13px; text-align:center; margin-top:40px; }
+.detail-head{ display:flex; align-items:center; gap:14px; margin-bottom:6px; }
+.detail-icon{
+width:56px; height:56px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+font-family:'Cinzel',serif; font-size:24px; font-weight:700; color:#fff; flex-shrink:0;
+box-shadow:inset 0 0 0 2px rgba(255,255,255,0.25), 0 0 18px currentColor;
+}
+.detail-title{ font-family:'Cinzel',serif; font-size:19px; color:var(--gold-soft); }
+.detail-role{ font-size:11px; color:var(--text-dim); text-transform:uppercase; letter-spacing:0.05em; }
+.detail-select-btn{ margin-left:auto; }
+.detail-select-btn.team-selected{ background:linear-gradient(180deg, #a6f0b0, #7fe08a); }
+.detail-section-h{ font-family:'Cinzel',serif; font-size:13px; color:var(--gold-soft); margin:16px 0 8px; border-bottom:1px solid rgba(232,182,76,0.2); padding-bottom:4px; }
+.detail-skill-row{ padding:8px 10px; border-radius:8px; background:rgba(0,0,0,0.2); margin-bottom:6px; }
+.detail-skill-row .dsr-head{ display:flex; justify-content:space-between; font-size:12px; color:var(--text-light); font-weight:600; }
+.detail-skill-row .dsr-meta{ font-size:9.5px; color:var(--text-dim); margin-top:2px; }
+.detail-skill-row .dsr-desc{ font-size:10.5px; color:var(--text-dim); margin-top:4px; line-height:1.4; }
+.detail-stat-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:6px; margin-bottom:6px; }
+.detail-stat-chip{ background:rgba(0,0,0,0.22); border-radius:7px; padding:6px 8px; font-size:10.5px; color:var(--text-dim); }
+.detail-stat-chip b{ color:var(--text-light); display:block; font-size:12px; }
+.detail-progress-row{ display:flex; justify-content:space-between; font-size:11.5px; padding:6px 10px; border-radius:7px; background:rgba(0,0,0,0.2); margin-bottom:5px; }
+.detail-progress-none{ font-size:11px; color:var(--text-dim); }
 #start-hint{margin-top:22px; font-size:12px; color:var(--text-dim); letter-spacing:0.04em;}
 #team-slots-hint{margin-top:14px; font-size:12px; color:var(--text-dim); text-align:center;}
 #team-slots-hint b{color:var(--gold-soft);}
@@ -321,7 +376,18 @@ scrolling and stays comfortably tappable. */
 #team-slots-hint{ font-size:10px; margin-top:10px; }
 #start-team-btn{ padding:10px 22px; font-size:12px; margin-top:10px; }
 #start-hint{ font-size:9.5px; margin-top:14px; }
-#reset-progress-btn{ font-size:9.5px !important; padding:8px 16px !important; margin-top:12px !important; }}
+#reset-progress-btn{ font-size:9.5px !important; padding:8px 16px !important; margin-top:12px !important; }
+#class-select-layout{ flex-direction:column; height:auto; max-height:none; width:100%; }
+#class-list-pane{ width:100%; flex-direction:row; overflow-x:auto; overflow-y:visible; border-right:none; border-bottom:1px solid rgba(232,182,76,0.18); padding:8px; }
+.class-list-item{ flex:0 0 auto; min-width:76px; padding:8px 4px; }
+.class-list-icon{ width:40px; height:40px; font-size:16px; margin-bottom:4px; }
+.class-list-name{ font-size:9.5px; }
+#class-detail-pane{ padding:14px 14px; max-height:50vh; }
+.detail-head{ flex-wrap:wrap; }
+.detail-select-btn{ margin-left:0; margin-top:8px; width:100%; text-align:center; }
+.detail-title{ font-size:16px; }
+.detail-stat-grid{ grid-template-columns:repeat(2,1fr); }
+}
 @media (max-width:380px){
 .class-card{ width:100%; }
 }

@@ -1,4 +1,3 @@
-
 const CharacterData = {
   Mage: {
     key:'Mage', icon:'🧙', role:'Burst / Crowd Control', color:0x8a5cff,
@@ -70,34 +69,34 @@ const CharacterData = {
     key:'Wrestler', icon:'🤼', role:'Melee DPS / Attack Speed', color:0xd9824b,
     hp:700, mana:150, patk:42, magic:0, pdef:32, mdef:25, aspd:1.5, critRate:0.08, critDmg:1.5, moveSpeed:5.2,
     growth:{hp:40, mana:10, patk:6, pdef:3, mdef:2},
-    basic:{name:'Heavy Fist', icon:'👊', mult:0.95, isMagic:false, aoe:true, aoeRadius:2.2, fx:{type:'punch', color:0xd9824b}},
+    basic:{name:'Heavy Fist', icon:'👊', mult:0.95, isMagic:false, aoe:true, aoeRadius:3, fx:{type:'punch', color:0xd9824b}},
     passive:{name:'Momentum', icon:'🔥', desc:'Setiap Basic Attack yang mengenai musuh memberikan 1 stack Momentum selama 4 detik. Setiap stack memberikan +5% Attack Speed. Maksimal 4 stack. Stack diperbarui saat menyerang.'},
     skill1:{name:'Power Slam', icon:'💥', mult:1.7, isMagic:false, manaCost:18, cooldown:5, aoe:true, aoeRadius:3.0, effect:{type:'stun', duration:0.8}, fx:{type:'shockwave', color:0xe8a15b}, desc:'Menghantam musuh dengan kuat, memberikan damage area + Stun 0.8 detik.'},
-    skill2:{name:'Rapid Combo', icon:'🥊', mult:0.55, isMagic:false, manaCost:25, cooldown:7, hits:3, aoe:true, aoeRadius:2.5, fx:{type:'punch', color:0xffb15c}, desc:'Melakukan 3 pukulan cepat, masing-masing memberikan 0.55x Attack Damage.'},
+    skill2:{name:'Rapid Combo', icon:'🥊', mult:0.7, isMagic:false, manaCost:25, cooldown:6, hits:3, aoe:true, aoeRadius:2.5, fx:{type:'punch', color:0xffb15c}, desc:'Melakukan 3 pukulan cepat, masing-masing memberikan 0.7x Attack Damage.'},
     skill3:{name:'Adrenaline Rush', icon:'💪', mult:0, isMagic:false, manaCost:30, cooldown:18, selfBuff:{type:'adrenaline', atkPct:0.15, aspdPct:0.25, lifesteal:0.10, duration:8}, fx:{type:'buff', color:0xff6b4a}, desc:'Meningkatkan +15% Attack, +25% Attack Speed, dan +10% Lifesteal selama 8 detik.'},
-    ultimate:{name:'Final Grapple', icon:'🤼', mult:3.8, isMagic:false, manaCost:75, cooldown:38, aoe:true, aoeRadius:3.5, effect:{type:'stun', duration:1.5}, selfBuff:{type:'wrestlerRage', atkPct:0.20, aspdPct:0.30, lifesteal:0.15, duration:10}, fx:{type:'shockwave', color:0xd94f3d}, desc:'Serangan grappling besar ke area + Stun 1.5 detik. Setelahnya mendapatkan +20% Attack, +30% Attack Speed, dan +15% Lifesteal selama 10 detik.'}
+    ultimate:{name:'Final Grapple', icon:'🤼', mult:3.8, isMagic:false, manaCost:75, cooldown:46, aoe:true, aoeRadius:3.5, effect:{type:'stun', duration:1.5}, selfBuff:{type:'wrestlerRage', atkPct:0.20, aspdPct:5, lifesteal:0.20, duration:1}, fx:{type:'shockwave', color:0xd94f3d}, desc:'Serangan grappling besar ke area + Stun 1.5 detik. Setelahnya mendapatkan +20% Attack, +500% Attack Speed, dan +20% Lifesteal selama 1 detik.'}
   },
   Necromancer: {
-    key:'Necromancer', icon:'💀', role:'Magic DPS / Summoner', color:0x7b5bb5,
+    key:'Necromancer', icon:'💀', role:'Magic Sub DPS / Summoner', color:0x7b5bb5,
     hp:540, mana:320, patk:15, magic:42, pdef:20, mdef:32, aspd:0.9, critRate:0.05, critDmg:1.5, moveSpeed:4.9,
     growth:{hp:32, mana:24, patk:2, magic:6, pdef:2, mdef:3},
     basic:{name:'Soul Bolt', icon:'👻', mult:1.0, isMagic:true, range:7.0, fx:{type:'bolt', color:0x9b7bd4}},
-    passive:{name:'Dark Pact', icon:'☠️', desc:'Setiap summon yang masih hidup meningkatkan Magic Damage Necromancer sebesar 4%. Maksimal 3 summon aktif.'},
+    passive:{name:'Dark Pact', icon:'☠️', desc:'Setiap summon yang masih hidup meningkatkan Magic Damage Skeleton sebesar 10%. Maksimal 5 summon aktif.'},
     skill1:{name:'Soul Drain', icon:'🩸', mult:1.5, isMagic:true, manaCost:22, cooldown:5, range:7.0, effect:{type:'lifesteal', value:0.15}, fx:{type:'dark', color:0x8f5ac7}, desc:'Menyerang musuh dengan energi gelap dan memulihkan 15% dari damage yang diberikan sebagai HP.'},
-    skill2:{name:'Raise Skeleton', icon:'💀', mult:0, isMagic:true, manaCost:40, cooldown:10, summon:{type:'skeleton', count:1, maxActive:3, duration:18}, fx:{type:'summon', color:0x8060a8}, desc:'Memanggil 1 Skeleton untuk membantu menyerang musuh. Maksimal 3 summon aktif.'},
-    skill3:{name:'Grave Curse', icon:'🪦', mult:1.4, isMagic:true, manaCost:35, cooldown:12, aoe:true, aoeRadius:4.5, effect:{type:'magicShred', value:0.15, duration:5}, fx:{type:'dark', color:0x665080}, desc:'Memberikan damage area + mengurangi Magic Defense musuh 15% selama 5 detik.'},
-    ultimate:{name:'Army of the Dead', icon:'☠️', mult:2.8, isMagic:true, manaCost:90, cooldown:48, aoe:true, aoeRadius:5.5, summon:{type:'skeleton', count:3, maxActive:3, duration:20}, effect:{type:'slow', value:0.3, duration:3}, fx:{type:'summon', color:0x593b78}, desc:'Memberikan damage area + Slow 30% selama 3 detik dan memanggil pasukan Skeleton hingga maksimal 3 summon aktif selama 20 detik.'}
+    skill2:{name:'Raise Skeleton', icon:'💀', mult:0, isMagic:true, manaCost:40, cooldown:10, summon:{type:'skeleton', count:1, maxActive:6, duration:10}, fx:{type:'summon', color:0x8060a8}, desc:'Memanggil 1 Skeleton untuk membantu menyerang musuh. Maksimal 5 summon aktif. aktif selama 10 detik'},
+    skill3:{name:'Grave Curse', icon:'🪦', mult:1.4, isMagic:true, manaCost:35, cooldown:12, aoe:true, aoeRadius:7, effect:{type:'magicShred', value:0.15, duration:5}, fx:{type:'dark', color:0x665080}, desc:'Memberikan damage area + mengurangi Magic Defense musuh 15% selama 5 detik.'},
+    ultimate:{name:'Army of the Dead', icon:'☠️', mult:0, isMagic:true, manaCost:90, cooldown:48, summon:{type:'skeleton', count:3, maxActive:6, duration:15}, effect:{type:'slow', value:0.3, duration:3}, fx:{type:'summon', color:0x593b78}, desc:'Memberikan damage area + Slow 30% selama 3 detik dan memanggil pasukan Skeleton hingga maksimal 5 summon aktif selama 15 detik.'}
   }
 };
 
 const EnemyData = {
-  Goblin:{ name:'Goblin', hp:300, patk:30, pdef:9, breakHits:5, detectionRadius:10, attackRange:1.7, moveSpeed:3.7, expReward:48, goldReward:16, scale:1.0, color:0x4a7c3f },
-  GoblinElite:{ name:'Goblin Elite', hp:650, patk:50, pdef:16, breakHits:10, detectionRadius:12, attackRange:1.8, moveSpeed:4.1, expReward:118, goldReward:44, scale:1.25, color:0x4a7c3f, isElite:true },
-  GoblinKing:{ name:'Goblin King', hp:40000, patk:220, pdef:27, breakHits:25, detectionRadius:40, attackRange:2.3, moveSpeed:3.4, expReward:1800, goldReward:560, scale:2.2, color:0x2f5c2f, isBoss:true },
-  DummyGoblin:{ name:'Dummy Goblin', hp:1500, patk:30, pdef:9, breakHits:5, detectionRadius:0, attackRange:1.7, moveSpeed:0, expReward:0, goldReward:0, scale:1.0, color:0x8a8a8a, isDummy:true },
-  DummyGoblinElite:{ name:'Dummy Goblin Elite', hp:3250, patk:50, pdef:16, breakHits:10, detectionRadius:0, attackRange:1.8, moveSpeed:0, expReward:0, goldReward:0, scale:1.25, color:0x6b6b8a, isElite:true, isDummy:true },
-  DummyGoblinKing:{ name:'Dummy Goblin King', hp:80000, patk:220, pdef:27, breakHits:25, detectionRadius:0, attackRange:2.3, moveSpeed:0, expReward:0, goldReward:0, scale:2.2, color:0x4a4a5c, isBoss:true, isDummy:true },
-  DummyInfinite:{ name:'Dummy Uji Damage', hp:999999999, patk:0, pdef:0, breakHits:999999, detectionRadius:0, attackRange:1.7, moveSpeed:0, expReward:0, goldReward:0, scale:1.3, color:0xffcf4a, isDummy:true, isInfinite:true }
+  Goblin:{ name:'Goblin', hp:300, patk:30, pdef:90, mdef:90, breakHits:5, detectionRadius:10, attackRange:1.7, moveSpeed:3.7, expReward:48, goldReward:16, scale:1.0, color:0x4a7c3f },
+  GoblinElite:{ name:'Goblin Elite', hp:650, patk:50, pdef:160, mdef:160, breakHits:10, detectionRadius:12, attackRange:1.8, moveSpeed:4.1, expReward:118, goldReward:44, scale:1.25, color:0x4a7c3f, isElite:true },
+  GoblinKing:{ name:'Goblin King', hp:20000, patk:220, pdef:1000, mdef:1000, breakHits:25, detectionRadius:40, attackRange:2.3, moveSpeed:3.4, expReward:1800, goldReward:560, scale:2.2, color:0x2f5c2f, isBoss:true },
+  DummyGoblin:{ name:'Dummy Goblin', hp:1500, patk:30, pdef:900, mdef:900, breakHits:5, detectionRadius:0, attackRange:1.7, moveSpeed:0, expReward:0, goldReward:0, scale:1.0, color:0x8a8a8a, isDummy:true },
+  DummyGoblinElite:{ name:'Dummy Goblin Elite', hp:3250, patk:50, pdef:1600, mdef:1600, breakHits:10, detectionRadius:0, attackRange:1.8, moveSpeed:0, expReward:0, goldReward:0, scale:1.25, color:0x6b6b8a, isElite:true, isDummy:true },
+  DummyGoblinKing:{ name:'Dummy Goblin King', hp:40000, patk:220, pdef:1000, mdef:1000, breakHits:25, detectionRadius:0, attackRange:2.3, moveSpeed:0, expReward:0, goldReward:0, scale:2.2, color:0x4a4a5c, isBoss:true, isDummy:true },
+  DummyInfinite:{ name:'Dummy Uji Damage', hp:999999999, patk:0, pdef:200, mdef:200, breakHits:999999, detectionRadius:0, attackRange:1.7, moveSpeed:0, expReward:0, goldReward:0, scale:1.3, color:0xffcf4a, isDummy:true, isInfinite:true }
 };
 
 const DungeonData = {
@@ -901,7 +900,7 @@ class GameApp{
         formationTimer:0, formationAtkPct:0, resonanceTimer:0, resonanceMagicPct:0,
         hybridAtkFlat:0, hybridAtkTimer:0, hybridPenFlat:0, hybridPenTimer:0,
         hybridCritRateFlat:0, hybridCritRateTimer:0, hybridCritDmgFlat:0, hybridCritDmgTimer:0,
-        momentumStacks:[], rageTimer:0, rageAtkPct:0, rageAspdPct:0, rageLifesteal:0,
+        momentumStacks:[], rageBuffs:[],
         wardTimer:0, wardDefPct:0, wardAspdPct:0,
         formationTimer:0, formationAtkPct:0, resonanceTimer:0, resonanceMagicPct:0 },
       bulwarkCd:0, attackLock:0, regenTimer:0
@@ -1077,7 +1076,7 @@ recalcEquipmentBonusFor(ch){
   castSummon(def){
     const p = this.player;
     const owner = this.classKey;
-    const maxActive = def.maxActive || 3;
+    const maxActive = def.maxActive || 6;
     let toSpawn = def.count || 1;
     let ownedIdx = this.summons.map((s,i)=>({s,i})).filter(o=>o.s.ownerClassKey===owner);
     while(ownedIdx.length + toSpawn > maxActive && ownedIdx.length>0){
@@ -1111,7 +1110,7 @@ recalcEquipmentBonusFor(ch){
     const magicRef = this.player.magic || 30;
     const inst = {
       mesh:g, type, ownerClassKey, timeLeft:duration, totalDuration:duration,
-      atk: Math.round(magicRef*0.5), atkTimer:0.4, atkInterval:1.5, range:6.0, moveSpeed:4.3, spawnAnim:0.3
+      atk: Math.round(magicRef*1), atkTimer:0.4, atkInterval:1, range:100, moveSpeed:8.0, spawnAnim:0.3
     };
     this.summons.push(inst);
     this.spawnFX({type:'summon', color:0x8060a8}, pos.clone(), pos.clone());
@@ -1138,20 +1137,27 @@ recalcEquipmentBonusFor(ch){
     if(best && (maxDist===undefined || bd<=maxDist)) return best;
     return null;
   }
-  summonAttack(s, target){
-    const dmg = Math.max(1, Math.round(s.atk * (1 - defenseReduction(target.pdef))));
-    if(target.data.isInfinite){ target.totalDamage = (target.totalDamage||0) + dmg; }
-    else { target.hp = Math.max(0, target.hp - dmg); }
-    if(target.state!=='break'){
-      target.poise = Math.min(target.poiseMax, target.poise + 1);
-      if(target.poise>=target.poiseMax && target.state!=='dead'){ this.triggerBreak(target); }
-    }
-    target.hitCooldown = 3;
-    const above = target.mesh.position.clone(); above.y += 1.3*(target.data.scale||1);
-    this.spawnDamageNumber(above, dmg, 'magic');
-    this.spawnFX({type:'dark', color:0x9b7bd4}, s.mesh.position.clone().setY(1.0), target.mesh.position.clone().setY(1.0));
-    if(!target.data.isInfinite && target.hp<=0 && target.state!=='dead'){ this.killEnemy(target); }
+summonAttack(s, target){
+  let dmg = s.atk;
+  if(s.ownerClassKey==='Necromancer'){
+    const aliveCount = this.summons.filter(sm=> sm.ownerClassKey==='Necromancer').length;
+    dmg *= (1 + aliveCount*0.1);
   }
+  let effDef = target.pdef;
+  if(target.defShredValue>0) effDef *= (1-target.defShredValue);
+  dmg = Math.max(1, Math.round(dmg * (1 - defenseReduction(effDef))));
+  if(target.data.isInfinite){ target.totalDamage = (target.totalDamage||0) + dmg; }
+  else { target.hp = Math.max(0, target.hp - dmg); }
+  if(target.state!=='break'){
+    target.poise = Math.min(target.poiseMax, target.poise + 1);
+    if(target.poise>=target.poiseMax && target.state!=='dead'){ this.triggerBreak(target); }
+  }
+  target.hitCooldown = 3;
+  const above = target.mesh.position.clone(); above.y += 1.3*(target.data.scale||1);
+  this.spawnDamageNumber(above, dmg, 'magic');
+  this.spawnFX({type:'dark', color:0x9b7bd4}, s.mesh.position.clone().setY(1.0), target.mesh.position.clone().setY(1.0));
+  if(!target.data.isInfinite && target.hp<=0 && target.state!=='dead'){ this.killEnemy(target); }
+}
   updateSummons(dt){
     for(let i=this.summons.length-1;i>=0;i--){
       const s = this.summons[i];
@@ -1311,7 +1317,7 @@ recalcEquipmentBonusFor(ch){
       if(ch.buffs.titanTimer>0){ ch.hpMax -= (ch.buffs.titanBonusHp||0); ch.hp = Math.min(ch.hp, ch.hpMax); }
       ch.buffs.titanTimer=0; ch.buffs.titanBonusHp=0; ch.buffs.titanAtkPct=0; ch.buffs.titanHpPct=0; ch.buffs.titanDefPct=0; ch.buffs.titanLifesteal=0;
       ch.buffs.archerBoostTimer=0; ch.buffs.archerBoostAtkPct=0; ch.buffs.archerBoostCritRate=0; ch.buffs.archerBoostCritDmg=0;
-      ch.buffs.momentumStacks=[]; ch.buffs.rageTimer=0; ch.buffs.rageAtkPct=0; ch.buffs.rageAspdPct=0; ch.buffs.rageLifesteal=0;
+      ch.buffs.momentumStacks=[]; ch.buffs.rageBuffs=[];
       ch.mesh.scale.set(1,1,1);
     });
     this.sharedBuffs = [];
@@ -2196,11 +2202,11 @@ recalcEquipmentBonusFor(ch){
     g.position.copy(pos);
     this.scene.add(g);
 
-    const hp = Math.round(d.hp*statMult), patk = Math.round(d.patk*statMult), pdef = Math.round(d.pdef*statMult);
+    const hp = Math.round(d.hp*statMult), patk = Math.round(d.patk*statMult), pdef = Math.round(d.pdef*statMult), mdef = Math.round((d.mdef||0)*statMult);
     const moveSpeed = d.moveSpeed * (1 + (statMult-1)*0.5);
     const inst = {
       mesh:g, data:d, typeKey, statMult,
-      hp, hpMax:hp, patk, pdef, moveSpeed,
+      hp, hpMax:hp, patk, pdef, mdef, moveSpeed,
       poise:0, poiseMax:d.breakHits,
       state:'idle', attackTimer:0, breakTimer:0,
       hitCooldown:0, stunTimer:0, slowTimer:0, slowValue:0,
@@ -2234,7 +2240,7 @@ recalcEquipmentBonusFor(ch){
       if(ch.buffs.titanTimer>0){ ch.hpMax -= (ch.buffs.titanBonusHp||0); ch.hp = Math.min(ch.hp, ch.hpMax); }
       ch.buffs.titanTimer=0; ch.buffs.titanBonusHp=0; ch.buffs.titanAtkPct=0; ch.buffs.titanHpPct=0; ch.buffs.titanDefPct=0; ch.buffs.titanLifesteal=0;
       ch.buffs.archerBoostTimer=0; ch.buffs.archerBoostAtkPct=0; ch.buffs.archerBoostCritRate=0; ch.buffs.archerBoostCritDmg=0;
-      ch.buffs.momentumStacks=[]; ch.buffs.rageTimer=0; ch.buffs.rageAtkPct=0; ch.buffs.rageAspdPct=0; ch.buffs.rageLifesteal=0;
+      ch.buffs.momentumStacks=[]; ch.buffs.rageBuffs=[];
       ch.mesh.scale.set(1,1,1);
     });
     this.sharedBuffs = [];
@@ -2810,11 +2816,16 @@ recalcEquipmentBonusFor(ch){
     b.momentumStacks.forEach(s=> s.timeLeft=4);
   }
 
+  getRageBonus(ch, key){
+    if(!ch.buffs.rageBuffs || !ch.buffs.rageBuffs.length) return 0;
+    return ch.buffs.rageBuffs.reduce((sum, rb)=> sum + (rb[key]||0), 0);
+  }
+
   getEffAspd(){
     const p = this.player, b = p.buffs;
     let bonus = 0;
     if(b.momentumStacks) bonus += b.momentumStacks.length*0.05;
-    if(b.rageTimer>0) bonus += b.rageAspdPct;
+    bonus += this.getRageBonus(p, 'aspdPct');
     if(b.wardTimer>0) bonus += b.wardAspdPct;
     return p.aspd*(1+bonus);
   }
@@ -2844,7 +2855,9 @@ recalcEquipmentBonusFor(ch){
       this.toast('Marksman Focus aktif'+who+'!');
     }
     else if(buff.type==='adrenaline' || buff.type==='wrestlerRage'){
-      b.rageTimer = buff.duration; b.rageAtkPct = buff.atkPct; b.rageAspdPct = buff.aspdPct; b.rageLifesteal = buff.lifesteal;
+      if(!b.rageBuffs) b.rageBuffs = [];
+      b.rageBuffs = b.rageBuffs.filter(rb => rb.type !== buff.type);
+      b.rageBuffs.push({type: buff.type, timer: buff.duration, atkPct: buff.atkPct, aspdPct: buff.aspdPct, lifesteal: buff.lifesteal});
       this.toast((buff.type==='adrenaline' ? 'Adrenaline Rush' : 'Final Grapple Rage')+' aktif'+who+'!');
     }
     else if(buff.type==='arcanistWard'){
@@ -2922,7 +2935,7 @@ recalcEquipmentBonusFor(ch){
     let atkBonusPct = this.getSharedStat('atkPct');
     if(b.titanTimer>0) atkBonusPct += b.titanAtkPct;
     if(b.archerBoostTimer>0) atkBonusPct += b.archerBoostAtkPct;
-    if(b.rageTimer>0) atkBonusPct += b.rageAtkPct;
+    atkBonusPct += this.getRageBonus(p, 'atkPct');
     if(skillDef.isMagic){
       if(b.supportTimer>0) atkBonusPct += (b.supportMagicPct||0);
       if(b.resonanceTimer>0) atkBonusPct += (b.resonanceMagicPct||0);
@@ -2944,7 +2957,7 @@ recalcEquipmentBonusFor(ch){
     if(this.classKey==='Assassin' && target.hp/target.hpMax < 0.5) critMult += (isCrit?0.2:0);
 
     let dmg = atk * skillDef.mult * critMult * this.comboMultiplier();
-    let effDef = target.pdef;
+    let effDef = skillDef.isMagic ? target.mdef : target.pdef;
     if(skillDef.defShred) effDef *= (1-skillDef.defShred);
     if(target.defShredValue>0) effDef *= (1-target.defShredValue);
     if(target.tacHybridDefShredValue>0) effDef *= (1-target.tacHybridDefShredValue);
@@ -2975,7 +2988,7 @@ recalcEquipmentBonusFor(ch){
     let lifestealPct = this.getSharedStat('lifestealPct');
     if(p.buffs.lifestealTimer>0) lifestealPct += p.buffs.lifestealPct;
     if(p.buffs.titanTimer>0) lifestealPct += p.buffs.titanLifesteal;
-    if(p.buffs.rageTimer>0) lifestealPct += p.buffs.rageLifesteal;
+    lifestealPct += this.getRageBonus(p, 'lifesteal');
     if(skillDef.effect && skillDef.effect.type==='lifesteal') lifestealPct += skillDef.effect.value;
     if(lifestealPct>0){ this.healPlayer(dmg*lifestealPct, true); }
 
@@ -3137,7 +3150,7 @@ recalcEquipmentBonusFor(ch){
     } else if(kind==='farm' && domainKey==='rewardDomain'){
       const lootMult = DomainData.rewardDomain.tiers.find(t=>t.level===tier).lootMult;
       this.gold += Math.round(target.data.goldReward*0.5*lootMult);
-      if(Math.random()<0.4){ this.gems += Math.max(1,Math.round(1*lootMult)); this.toast('+'+Math.max(1,Math.round(1*lootMult))+' Gems'); }
+      if(Math.random()<0.1){ this.gems += Math.max(1,Math.round(1*lootMult)); this.toast('+'+Math.max(1,Math.round(1*lootMult))+' Gems'); }
     } else if(kind==='tower'){
       const floorMult = 1 + (floor-1)*0.12;
       const bonusGold = Math.round(target.data.goldReward*0.4*floorMult);
@@ -3573,7 +3586,7 @@ recalcEquipmentBonusFor(ch){
   tryDodge(){
     const p = this.player;
     if(p.dodgeCd>0 || (p.dodgeAnim && p.dodgeAnim.active)) return;
-    p.dodgeCd = 2.5; p.iFrame = 0.35;
+    p.dodgeCd = 1.8; p.iFrame = 0.35;
     this.spawnFX({type:'smoke', color:0xcccccc}, p.mesh.position.clone(), p.mesh.position.clone());
     const dir = new THREE.Vector3(Math.sin(this.player.facing),0,Math.cos(this.player.facing));
     const from = p.mesh.position.clone();
@@ -3791,7 +3804,9 @@ recalcEquipmentBonusFor(ch){
     if(p.buffs.hybridCritRateTimer>0) icons.push('🍀');
     if(p.buffs.hybridCritDmgTimer>0) icons.push('☄️');
     if(p.buffs.momentumStacks && p.buffs.momentumStacks.length>0) icons.push('🔥');
-    if(p.buffs.rageTimer>0) icons.push('💪');
+    if(p.buffs.rageBuffs && p.buffs.rageBuffs.length){
+      p.buffs.rageBuffs.forEach(rb=> icons.push(rb.type==='adrenaline' ? '💪' : '🤼'));
+    }
     if(p.buffs.wardTimer>0) icons.push('🕸️');
     if(this.teamCdrBuffTimer>0) icons.push('⏱️');
     this.sharedBuffs.forEach(b=> icons.push(b.icon));
@@ -3860,7 +3875,7 @@ recalcEquipmentBonusFor(ch){
         this.updateCooldownVisual(elId, p.cooldowns[slot], this.getEffCooldown(this.cdata[slot].cooldown));
       }
     });
-    this.updateCooldownVisual('slot-dodge', p.dodgeCd, 2.5);
+    this.updateCooldownVisual('slot-dodge', p.dodgeCd, 1.8);
     this.updateMobileSkillButtons();
 
     if(this.stageActive && this.currentRun && this.currentRun.kind==='dummy' && this.currentRun.subtype==='infinite'){
@@ -3908,7 +3923,7 @@ recalcEquipmentBonusFor(ch){
       const dov = dashEl.querySelector('.cdov'), dtx = dashEl.querySelector('.cdtx');
       if(p.dodgeCd>0){
         dashEl.classList.add('cd-active');
-        if(dov) dov.style.height = Math.min(100,(p.dodgeCd/2.5)*100)+'%';
+        if(dov) dov.style.height = Math.min(100,(p.dodgeCd/1.8)*100)+'%';
         if(dtx) dtx.textContent = p.dodgeCd>1 ? Math.ceil(p.dodgeCd) : '';
       } else {
         dashEl.classList.remove('cd-active');
@@ -3964,9 +3979,11 @@ recalcEquipmentBonusFor(ch){
       b.momentumStacks.forEach(s=> s.timeLeft -= dt);
       b.momentumStacks = b.momentumStacks.filter(s=> s.timeLeft>0);
     }
-    if(b.rageTimer>0){
-      b.rageTimer -= dt;
-      if(b.rageTimer<=0){ b.rageAtkPct=0; b.rageAspdPct=0; b.rageLifesteal=0; }
+    if(b.rageBuffs && b.rageBuffs.length){
+      for(let i=b.rageBuffs.length-1; i>=0; i--){
+        b.rageBuffs[i].timer -= dt;
+        if(b.rageBuffs[i].timer<=0) b.rageBuffs.splice(i,1);
+      }
     }
     if(b.wardTimer>0){
       b.wardTimer -= dt;
